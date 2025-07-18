@@ -1,0 +1,139 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Data analysis for the project duckweedSynCom",
+    "section": "",
+    "text": "TBD\n\n\n\nTBD"
+  },
+  {
+    "objectID": "index.html#manuscript",
+    "href": "index.html#manuscript",
+    "title": "Data analysis for the project duckweedSynCom",
+    "section": "",
+    "text": "TBD\n\n\n\nTBD"
+  },
+  {
+    "objectID": "index.html#introduction",
+    "href": "index.html#introduction",
+    "title": "Data analysis for the project duckweedSynCom",
+    "section": "2 Introduction",
+    "text": "2 Introduction\nThe goal of this project is construct and characterize a synthetic bacterial community (SynCom) associated with duckweed (Lemna minor). The plants and bacteria have all been isolated form Southwest Finland."
+  },
+  {
+    "objectID": "index.html#experiment-overview",
+    "href": "index.html#experiment-overview",
+    "title": "Data analysis for the project duckweedSynCom",
+    "section": "3 Experiment overview",
+    "text": "3 Experiment overview\nThis is how we did our experiment…"
+  },
+  {
+    "objectID": "index.html#analysis-overview",
+    "href": "index.html#analysis-overview",
+    "title": "Data analysis for the project duckweedSynCom",
+    "section": "4 Analysis overview",
+    "text": "4 Analysis overview\nThis is how we did our data analysis…"
+  },
+  {
+    "objectID": "index.html#availability",
+    "href": "index.html#availability",
+    "title": "Data analysis for the project duckweedSynCom",
+    "section": "5 Availability",
+    "text": "5 Availability\nData and code in this GitHub repository (https://github.com/GHUSERNAME/REPOSITORYNAME) are provided under GNU AGPL3. The rendered project site is available at https://GHUSERNAME.github.io/REPOSITORYNAME/, which has been produced using Quarto notebooks. The content on the rendered site is released under the CC BY 4.0. This repository hosts all code and data for this project, including the code necessary to fully recreate the rendered webpage.\nAn archived release of the code is available from Zenodo: https://zenodo.org/records/EVENTUAL_ZENODO_RECORD\nRaw sequencing data used in the project is available from NCBI Bioproject [PRJNA00000000](https://www.ncbi.nlm.nih"
+  },
+  {
+    "objectID": "index.html#reproducibility",
+    "href": "index.html#reproducibility",
+    "title": "Data analysis for the project duckweedSynCom",
+    "section": "6 Reproducibility",
+    "text": "6 Reproducibility\nThe project uses renv to create a reproducible environment to execute the code in this project. See here for a brief overview on collaboration and reproduction of the entire project. To get up and running from an established repository, you could do:\ninstall.packages(\"renv\")\nrenv::restore()\nTo initiate renv for a new project:\n# if on linux set cran here to download binaries\noptions(repos = c(CRAN = \"https://packagemanager.posit.co/cran/__linux__/jammy/latest\"))\ninstall.packages(\"renv\")\n# initialize\nrenv::init(bioconductor = TRUE)\n# install some new packages\nrenv::install(\"tidyverse\", \"here\", \"fs\", \"sangeranalyseR\", \"DECIPHER\")\n# record those packages in the lockfile\nrenv::snapshot()"
+  },
+  {
+    "objectID": "R/01_read_format_sanger.html",
+    "href": "R/01_read_format_sanger.html",
+    "title": "Read and format Sanger 16S rRNA sequences from Duckweed SynCom",
+    "section": "",
+    "text": "Loads required libraries\n\n\nShow/hide code\noptions(repos = c(CRAN = \"https://packagemanager.posit.co/cran/__linux__/jammy/latest\"))\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(sangeranalyseR)\nlibrary(Biostrings)",
+    "crumbs": [
+      "1. 16S rRNA gene Sanger sequencing",
+      "i) Process ab1files to fasta"
+    ]
+  },
+  {
+    "objectID": "R/01_read_format_sanger.html#metadata",
+    "href": "R/01_read_format_sanger.html#metadata",
+    "title": "Read and format Sanger 16S rRNA sequences from Duckweed SynCom",
+    "section": "2.1 Metadata",
+    "text": "2.1 Metadata\n\n\nShow/hide code\nsanger_batch_info &lt;- readr::read_tsv(here::here(\"_data_raw\", \"sanger_seq\", \"sanger_batch_info.tsv\"))\n\n\nRows: 171 Columns: 5\n── Column specification ────────────────────────────────────────────────────────\nDelimiter: \"\\t\"\nchr (5): sanger_batch, sanger_plate_well, bacteria_plate_well, location, goo...\n\nℹ Use `spec()` to retrieve the full column specification for this data.\nℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.",
+    "crumbs": [
+      "1. 16S rRNA gene Sanger sequencing",
+      "i) Process ab1files to fasta"
+    ]
+  },
+  {
+    "objectID": "R/01_read_format_sanger.html#batch20250606",
+    "href": "R/01_read_format_sanger.html#batch20250606",
+    "title": "Read and format Sanger 16S rRNA sequences from Duckweed SynCom",
+    "section": "2.2 batch20250606",
+    "text": "2.2 batch20250606\n\n\nShow/hide code\ncontigs_batch20250606 &lt;- sangeranalyseR::SangerAlignment(\n  ABIF_Directory = here::here(\"_data_raw\", \"sanger_seq\", \"batch20250606\", \"ab1_files\"),\n  # Requires trimmed reads to be at least 400 bp. A good sanger trace has a trimmed\n  # length of about 800 bp\n  minReadLength = 400,\n  REGEX_SuffixForward = \"_F.ab1$\",\n  REGEX_SuffixReverse = \"_R.ab1$\"\n)\n\n\n\n2.2.1 Write fasta\n\n\nShow/hide code\nsangeranalyseR::writeFasta(contigs_batch20250606,\n                           here::here(\"data\", \"sanger_seq\", \"batch20250606\"))",
+    "crumbs": [
+      "1. 16S rRNA gene Sanger sequencing",
+      "i) Process ab1files to fasta"
+    ]
+  },
+  {
+    "objectID": "R/01_read_format_sanger.html#batch20250620",
+    "href": "R/01_read_format_sanger.html#batch20250620",
+    "title": "Read and format Sanger 16S rRNA sequences from Duckweed SynCom",
+    "section": "2.3 batch20250620",
+    "text": "2.3 batch20250620\n\n\nShow/hide code\ncontigs_batch20250620 &lt;- sangeranalyseR::SangerAlignment(\n  ABIF_Directory = here::here(\"_data_raw\", \"sanger_seq\", \"batch20250620\", \"ab1_files\"),\n  # Requires trimmed reads to be at least 400 bp. A good sanger trace has a trimmed\n  # length of about 800 bp\n  minReadLength = 400,\n  REGEX_SuffixForward = \"_F.ab1$\",\n  REGEX_SuffixReverse = \"_R.ab1$\"\n)\n\n\n\n2.3.1 Write fasta\n\n\nShow/hide code\nsangeranalyseR::writeFasta(contigs_batch20250620,\n                           here::here(\"data\", \"sanger_seq\", \"batch20250620\"))",
+    "crumbs": [
+      "1. 16S rRNA gene Sanger sequencing",
+      "i) Process ab1files to fasta"
+    ]
+  },
+  {
+    "objectID": "R/01_read_format_sanger.html#batch20250606-1",
+    "href": "R/01_read_format_sanger.html#batch20250606-1",
+    "title": "Read and format Sanger 16S rRNA sequences from Duckweed SynCom",
+    "section": "4.1 batch20250606",
+    "text": "4.1 batch20250606\n\n\nShow/hide code\nbatch20250606_fa &lt;- Biostrings::readDNAStringSet(here::here(\"data\", \"sanger_seq\", \"batch20250606\", \"Sanger_contigs_unalignment.fa\"))\n\nbatch20250606_fa_map &lt;- sanger_batch_info_01 %&gt;% \n  filter(sanger_batch == \"batch20250606\") %&gt;% \n  dplyr::select(sanger_plate_well, strainID) %&gt;% \n  mutate(sanger_plate_well = paste0(\"16S-\", sanger_plate_well)) %&gt;% \n  data.frame() %&gt;% \n  column_to_rownames(var = \"sanger_plate_well\")\n\nnames(batch20250606_fa) &lt;- batch20250606_fa_map[names(batch20250606_fa),]",
+    "crumbs": [
+      "1. 16S rRNA gene Sanger sequencing",
+      "i) Process ab1files to fasta"
+    ]
+  },
+  {
+    "objectID": "R/01_read_format_sanger.html#batch20250620-1",
+    "href": "R/01_read_format_sanger.html#batch20250620-1",
+    "title": "Read and format Sanger 16S rRNA sequences from Duckweed SynCom",
+    "section": "4.2 batch20250620",
+    "text": "4.2 batch20250620\n\n\nShow/hide code\nbatch20250620_fa &lt;- Biostrings::readDNAStringSet(here::here(\"data\", \"sanger_seq\", \"batch20250620\", \"Sanger_contigs_unalignment.fa\"))\n\nbatch20250620_fa_map &lt;- sanger_batch_info_01 %&gt;% \n  filter(sanger_batch == \"batch20250620\") %&gt;% \n  dplyr::select(sanger_plate_well, strainID) %&gt;% \n  mutate(sanger_plate_well = paste0(\"16S-\", sanger_plate_well)) %&gt;% \n  data.frame() %&gt;% \n  column_to_rownames(var = \"sanger_plate_well\")\n\nnames(batch20250620_fa) &lt;- batch20250620_fa_map[names(batch20250620_fa),]",
+    "crumbs": [
+      "1. 16S rRNA gene Sanger sequencing",
+      "i) Process ab1files to fasta"
+    ]
+  },
+  {
+    "objectID": "R/01_read_format_sanger.html#combine-and-write",
+    "href": "R/01_read_format_sanger.html#combine-and-write",
+    "title": "Read and format Sanger 16S rRNA sequences from Duckweed SynCom",
+    "section": "4.3 Combine and write",
+    "text": "4.3 Combine and write\n\n\nShow/hide code\nwriteXStringSet(c(batch20250606_fa, batch20250620_fa),\n                here::here(\"data\", \"sanger_seq\", \"16S_rRNA_SynCom.fna\"),\n                format='fasta')",
+    "crumbs": [
+      "1. 16S rRNA gene Sanger sequencing",
+      "i) Process ab1files to fasta"
+    ]
+  },
+  {
+    "objectID": "R/02_seq_cluster_phylo.html",
+    "href": "R/02_seq_cluster_phylo.html",
+    "title": "Clustering/phylogenetics of 16S rRNA sequences from duckweed SynCom",
+    "section": "",
+    "text": "1 Setup\nLoads required libraries\n\n\nShow/hide code\noptions(repos = c(CRAN = \"https://packagemanager.posit.co/cran/__linux__/jammy/latest\"))\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(DECIPHER)\n\n\n\n\n2 Read and format\nRead 16S rRNA fasta sequences from the prior step.\n\n\nShow/hide code\nsyncom16s_fna &lt;- here::here(\"data\", \"sanger_seq\", \"16S_rRNA_SynCom.fna\")\n\n\nConvert to a DNA stringset object\n\n\nShow/hide code\nsyncom16s_seqs &lt;- readDNAStringSet(syncom16s_fna)\n\n\n\n\n3 Redundancy\nAll sequences are unique which is expected\n\n\nShow/hide code\nduplicated(syncom16s_seqs)\n\n\n  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE\n [13] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE\n [25] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE\n [37] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE\n [49] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE\n [61] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE\n [73] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE\n [85] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE\n [97] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE\n[109] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE\n\n\n\n\n4 Cluster\n\n\nShow/hide code\nset.seed(36742)\nsyncom16s_clusters &lt;- Clusterize(syncom16s_seqs,\n                       cutoff=0.01,     # at ~ species level (ie 99% identity)\n                       minCoverage=0.5, # &gt; 50% coverage\n                       processors=NULL) # use all CPUs\n\n\nPartitioning sequences by 4-mer similarity:\n================================================================================\n\nTime difference of 0.05 secs\n\nSorting by relatedness within 32 groups:\n\niteration 1 of up to 43 (100.0% stability) \n\nTime difference of 0.05 secs\n\nClustering sequences by 10-mer similarity:\n================================================================================\n\nTime difference of 0.22 secs\n\nClusters via relatedness sorting: 100% (0% exclusively)\nClusters via rare 4-mers: 100% (0% exclusively)\nEstimated clustering effectiveness: 100%\n\n\nShow/hide code\n# reset random seed\nrm(.Random.seed, envir=globalenv())\n\n\n\n\n5 Classify (IDTAXA)\nUsing IDTAXA following the approach shown here.\n\n\nShow/hide code\nset.seed(234676)\n\n# load the training data set\nload(here::here(\"_data_raw\", \"idtaxa\", \"GTDB_r226-mod_April2025.RData\"))\n\n# classify the sequences\nsyncom16s_ids &lt;- IdTaxa(syncom16s_seqs,\n   trainingSet,\n   strand=\"both\", # or \"top\" if same as trainingSet\n   threshold=60, # 60 (cautious) or 50 (sensible)\n   processors=NULL) # use all available processors\n# reset random seed\nrm(.Random.seed, envir=globalenv())\n\n\n\n\nShow/hide code\nsyncom16s_idtx &lt;- imap(\n  syncom16s_ids,\n  \\(x, idx) tibble(a = x$rank, b = paste(x$taxon,\" (\",round(x$confidence, digits = 1),\"%)\", sep = \"\")) %&gt;%\n    pivot_wider(names_from = a, values_from = b) %&gt;%\n    mutate(id = idx)\n) %&gt;%\n  list_rbind() %&gt;% \n  relocate(id)\n\n\n\n\n6 Classify (Blastn)\nThese steps need to be run outside of R/Rstudio\nFirst we need to download and install NCBI blast+ suite (I am using v2.16.0) and download the 16S_ribosomal_RNA database.\nblastn -num_threads 12 -db 16S_ribosomal_RNA -query 16S_rRNA_SynCom.fna -dust no -max_target_seqs 5 -out 16S_rRNA_SynCom_v_blast16SDB.tsv -outfmt \"6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxid\"\nThe last column contains the taxonomy ID from the NCBI 16S Ribosomal database. We will just take the taxonomic lineage of the best hit\ncsvtk tab2csv 16S_rRNA_SynCom_v_blast16SDB.tsv | csvtk cut -f1,13 | csvtk spread -k1 -v2 | sed 's/^,//g' | csvtk transpose | cut -d \";\" -f1 | csvtk cut -f2,1 | csvtk csv2tab &gt; a\ncsvtk tab2csv 16S_rRNA_SynCom_v_blast16SDB.tsv | csvtk cut -f1,13 | csvtk spread -k1 -v2 | sed 's/^,//g' | csvtk transpose | cut -d \";\" -f1 | csvtk cut -f2 | taxonkit lineage -n -L &gt; b\n# combine into one file\npaste a b &gt; blastn_lineage_best_hit.tsv\nrm a b\nNow read this file back into R\n\n\nShow/hide code\nsyncom16s_blastn &lt;- readr::read_tsv(here::here(\"data\", \"sanger_seq\", \"blastn_lineage_best_hit.tsv\"),\n                col_names = FALSE) %&gt;% \n  dplyr::select(id = X2, ncbi_taxid = X1, ncbi_best_species = X4)\n\n\nRows: 118 Columns: 4\n── Column specification ────────────────────────────────────────────────────────\nDelimiter: \"\\t\"\nchr (2): X2, X4\ndbl (2): X1, X3\n\nℹ Use `spec()` to retrieve the full column specification for this data.\nℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.\n\n\n\n\n7 Combine clustering and classification\n\n\nShow/hide code\nsyncom16s_idtx_lineage_info &lt;- syncom16s_idtx %&gt;% \n  left_join(rownames_to_column(syncom16s_clusters, var = \"id\"), by = join_by(id)) %&gt;% \n  left_join(syncom16s_blastn, by = join_by(id)) %&gt;% \n  relocate(ncbi_best_species, .after=\"genus\") %&gt;% \n  relocate(cluster, .after=\"id\") %&gt;% \n  arrange(cluster)\n\n\n\n\n8 16S rRNA sequence alignment\nWe start with DNA sequences and convert to RNA so that DECIPHER can leverage structural information from the RNA\n\n\nShow/hide code\nsyncom16s_seqs_rna &lt;- RNAStringSet(syncom16s_seqs)\n\n\nAlign the sequences\nFrom DECIPHER documentation on sequence alignment\n\n5.2 Example: Non-coding RNA sequences Much like proteins, non-coding RNAs often have a conserved secondary structure that can be used to improve their alignment. The PredictDBN function will predict base pairings from a sequence alignment by calculating the mutual information between pairs of positions. If RNA sequences are given as input, AlignSeqs will automatically use the output of PredictDBN to iteratively improve the alignment. Providing an RNAStringSet also causes single-base and double-base substitution matrices to be used, and is preferable to providing a DNAStringSet when the sequences are non-coding RNA. The type of the input sequences can easily be converted to RNA, as shown below.\n\n\n\nShow/hide code\nset.seed(2342)\nsyncom16s_seqs_rna_aligned &lt;- AlignSeqs(syncom16s_seqs_rna)\n# reset random seed\nrm(.Random.seed, envir=globalenv())\n\n\n\n\nShow/hide code\n# Write as aligned fasta DNA file \nwriteXStringSet(DNAStringSet(syncom16s_seqs_rna_aligned),\n                here::here(\"data\", \"sanger_seq\", \"16S_rRNA_SynCom_aligned.fna\"),\n                format='fasta')\n\n\n\n\n9 Phylogenetic tree building\nFollowing maximum likelihood tutorial DECIPHER documentation on phylogenetic trees\nThis step constructs a phylogenetic tree using the general time reversable (GTR) model with a discrete Gamma model (Yang, 1994) with the default 4 rate categories. Branch support is depicted using aBayes probabilities, which is a Bayesian-like transformation of an approximate Likelihood Ratio Test (Anisimova et al., 2011).\n\n\nShow/hide code\nset.seed(26345)\nsyncom16s_seqs_mltree &lt;- Treeline(\n  syncom16s_seqs_rna_aligned,\n  method = \"ML\",\n  model = \"GTR+G4\",\n  verbose = TRUE,\n  processors = 12\n)\n# reset random seed\nrm(.Random.seed, envir=globalenv())\n\n\n\n\nShow/hide code\n# this function adds an 'edgetext' attribute that is recognized by WriteDendrogram so that\n# branch support values (aBayes) are written properly\nadd_boots &lt;- function(node){\n  s &lt;- attr(node, \"probability\")\n  if (!is.null(s))\n    attr(node, \"edgetext\") &lt;- formatC(as.numeric(s), digits=2, format=\"f\")\n  return(node)\n}\n\nsyncom16s_seqs_mltree &lt;- dendrapply(syncom16s_seqs_mltree, add_boots)\n\n\nSave ML tree as newick file\n\n\nShow/hide code\nWriteDendrogram(syncom16s_seqs_mltree, \n                file=here::here(\"data\", \"sanger_seq\", \"syncom16s_seqs_mltree.nwk\"),\n                # quote =\"\" ensure that bootstraps are not written quoted as strings\n                # so that ggtree doesn't fail to parse them\n                quote=\"\")\n\n\nTree building results\nFitting initial tree to model:\nGTR+G4 -ln(L) = 15520, AICc = 31633, BIC = 32781\n\nOptimizing up to 400 candidate trees:\nTree #136. -ln(L) = 15395.993 (0.000%), 9 Climbs, 0 Grafts of 7                                                                                                       \n\nFinalizing the best tree (#130):\n-ln(L) = 15395.993 (0.000%), 1 Climb                                                                                                                                  \n\nModel parameters:\nFrequency(A) = 0.244\nFrequency(C) = 0.223\nFrequency(G) = 0.312\nFrequency(T) = 0.221\nRate A &lt;-&gt; C = 0.816\nRate A &lt;-&gt; G = 1.978\nRate A &lt;-&gt; T = 1.262\nRate C &lt;-&gt; G = 0.677\nRate C &lt;-&gt; T = 3.029\nRate G &lt;-&gt; T = 1.000\nAlpha = 0.302\n\nTime difference of 1090.3 secs\n\n\n10 Phylogenetic tree plotting\n\n\nShow/hide code\nlibrary(ggtree)\n\n\nggtree v3.17.1.001 Learn more at https://yulab-smu.top/contribution-tree-data/\n\nPlease cite:\n\nS Xu, Z Dai, P Guo, X Fu, S Liu, L Zhou, W Tang, T Feng, M Chen, L\nZhan, T Wu, E Hu, Y Jiang, X Bo, G Yu. ggtreeExtra: Compact\nvisualization of richly annotated phylogenetic data. Molecular Biology\nand Evolution. 2021, 38(9):4039-4042. doi: 10.1093/molbev/msab166\n\n\n\nAttaching package: 'ggtree'\n\n\nThe following object is masked from 'package:Biostrings':\n\n    collapse\n\n\nThe following object is masked from 'package:IRanges':\n\n    collapse\n\n\nThe following object is masked from 'package:S4Vectors':\n\n    expand\n\n\nThe following object is masked from 'package:tidyr':\n\n    expand\n\n\nShow/hide code\nlibrary(treeio)\n\n\ntreeio v1.32.0 Learn more at https://yulab-smu.top/contribution-tree-data/\n\nPlease cite:\n\nLG Wang, TTY Lam, S Xu, Z Dai, L Zhou, T Feng, P Guo, CW Dunn, BR\nJones, T Bradley, H Zhu, Y Guan, Y Jiang, G Yu. treeio: an R package\nfor phylogenetic tree input and output with richly annotated and\nassociated data. Molecular Biology and Evolution. 2020, 37(2):599-603.\ndoi: 10.1093/molbev/msz240\n\n\n\nAttaching package: 'treeio'\n\n\nThe following object is masked from 'package:Biostrings':\n\n    mask\n\n\nShow/hide code\nsyncom16s_seqs_mltree_nwk &lt;- treeio::read.newick(here::here(\"data\", \"sanger_seq\", \"syncom16s_seqs_mltree.nwk\"),\n                            node.label=\"support\")\n\n\nGoal is to produce a tree that has for tip labels the Genus assigned by IDTAXA + the strain identifier, with different internal nodes labeled by coarser taxonomic grouping. The clusters assigned by clusterizer will be represented by different colors at the tips.\nFirst lets look at the tree with just the identifiers on the leaves\n\nShow/hide code\nggtree(syncom16s_seqs_mltree_nwk, layout=\"rectangular\") + \n  geom_tiplab(size=3, hjust = -0.10) +\n  xlim(NA, 2) +\n  geom_treescale(offset=1)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 1: Maximum likelihood phylogenetic tree inferred from an alignment of the 16S rRNA gene amplified by Sanger sequencing from the duckweed SynCom. Scale bar at bottom represents 0.1 substitutions per site.\n\n\n\nWe can also look at the internal node numbering by rendering the tree as a dataframe\n\n\nShow/hide code\n# the second tibble call is so quarto renders it properly\nsyncom16s_seqs_mltree_nwk %&gt;% treeio::as_tibble() %&gt;% tibble()\n\n\n\n  \n\n\n\nFirst we need to get our naming scheme set up\n\n\nShow/hide code\nnewtipnames &lt;- syncom16s_idtx_lineage_info %&gt;% \n  mutate(genus = stringr::str_extract(genus, \"(^[:alpha:]*).*\", group = 1)) %&gt;% \n  mutate(genus = case_when(is.na(genus) | genus == \"unclassified\" ~ stringr::str_extract(ncbi_best_species, \"^[:alpha:]*\"),\n                           TRUE ~ genus)) %&gt;% \n  mutate(newname = paste(genus, id)) %&gt;% \n  mutate(cluster = paste0(\"c\", cluster)) %&gt;% \n  dplyr::select(id, newname, cluster, genus, order, family)\n\n\nFirst we need to generate a color palette that lets us distinguish the different colors\n\n\nShow/hide code\nlibrary(Polychrome)\nset.seed(341234)\nmypal &lt;- unname(createPalette(max(syncom16s_idtx_lineage_info$cluster), c(\"#F3874AFF\", \"#FCD125FF\"), M=5000))\nrm(.Random.seed, envir=globalenv())\n\n\nNow we need to identify the internal nodes that we want to highlight. We can do this using the MRCA function from ggtree\n\n\nShow/hide code\nMRCA(syncom16s_seqs_mltree_nwk, \"TL22\", \"TL23\")\n\n\n[1] 184\n\n\nCode to plot the tree\n\n\nShow/hide code\noffset &lt;- 0.1\np1 &lt;- ggtree(syncom16s_seqs_mltree_nwk, layout=\"rectangular\")\n\np2 &lt;- p1 %&lt;+% newtipnames + \n  geom_tiplab(aes(label = newname), size=3, hjust = -0.10) +\n  geom_tippoint(aes(color = cluster), size = 2) +\n  scale_color_manual(values = mypal, guide=\"none\") +\n  # Pseudomonadaceae \n  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, \"TL22\", \"TL23\"), \n                label=\"(γ) Pseudomonadaceae\", align=TRUE, \n                geom='text', offset=offset) +\n  # Aeromonadaceae\n  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, \"HA41\", \"HA04\"), \n                label=\"(γ) Aeromonadaceae\", align=TRUE, \n                geom='text', offset=offset) +\n  # Enterobacteriaceae\n  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, \"HA14\", \"HA44\"), \n                label=\"(γ) Enterobacteriaceae\", align=TRUE, \n                geom='text', offset=offset) +\n  # Moraxellaceae\n  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, \"TL64\", \"HA82\"), \n                label=\"(γ) Moraxellaceae\", align=TRUE, \n                geom='text', offset=offset) +\n  # Chromobacteriaceae\n  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, \"HA47\", \"HA65\"), \n                label=\"(γ) Chromobacteriaceae\", align=TRUE, \n                geom='text', offset=offset) +\n  # Burkholderiaceae\n  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, \"HA52\", \"HA18\"), \n                label=\"(γ) Burkholderiaceae\", align=TRUE, \n                geom='text', offset=offset) +\n  # Sphingomonadaceae\n  geom_cladelab(node=23, \n                label=\"(α) Sphingomonadaceae\", align=TRUE, \n                geom='text', offset=offset) +\n  # Streptococcaceae\n  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, \"TL12\", \"TL39\"), \n                label=\"(Bacilli) Streptococcaceae\", align=TRUE, \n                geom='text', offset=offset) +\n  # Exiguobacteriaceae\n  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, \"HA63\", \"HA25\"), \n                label=\"(Bacilli) Exiguobacteriaceae\", align=TRUE, \n                  geom='text', offset=offset) +\n  # Deinococcaceae\n  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, \"HA42\", \"HA29\"), \n                label=\"(Deinococci) Deinococcaceae\", align=TRUE, \n                  geom='text', offset=offset+0.2) +\n  # Weeksellaceae\n  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, \"HA56\", \"HA57\"), \n                label=\"(Bacteroidia) Weeksellaceae\", align=TRUE, \n                  geom='text', offset=offset+0.4) +\n  xlim(NA, 2)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2: As in Figure 1, but isolates have been labeled with their inferred genus (text) as well as their broader taxonomic class (right, vertical lines). Colors represent sequences clusters based on a 99% identity threshold (i.e., nodes of the same color have 16S rRNA gene sequences that are &gt; 99% similar)",
+    "crumbs": [
+      "1. 16S rRNA gene Sanger sequencing",
+      "ii) Clustering and phylogeny of 16S gene"
+    ]
+  }
+]
