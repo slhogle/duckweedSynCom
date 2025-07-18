@@ -1,5 +1,9 @@
 # repo specific files
 wip/
+GTDB_r226-mod_April2025.RData
+batch20250620.rds
+batch20250606.rds
+
 # _notrack is for data objects that shouldn't be git tracked
 _notrack/
 # Adobe illustrator files
