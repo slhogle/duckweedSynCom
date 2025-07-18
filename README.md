@@ -1,41 +1,16 @@
-# hogleLabProjTemplate
+# Duckweed SynCom
 
-A simple template for a project using R/Python and [Quarto](https://quarto.org/) notebooks. 
-
-The project is rendered with Quarto and can then be served using GitHub Pages [following these instructions](https://quarto.org/docs/publishing/github-pages.html). 
-
-You can view the HTML documents on the web and share them with collaborators. Once rendered and configured with GitHub pages, 
-you would be able to view the website at this URL <https://GHUSERNAME.github.io/REPOSITORYNAME/>
-
-[Click here to view rendered notebooks of the analysis.](https://slhogle.github.io/hogleLabProjTemplate/)
-
-## Structure:
-The `_data_raw` directory should never be touched or modified! It includes raw data files obtained from instruments.
-
-The `data` directory is where processed data projects should go. Usually, in an analysis workflow you will start with raw data, 
-clean/organize it, perhaps transform it in some way, then save that product in `data` for later branches of the workflow. 
-
-The `R/Py` directories store analysis code/scripts for the project. I prefer to keep a separate directory for each analysis language I am using in the project, but you 
-may, of course, combine all code, regardless of language, into a single directory structure if you prefer.
-
-Note: You can create whatever kind of sub-directory structure you prefer within `_data_raw`, `data`, `R`, and `Py`. You can also create other new directories. 
-Some steps of the process will create new directories for you (e.g., running `renv::init`, or `quarto render`). This is expected. Renv will create its own `.gitignore` to prevent 
-committing huge R environments.
+[Click here to view rendered notebooks of the analysis.](https://slhogle.github.io/duckweedSynCom/)
 
 ## Manuscript:
 
-◇ Corresponding author
-
 ### Published record
 
-**Title XYZ**\
-FIRST AUTHOR<sup>◇</sup>, ..., LAST AUTHOR<sup>◇</sup>. *XYZ* (2025) [doi:]()
+TBD
 
 ### Preprint
 
-**Title XYZ**\
-FIRST AUTHOR<sup>◇</sup>, ..., LAST AUTHOR<sup>◇</sup>. *BioRxiv* (2025) [doi:]()
-
+TBDssss
 ## Availability
 
 Data and code in this GitHub repository (<https://github.com/GHUSERNAME/REPOSITORYNAME>) are provided under [GNU AGPL3](https://www.gnu.org/licenses/agpl-3.0.html).
@@ -64,9 +39,9 @@ To initiate `renv` for a new project:
 options(repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/jammy/latest"))
 install.packages("renv")
 # initialize
-renv::init()
+renv::init(bioconductor = TRUE)
 # install some new packages
-renv::install("tidyverse")
+renv::install("tidyverse", "here", "fs", "sangeranalyseR", "DECIPHER")
 # record those packages in the lockfile
 renv::snapshot()
 ```

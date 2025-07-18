@@ -1,0 +1,186 @@
+---
+title: "Read and format Sanger 16S rRNA sequences from Duckweed SynCom"
+subtitle: ""
+author: "Shane Hogle"
+date: today
+abstract: "This reads Fwd/Rev Sanger sequencing reads of the 16S rRNA gene from the bacterial isolates, trims them, overlaps them, and produces fasta condtigs for use in downstream analysises."
+---
+
+# Setup
+
+Loads required libraries
+
+```{r}
+#| output: false
+options(repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/jammy/latest"))
+library(tidyverse)
+library(here)
+library(fs)
+library(sangeranalyseR)
+library(Biostrings)
+```
+
+# Read and format
+
+This code follows the [instructions here](https://sangeranalyser.readthedocs.io/en/latest/content/quickstart.html). Basically, the function reads Fwd/Rev traces trims them using "M1 - Modified Mott Trimming" algorithm, overlaps them then aligns them
+
+## Metadata
+
+```{r}
+sanger_batch_info <- readr::read_tsv(here::here("_data_raw", "sanger_seq", "sanger_batch_info.tsv"))
+```
+
+## batch20250606
+
+```{r}
+#| eval: false
+#| include: true
+contigs_batch20250606 <- sangeranalyseR::SangerAlignment(
+  ABIF_Directory = here::here("_data_raw", "sanger_seq", "batch20250606", "ab1_files"),
+  # Requires trimmed reads to be at least 400 bp. A good sanger trace has a trimmed
+  # length of about 800 bp
+  minReadLength = 400,
+  REGEX_SuffixForward = "_F.ab1$",
+  REGEX_SuffixReverse = "_R.ab1$"
+)
+```
+
+### Write fasta
+
+```{r}
+#| eval: false
+#| include: true
+sangeranalyseR::writeFasta(contigs_batch20250606,
+                           here::here("data", "sanger_seq", "batch20250606"))
+```
+
+```{r}
+#| eval: false
+#| include: false
+# saving intermediate files
+write_rds(contigs_batch20250606, here::here("data", "sanger_seq", "batch20250606", "batch20250606.rds"))
+```
+
+```{r}
+#| eval: true
+#| include: false
+contigs_batch20250606 <- read_rds(here::here("data", "sanger_seq",  "batch20250606", "batch20250606.rds"))
+```
+
+## batch20250620
+
+```{r}
+#| eval: false
+#| include: true
+contigs_batch20250620 <- sangeranalyseR::SangerAlignment(
+  ABIF_Directory = here::here("_data_raw", "sanger_seq", "batch20250620", "ab1_files"),
+  # Requires trimmed reads to be at least 400 bp. A good sanger trace has a trimmed
+  # length of about 800 bp
+  minReadLength = 400,
+  REGEX_SuffixForward = "_F.ab1$",
+  REGEX_SuffixReverse = "_R.ab1$"
+)
+```
+
+### Write fasta
+
+```{r}
+#| eval: false
+#| include: true
+sangeranalyseR::writeFasta(contigs_batch20250620,
+                           here::here("data", "sanger_seq", "batch20250620"))
+```
+
+```{r}
+#| eval: false
+#| include: false
+# saving intermediate files
+write_rds(contigs_batch20250620, here::here("data", "sanger_seq", "batch20250620", "batch20250620.rds"))
+```
+
+```{r}
+#| eval: true
+#| include: false
+contigs_batch20250620 <- read_rds(here::here("data", "sanger_seq",  "batch20250620", "batch20250620.rds"))
+```
+
+# Combine batches
+
+Retrieve information about which sequences succeeded or failed
+
+```{r}
+contigs_batch20250606_sf <- contigs_batch20250606@objectResults@readResultTable %>% 
+  dplyr::select(readName, creationResult) %>% 
+  mutate(sanger_batch = "batch20250606",
+         sanger_plate_well = str_extract(readName, "[:alnum:]*-([:upper:]*[:digit:]*)_[F|R].ab1", group = 1)) %>% 
+  dplyr::select(sanger_plate_well, sanger_batch, sangeranalyseR_success=creationResult) %>% 
+  distinct()
+```
+
+```{r}
+contigs_batch20250620_sf <- contigs_batch20250620@objectResults@readResultTable %>% 
+  dplyr::select(readName, creationResult) %>% 
+  mutate(sanger_batch = "batch20250620",
+         sanger_plate_well = str_extract(readName, "[:alnum:]*-([:upper:]*[:digit:]*)_[F|R].ab1", group = 1)) %>% 
+  dplyr::select(sanger_plate_well, sanger_batch, sangeranalyseR_success=creationResult) %>% 
+  distinct()
+```
+
+```{r}
+sanger_batch_info_01 <- bind_rows(contigs_batch20250606_sf, contigs_batch20250620_sf) %>% 
+  right_join(sanger_batch_info, by = join_by(sanger_plate_well, sanger_batch)) %>% 
+  arrange(location, sanger_batch, bacteria_plate_well) %>% 
+  group_by(location) %>% 
+  # create temporary variable holding the index in the group
+  mutate(n = stringr::str_pad(1:n(), width = 2, side = "left", pad = "0")) %>% 
+  ungroup() %>% 
+  # create strainID of just alphanumeric. Strain is ordered by location, sanger_batch, and bacteria_plate_well
+  mutate(strainID = case_when(location == "Haunisten Allas" ~ paste0("HA", n),
+                              location == "Turun Linna" ~ paste0("TL", n),
+                              TRUE ~ paste0("SJ", n))) %>% 
+  dplyr::select(-n)
+
+write_tsv(sanger_batch_info_01, here::here("data", "sanger_seq", "sanger_batch_info_01.tsv"))
+```
+
+# Rename fasta files
+
+Here we combine all the fastas into a single file and rename them.
+
+## batch20250606
+
+```{r}
+batch20250606_fa <- Biostrings::readDNAStringSet(here::here("data", "sanger_seq", "batch20250606", "Sanger_contigs_unalignment.fa"))
+
+batch20250606_fa_map <- sanger_batch_info_01 %>% 
+  filter(sanger_batch == "batch20250606") %>% 
+  dplyr::select(sanger_plate_well, strainID) %>% 
+  mutate(sanger_plate_well = paste0("16S-", sanger_plate_well)) %>% 
+  data.frame() %>% 
+  column_to_rownames(var = "sanger_plate_well")
+
+names(batch20250606_fa) <- batch20250606_fa_map[names(batch20250606_fa),]
+```
+
+## batch20250620
+
+```{r}
+batch20250620_fa <- Biostrings::readDNAStringSet(here::here("data", "sanger_seq", "batch20250620", "Sanger_contigs_unalignment.fa"))
+
+batch20250620_fa_map <- sanger_batch_info_01 %>% 
+  filter(sanger_batch == "batch20250620") %>% 
+  dplyr::select(sanger_plate_well, strainID) %>% 
+  mutate(sanger_plate_well = paste0("16S-", sanger_plate_well)) %>% 
+  data.frame() %>% 
+  column_to_rownames(var = "sanger_plate_well")
+
+names(batch20250620_fa) <- batch20250620_fa_map[names(batch20250620_fa),]
+```
+
+## Combine and write
+
+```{r}
+writeXStringSet(c(batch20250606_fa, batch20250620_fa),
+                here::here("data", "sanger_seq", "16S_rRNA_SynCom.fna"),
+                format='fasta')
+```

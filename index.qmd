@@ -1,5 +1,5 @@
 ---
-title: "Data analysis for the project hogleLabProjTemplate"
+title: "Data analysis for the project duckweedSynCom"
 date: today
 author:
   - name: Shane L Hogle
@@ -32,21 +32,17 @@ funding: "The author received no specific funding for this work."
 
 ## Manuscript:
 
-◇ Corresponding author
-
 ### Published record
 
-**Title XYZ**\
-FIRST AUTHOR<sup>◇</sup>, ..., LAST AUTHOR<sup>◇</sup>. *XYZ* (2025) [doi:]()
+TBD
 
 ### Preprint
 
-**Title XYZ**\
-FIRST AUTHOR<sup>◇</sup>, ..., LAST AUTHOR<sup>◇</sup>. *BioRxiv* (2025) [doi:]()
+TBD
 
 ## Introduction
 
-The goal of this project is to examine how ...
+The goal of this project is construct and characterize a synthetic bacterial community (SynCom) associated with duckweed (Lemna minor). The plants and bacteria have all been isolated form Southwest Finland.
 
 ## Experiment overview
 
@@ -80,17 +76,19 @@ renv::restore()
 To initiate `renv` for a new project:
 
 ``` r
+# if on linux set cran here to download binaries
+options(repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/jammy/latest"))
 install.packages("renv")
 # initialize
-renv::init()
+renv::init(bioconductor = TRUE)
 # install some new packages
-renv::install("tidyverse")
+renv::install("tidyverse", "here", "fs", "sangeranalyseR", "DECIPHER")
 # record those packages in the lockfile
 renv::snapshot()
 ```
 
 ```{r}
-#| eval: true
+#| eval: false
 #| echo: false
 #| output: false
 #| error: false

@@ -1,0 +1,413 @@
+---
+title: "Clustering/phylogenetics of 16S rRNA sequences from duckweed SynCom"
+subtitle: ""
+author: "Shane Hogle"
+date: today
+abstract: "Various operations to group the isolates into clusters using clustering algorithms and phylogenetic inference. At the end a phylogenetic tree for the isolates is plotting with associated taxonomic information as well as clustering identity based on shared kmers."
+---
+
+# Setup
+
+Loads required libraries
+
+```{r}
+#| output: false
+options(repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/jammy/latest"))
+library(tidyverse)
+library(here)
+library(fs)
+library(DECIPHER)
+```
+
+# Read and format
+
+Read 16S rRNA fasta sequences from the prior step.
+
+```{r}
+syncom16s_fna <- here::here("data", "sanger_seq", "16S_rRNA_SynCom.fna")
+```
+
+Convert to a DNA stringset object
+
+```{r}
+syncom16s_seqs <- readDNAStringSet(syncom16s_fna)
+```
+
+# Redundancy
+
+All sequences are unique which is expected
+
+```{r}
+duplicated(syncom16s_seqs)
+```
+
+# Cluster
+
+```{r}
+set.seed(36742)
+syncom16s_clusters <- Clusterize(syncom16s_seqs,
+                       cutoff=0.01,     # at ~ species level (ie 99% identity)
+                       minCoverage=0.5, # > 50% coverage
+                       processors=NULL) # use all CPUs
+# reset random seed
+rm(.Random.seed, envir=globalenv())
+```
+
+# Classify (IDTAXA)
+
+Using
+[IDTAXA](https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-018-0521-5)
+following the [approach shown
+here](https://www2.decipher.codes/ClassifyOrganisms.html).
+
+```{r}
+#| eval: false
+#| include: true
+set.seed(234676)
+
+# load the training data set
+load(here::here("_data_raw", "idtaxa", "GTDB_r226-mod_April2025.RData"))
+
+# classify the sequences
+syncom16s_ids <- IdTaxa(syncom16s_seqs,
+   trainingSet,
+   strand="both", # or "top" if same as trainingSet
+   threshold=60, # 60 (cautious) or 50 (sensible)
+   processors=NULL) # use all available processors
+# reset random seed
+rm(.Random.seed, envir=globalenv())
+```
+
+```{r}
+#| eval: false
+#| include: false
+write_rds(syncom16s_ids, here::here("data", "sanger_seq", "syncom16s_ids.rds"))
+```
+
+```{r}
+#| eval: true
+#| include: false
+syncom16s_ids <- read_rds(here::here("data", "sanger_seq", "syncom16s_ids.rds"))
+```
+
+```{r}
+syncom16s_idtx <- imap(
+  syncom16s_ids,
+  \(x, idx) tibble(a = x$rank, b = paste(x$taxon," (",round(x$confidence, digits = 1),"%)", sep = "")) %>%
+    pivot_wider(names_from = a, values_from = b) %>%
+    mutate(id = idx)
+) %>%
+  list_rbind() %>% 
+  relocate(id)
+```
+
+# Classify (Blastn)
+
+These steps need to be run outside of R/Rstudio
+
+First we need to
+[download](https://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/) and
+[install](https://www.ncbi.nlm.nih.gov/books/NBK52640/) NCBI blast+
+suite (I am using v2.16.0) and
+[download](https://ftp.ncbi.nlm.nih.gov/blast/db/) the 16S_ribosomal_RNA
+database.
+
+```
+blastn -num_threads 12 -db 16S_ribosomal_RNA -query 16S_rRNA_SynCom.fna -dust no -max_target_seqs 5 -out 16S_rRNA_SynCom_v_blast16SDB.tsv -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxid"
+```
+
+The last column contains the taxonomy ID from the NCBI 16S Ribosomal
+database. We will just take the taxonomic lineage of the best hit
+
+```
+csvtk tab2csv 16S_rRNA_SynCom_v_blast16SDB.tsv | csvtk cut -f1,13 | csvtk spread -k1 -v2 | sed 's/^,//g' | csvtk transpose | cut -d ";" -f1 | csvtk cut -f2,1 | csvtk csv2tab > a
+csvtk tab2csv 16S_rRNA_SynCom_v_blast16SDB.tsv | csvtk cut -f1,13 | csvtk spread -k1 -v2 | sed 's/^,//g' | csvtk transpose | cut -d ";" -f1 | csvtk cut -f2 | taxonkit lineage -n -L > b
+# combine into one file
+paste a b > blastn_lineage_best_hit.tsv
+rm a b
+```
+
+Now read this file back into R
+
+```{r}
+syncom16s_blastn <- readr::read_tsv(here::here("data", "sanger_seq", "blastn_lineage_best_hit.tsv"),
+                col_names = FALSE) %>% 
+  dplyr::select(id = X2, ncbi_taxid = X1, ncbi_best_species = X4)
+```
+
+# Combine clustering and classification
+
+```{r}
+syncom16s_idtx_lineage_info <- syncom16s_idtx %>% 
+  left_join(rownames_to_column(syncom16s_clusters, var = "id"), by = join_by(id)) %>% 
+  left_join(syncom16s_blastn, by = join_by(id)) %>% 
+  relocate(ncbi_best_species, .after="genus") %>% 
+  relocate(cluster, .after="id") %>% 
+  arrange(cluster)
+```
+
+# 16S rRNA sequence alignment
+
+We start with DNA sequences and convert to RNA so that DECIPHER can leverage structural information from the RNA
+
+```{r}
+syncom16s_seqs_rna <- RNAStringSet(syncom16s_seqs)
+```
+
+Align the sequences
+
+From [DECIPHER documentation on sequence
+alignment](https://bioconductor.org/packages/devel/bioc/vignettes/DECIPHER/inst/doc/ArtOfAlignmentInR.pdf)
+
+> 5.2 Example: Non-coding RNA sequences Much like proteins, non-coding
+> RNAs often have a conserved secondary structure that can be used to
+> improve their alignment. The PredictDBN function will predict base
+> pairings from a sequence alignment by calculating the mutual
+> information between pairs of positions. If RNA sequences are given as
+> input, AlignSeqs will automatically use the output of PredictDBN to
+> iteratively improve the alignment. Providing an RNAStringSet also
+> causes single-base and double-base substitution matrices to be used,
+> and is preferable to providing a DNAStringSet when the sequences are
+> non-coding RNA. The type of the input sequences can easily be
+> converted to RNA, as shown below.
+
+```{r}
+#| eval: false
+#| include: true
+set.seed(2342)
+syncom16s_seqs_rna_aligned <- AlignSeqs(syncom16s_seqs_rna)
+# reset random seed
+rm(.Random.seed, envir=globalenv())
+```
+
+```{r}
+#| eval: false
+#| include: false
+write_rds(syncom16s_seqs_rna_aligned, here::here("data", "sanger_seq", "syncom16s_seqs_rna_aligned.rds"))
+```
+
+```{r}
+#| eval: true
+#| include: false
+syncom16s_seqs_rna_aligned <- read_rds(here::here("data", "sanger_seq", "syncom16s_seqs_rna_aligned.rds"))
+```
+
+```{r}
+# Write as aligned fasta DNA file 
+writeXStringSet(DNAStringSet(syncom16s_seqs_rna_aligned),
+                here::here("data", "sanger_seq", "16S_rRNA_SynCom_aligned.fna"),
+                format='fasta')
+```
+
+# Phylogenetic tree building
+
+Following maximum likelihood tutorial [DECIPHER documentation on
+phylogenetic
+trees](https://bioconductor.org/packages/devel/bioc/vignettes/DECIPHER/inst/doc/GrowingTrees.pdf)
+
+This step constructs a phylogenetic tree using the general time reversable (GTR) model with a discrete Gamma model [(Yang, 1994)](https://link.springer.com/article/10.1007/BF00160154) with the default 4 rate categories. Branch support is depicted using aBayes probabilities, which is a Bayesian-like transformation of an approximate Likelihood Ratio Test [(Anisimova et al., 2011)](https://academic.oup.com/sysbio/article/60/5/685/1644562). 
+
+```{r}
+#| eval: false
+#| include: true
+set.seed(26345)
+syncom16s_seqs_mltree <- Treeline(
+  syncom16s_seqs_rna_aligned,
+  method = "ML",
+  model = "GTR+G4",
+  verbose = TRUE,
+  processors = 12
+)
+# reset random seed
+rm(.Random.seed, envir=globalenv())
+```
+
+```{r}
+#| eval: false
+#| include: false
+write_rds(syncom16s_seqs_mltree, here::here("data", "sanger_seq", "syncom16s_seqs_mltree.rds"))
+```
+
+```{r}
+#| eval: true
+#| include: false
+syncom16s_seqs_mltree <- read_rds(here::here("data", "sanger_seq", "syncom16s_seqs_mltree.rds"))
+```
+
+```{r}
+# this function adds an 'edgetext' attribute that is recognized by WriteDendrogram so that
+# branch support values (aBayes) are written properly
+add_boots <- function(node){
+  s <- attr(node, "probability")
+  if (!is.null(s))
+    attr(node, "edgetext") <- formatC(as.numeric(s), digits=2, format="f")
+  return(node)
+}
+
+syncom16s_seqs_mltree <- dendrapply(syncom16s_seqs_mltree, add_boots)
+```
+
+Save ML tree as newick file
+
+```{r}
+WriteDendrogram(syncom16s_seqs_mltree, 
+                file=here::here("data", "sanger_seq", "syncom16s_seqs_mltree.nwk"),
+                # quote ="" ensure that bootstraps are not written quoted as strings
+                # so that ggtree doesn't fail to parse them
+                quote="")
+```
+
+Tree building results
+
+```         
+Fitting initial tree to model:
+GTR+G4 -ln(L) = 15520, AICc = 31633, BIC = 32781
+
+Optimizing up to 400 candidate trees:
+Tree #136. -ln(L) = 15395.993 (0.000%), 9 Climbs, 0 Grafts of 7                                                                                                       
+
+Finalizing the best tree (#130):
+-ln(L) = 15395.993 (0.000%), 1 Climb                                                                                                                                  
+
+Model parameters:
+Frequency(A) = 0.244
+Frequency(C) = 0.223
+Frequency(G) = 0.312
+Frequency(T) = 0.221
+Rate A <-> C = 0.816
+Rate A <-> G = 1.978
+Rate A <-> T = 1.262
+Rate C <-> G = 0.677
+Rate C <-> T = 3.029
+Rate G <-> T = 1.000
+Alpha = 0.302
+
+Time difference of 1090.3 secs
+```
+
+# Phylogenetic tree plotting
+
+```{r}
+library(ggtree)
+library(treeio)
+syncom16s_seqs_mltree_nwk <- treeio::read.newick(here::here("data", "sanger_seq", "syncom16s_seqs_mltree.nwk"),
+                            node.label="support")
+```
+
+Goal is to produce a tree that has for tip labels the Genus assigned by IDTAXA + the strain identifier, with different internal nodes labeled by coarser taxonomic grouping. The clusters assigned by `clusterizer` will be represented by different colors at the tips.
+
+First lets look at the tree with just the identifiers on the leaves
+
+::: {#fig-01}
+```{r}
+#| fig-width: 7
+#| fig-height: 12
+ggtree(syncom16s_seqs_mltree_nwk, layout="rectangular") + 
+  geom_tiplab(size=3, hjust = -0.10) +
+  xlim(NA, 2) +
+  geom_treescale(offset=1)
+```
+Maximum likelihood phylogenetic tree inferred from an alignment of the 16S rRNA gene amplified by Sanger sequencing from the duckweed SynCom. Scale bar at bottom represents 0.1 substitutions per site.
+:::
+
+We can also look at the internal node numbering by rendering the tree as a dataframe
+
+```{r}
+# the second tibble call is so quarto renders it properly
+syncom16s_seqs_mltree_nwk %>% treeio::as_tibble() %>% tibble()
+```
+First we need to get our naming scheme set up
+
+```{r}
+newtipnames <- syncom16s_idtx_lineage_info %>% 
+  mutate(genus = stringr::str_extract(genus, "(^[:alpha:]*).*", group = 1)) %>% 
+  mutate(genus = case_when(is.na(genus) | genus == "unclassified" ~ stringr::str_extract(ncbi_best_species, "^[:alpha:]*"),
+                           TRUE ~ genus)) %>% 
+  mutate(newname = paste(genus, id)) %>% 
+  mutate(cluster = paste0("c", cluster)) %>% 
+  dplyr::select(id, newname, cluster, genus, order, family)
+```
+
+First we need to generate a color palette that lets us distinguish the different colors
+
+```{r}
+library(Polychrome)
+set.seed(341234)
+mypal <- unname(createPalette(max(syncom16s_idtx_lineage_info$cluster), c("#F3874AFF", "#FCD125FF"), M=5000))
+rm(.Random.seed, envir=globalenv())
+```
+
+Now we need to identify the internal nodes that we want to highlight. We can do this using the `MRCA` function from ggtree
+
+```{r}
+MRCA(syncom16s_seqs_mltree_nwk, "TL22", "TL23")
+```
+
+Code to plot the tree
+
+```{r}
+offset <- 0.1
+p1 <- ggtree(syncom16s_seqs_mltree_nwk, layout="rectangular")
+
+p2 <- p1 %<+% newtipnames + 
+  geom_tiplab(aes(label = newname), size=3, hjust = -0.10) +
+  geom_tippoint(aes(color = cluster), size = 2) +
+  scale_color_manual(values = mypal, guide="none") +
+  # Pseudomonadaceae 
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "TL22", "TL23"), 
+                label="(γ) Pseudomonadaceae", align=TRUE, 
+                geom='text', offset=offset) +
+  # Aeromonadaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "HA41", "HA04"), 
+                label="(γ) Aeromonadaceae", align=TRUE, 
+                geom='text', offset=offset) +
+  # Enterobacteriaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "HA14", "HA44"), 
+                label="(γ) Enterobacteriaceae", align=TRUE, 
+                geom='text', offset=offset) +
+  # Moraxellaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "TL64", "HA82"), 
+                label="(γ) Moraxellaceae", align=TRUE, 
+                geom='text', offset=offset) +
+  # Chromobacteriaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "HA47", "HA65"), 
+                label="(γ) Chromobacteriaceae", align=TRUE, 
+                geom='text', offset=offset) +
+  # Burkholderiaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "HA52", "HA18"), 
+                label="(γ) Burkholderiaceae", align=TRUE, 
+                geom='text', offset=offset) +
+  # Sphingomonadaceae
+  geom_cladelab(node=23, 
+                label="(α) Sphingomonadaceae", align=TRUE, 
+                geom='text', offset=offset) +
+  # Streptococcaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "TL12", "TL39"), 
+                label="(Bacilli) Streptococcaceae", align=TRUE, 
+                geom='text', offset=offset) +
+  # Exiguobacteriaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "HA63", "HA25"), 
+                label="(Bacilli) Exiguobacteriaceae", align=TRUE, 
+                  geom='text', offset=offset) +
+  # Deinococcaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "HA42", "HA29"), 
+                label="(Deinococci) Deinococcaceae", align=TRUE, 
+                  geom='text', offset=offset+0.2) +
+  # Weeksellaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "HA56", "HA57"), 
+                label="(Bacteroidia) Weeksellaceae", align=TRUE, 
+                  geom='text', offset=offset+0.4) +
+  xlim(NA, 2)
+```
+
+::: {#fig-02}
+```{r}
+#| fig-width: 7
+#| fig-height: 15
+#| eval: true
+#| echo: false
+p2
+```
+As in @fig-01, but isolates have been labeled with their inferred genus (text) as well as their broader taxonomic class (right, vertical lines). Colors represent sequences clusters based on a 99% identity threshold (i.e., nodes of the same color have 16S rRNA gene sequences that are > 99% similar)
+:::
+
