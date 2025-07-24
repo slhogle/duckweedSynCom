@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Shane Hogle">
-<meta name="dcterms.date" content="2025-07-18">
+<meta name="dcterms.date" content="2025-07-24">
 
 <title>Clustering/phylogenetics of 16S rRNA sequences from duckweed SynCom – duckweedSynCom</title>
 <style>
@@ -185,6 +185,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#s-rrna-sequence-alignment" id="toc-s-rrna-sequence-alignment" class="nav-link" data-scroll-target="#s-rrna-sequence-alignment"><span class="header-section-number">8</span> 16S rRNA sequence alignment</a></li>
   <li><a href="#phylogenetic-tree-building" id="toc-phylogenetic-tree-building" class="nav-link" data-scroll-target="#phylogenetic-tree-building"><span class="header-section-number">9</span> Phylogenetic tree building</a></li>
   <li><a href="#phylogenetic-tree-plotting" id="toc-phylogenetic-tree-plotting" class="nav-link" data-scroll-target="#phylogenetic-tree-plotting"><span class="header-section-number">10</span> Phylogenetic tree plotting</a></li>
+  <li><a href="#aggregate-various-taxa-information" id="toc-aggregate-various-taxa-information" class="nav-link" data-scroll-target="#aggregate-various-taxa-information"><span class="header-section-number">11</span> Aggregate various taxa information</a></li>
   </ul>
 </nav>
     </div>
@@ -210,7 +211,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 18, 2025</p>
+      <p class="date">July 24, 2025</p>
     </div>
   </div>
   
@@ -296,7 +297,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>Partitioning sequences by 4-mer similarity:
 ================================================================================
 
-Time difference of 0.05 secs
+Time difference of 0.06 secs
 
 Sorting by relatedness within 32 groups:
 
@@ -307,7 +308,7 @@ Time difference of 0.05 secs
 Clustering sequences by 10-mer similarity:
 ================================================================================
 
-Time difference of 0.22 secs
+Time difference of 0.18 secs
 
 Clusters via relatedness sorting: 100% (0% exclusively)
 Clusters via rare 4-mers: 100% (0% exclusively)
@@ -515,10 +516,10 @@ Time difference of 1090.3 secs</code></pre>
 
 Please cite:
 
-S Xu, Z Dai, P Guo, X Fu, S Liu, L Zhou, W Tang, T Feng, M Chen, L
-Zhan, T Wu, E Hu, Y Jiang, X Bo, G Yu. ggtreeExtra: Compact
-visualization of richly annotated phylogenetic data. Molecular Biology
-and Evolution. 2021, 38(9):4039-4042. doi: 10.1093/molbev/msab166</code></pre>
+Shuangbin Xu, Lin Li, Xiao Luo, Meijun Chen, Wenli Tang, Li Zhan, Zehan
+Dai, Tommy T. Lam, Yi Guan, Guangchuang Yu. Ggtree: A serialized data
+object for visualization of a phylogenetic tree and annotation data.
+iMeta 2022, 1(4):e56. doi:10.1002/imt2.56</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
@@ -724,6 +725,54 @@ Figure&nbsp;1: Maximum likelihood phylogenetic tree inferred from an alignment o
 Figure&nbsp;2: As in <a href="#fig-01" class="quarto-xref">Figure&nbsp;1</a>, but isolates have been labeled with their inferred genus (text) as well as their broader taxonomic class (right, vertical lines). Colors represent sequences clusters based on a 99% identity threshold (i.e., nodes of the same color have 16S rRNA gene sequences that are &gt; 99% similar)
 </figcaption>
 </figure>
+</div>
+</section>
+<section id="aggregate-various-taxa-information" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> Aggregate various taxa information</h1>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>sanger_batch_info <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"sanger_batch_info_01.tsv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 171 Columns: 7
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: "\t"
+chr (6): sanger_plate_well, sanger_batch, bacteria_plate_well, location, goo...
+lgl (1): sangeranalyseR_success
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<div id="tab-01">
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>final_table <span class="ot">&lt;-</span> <span class="fu">left_join</span>(syncom16s_idtx_lineage_info, sanger_batch_info, <span class="at">by =</span> <span class="fu">join_by</span>(id <span class="sc">==</span> strainID)) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-2"><a href="#cb44-2"></a>  dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">strainID =</span> id, <span class="at">taxa_cluster =</span> cluster) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-3"><a href="#cb44-3"></a>  <span class="fu">mutate</span>(<span class="at">genus1 =</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(genus, <span class="st">"(^[:alpha:]*).*"</span>, <span class="at">group =</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-4"><a href="#cb44-4"></a>  <span class="fu">mutate</span>(<span class="at">genus1 =</span> <span class="fu">case_when</span>(<span class="fu">is.na</span>(genus1) <span class="sc">|</span> genus1 <span class="sc">==</span> <span class="st">"unclassified"</span> <span class="sc">~</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(ncbi_best_species, <span class="st">"^[:alpha:]*"</span>),</span>
+<span id="cb44-5"><a href="#cb44-5"></a>                           <span class="cn">TRUE</span> <span class="sc">~</span> genus1)) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-6"><a href="#cb44-6"></a>  <span class="fu">mutate</span>(<span class="at">tree_name =</span> <span class="fu">paste</span>(genus1, strainID)) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-7"><a href="#cb44-7"></a>  <span class="fu">relocate</span>(<span class="fu">c</span>(bacteria_plate_well, location, google_drive_id, tree_name), <span class="at">.after =</span> strainID) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-8"><a href="#cb44-8"></a>  <span class="fu">relocate</span>(google_drive_id, taxa_cluster, tree_name, <span class="at">.after =</span> strainID) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-9"><a href="#cb44-9"></a>  <span class="fu">relocate</span>(ncbi_best_species, ncbi_taxid, <span class="at">.after =</span> location) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-10"><a href="#cb44-10"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>genus1)</span>
+<span id="cb44-11"><a href="#cb44-11"></a></span>
+<span id="cb44-12"><a href="#cb44-12"></a><span class="fu">write_tsv</span>(final_table, here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"strain_table_info.tsv"</span>))</span>
+<span id="cb44-13"><a href="#cb44-13"></a></span>
+<span id="cb44-14"><a href="#cb44-14"></a>final_table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["strainID"],"name":[1],"type":["chr"],"align":["left"]},{"label":["google_drive_id"],"name":[2],"type":["chr"],"align":["left"]},{"label":["taxa_cluster"],"name":[3],"type":["int"],"align":["right"]},{"label":["tree_name"],"name":[4],"type":["chr"],"align":["left"]},{"label":["bacteria_plate_well"],"name":[5],"type":["chr"],"align":["left"]},{"label":["location"],"name":[6],"type":["chr"],"align":["left"]},{"label":["ncbi_best_species"],"name":[7],"type":["chr"],"align":["left"]},{"label":["ncbi_taxid"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["rootrank"],"name":[9],"type":["chr"],"align":["left"]},{"label":["domain"],"name":[10],"type":["chr"],"align":["left"]},{"label":["phylum"],"name":[11],"type":["chr"],"align":["left"]},{"label":["class"],"name":[12],"type":["chr"],"align":["left"]},{"label":["order"],"name":[13],"type":["chr"],"align":["left"]},{"label":["family"],"name":[14],"type":["chr"],"align":["left"]},{"label":["genus"],"name":[15],"type":["chr"],"align":["left"]},{"label":["sanger_plate_well"],"name":[16],"type":["chr"],"align":["left"]},{"label":["sanger_batch"],"name":[17],"type":["chr"],"align":["left"]},{"label":["sangeranalyseR_success"],"name":[18],"type":["lgl"],"align":["right"]}],"data":[{"1":"HA25","2":"HA_C6","3":"1","4":"Exiguobacterium HA25","5":"C06","6":"Haunisten Allas","7":"Exiguobacterium artemiae","8":"340145","9":"Root (97.8%)","10":"Bacteria (97.8%)","11":"Bacillota (97.8%)","12":"Bacilli (97.8%)","13":"Exiguobacteriales (90.6%)","14":"Exiguobacteriaceae (90.6%)","15":"Exiguobacterium_A (90.6%)","16":"B05","17":"batch20250606","18":"TRUE"},{"1":"HA37","2":"HA_E2","3":"1","4":"Exiguobacterium HA37","5":"E02","6":"Haunisten Allas","7":"Exiguobacterium artemiae","8":"340145","9":"Root (98.1%)","10":"Bacteria (98.1%)","11":"Bacillota (98.1%)","12":"Bacilli (98.1%)","13":"Exiguobacteriales (93.4%)","14":"Exiguobacteriaceae (93.4%)","15":"Exiguobacterium_A (93.4%)","16":"D02","17":"batch20250606","18":"TRUE"},{"1":"HA53","2":"HA_F10","3":"1","4":"Exiguobacterium HA53","5":"F10","6":"Haunisten Allas","7":"Exiguobacterium artemiae","8":"340145","9":"Root (97.8%)","10":"Bacteria (97.8%)","11":"Bacillota (97.8%)","12":"Bacilli (97.8%)","13":"Exiguobacteriales (92.5%)","14":"Exiguobacteriaceae (92.5%)","15":"Exiguobacterium_A (92.5%)","16":"F08","17":"batch20250606","18":"TRUE"},{"1":"HA63","2":"HA_G12","3":"1","4":"Exiguobacterium HA63","5":"G12","6":"Haunisten Allas","7":"Exiguobacterium artemiae","8":"340145","9":"Root (99.2%)","10":"Bacteria (99.2%)","11":"Bacillota (99.2%)","12":"Bacilli (99.2%)","13":"Exiguobacteriales (97.3%)","14":"Exiguobacteriaceae (97.3%)","15":"Exiguobacterium_A (97.3%)","16":"F09","17":"batch20250606","18":"TRUE"},{"1":"TL20","2":"TL_B8","3":"2","4":"Lactococcus TL20","5":"B08","6":"Turun Linna","7":"Lactococcus lactis subsp. hordniae","8":"203404","9":"Root (99.9%)","10":"Bacteria (99.9%)","11":"Bacillota (99.9%)","12":"Bacilli (88.1%)","13":"Lactobacillales (88.1%)","14":"Streptococcaceae (88.1%)","15":"Lactococcus (88.1%)","16":"A05","17":"batch20250620","18":"TRUE"},{"1":"TL26","2":"TL_C8","3":"2","4":"Lactococcus TL26","5":"C08","6":"Turun Linna","7":"Lactococcus lactis subsp. hordniae","8":"203404","9":"Root (99.2%)","10":"Bacteria (99.2%)","11":"Bacillota (99.2%)","12":"Bacilli (83.4%)","13":"Lactobacillales (83.4%)","14":"Streptococcaceae (83.4%)","15":"Lactococcus (83.4%)","16":"B05","17":"batch20250620","18":"TRUE"},{"1":"TL35","2":"TL_D11","3":"2","4":"Lactococcus TL35","5":"D11","6":"Turun Linna","7":"Lactococcus lactis subsp. hordniae","8":"203404","9":"Root (100%)","10":"Bacteria (100%)","11":"Bacillota (100%)","12":"Bacilli (79.8%)","13":"Lactobacillales (79.8%)","14":"Streptococcaceae (79.8%)","15":"Lactococcus (79.8%)","16":"B07","17":"batch20250620","18":"TRUE"},{"1":"TL10","2":"TL_A6","3":"2","4":"Lactococcus TL10","5":"A06","6":"Turun Linna","7":"Lactococcus lactis subsp. hordniae","8":"203404","9":"Root (98.8%)","10":"Bacteria (98.8%)","11":"Bacillota (98.8%)","12":"Bacilli (88.3%)","13":"Lactobacillales (88.3%)","14":"Streptococcaceae (88.3%)","15":"Lactococcus (88.3%)","16":"C03","17":"batch20250620","18":"TRUE"},{"1":"TL19","2":"TL_B7","3":"2","4":"Lactococcus TL19","5":"B07","6":"Turun Linna","7":"Lactococcus lactis subsp. hordniae","8":"203404","9":"Root (98.3%)","10":"Bacteria (98.3%)","11":"Bacillota (98.3%)","12":"Bacilli (74.3%)","13":"Lactobacillales (74.3%)","14":"Streptococcaceae (74.3%)","15":"Lactococcus (74.3%)","16":"C04","17":"batch20250620","18":"TRUE"},{"1":"TL33","2":"TL_D8","3":"2","4":"Lactococcus TL33","5":"D08","6":"Turun Linna","7":"Lactococcus lactis subsp. hordniae","8":"203404","9":"Root (99.8%)","10":"Bacteria (99.8%)","11":"Bacillota (99.8%)","12":"Bacilli (86.3%)","13":"Lactobacillales (86.3%)","14":"Streptococcaceae (86.3%)","15":"Lactococcus (86.3%)","16":"C05","17":"batch20250620","18":"TRUE"},{"1":"TL25","2":"TL_C7","3":"2","4":"Lactococcus TL25","5":"C07","6":"Turun Linna","7":"Lactococcus lactis","8":"1358","9":"Root (97.7%)","10":"Bacteria (97.7%)","11":"Bacillota (97.7%)","12":"Bacilli (70.7%)","13":"Lactobacillales (70.7%)","14":"Streptococcaceae (70.7%)","15":"Lactococcus (70.7%)","16":"D04","17":"batch20250620","18":"TRUE"},{"1":"TL24","2":"TL_C6","3":"2","4":"Lactococcus TL24","5":"C06","6":"Turun Linna","7":"Lactococcus lactis subsp. hordniae","8":"203404","9":"Root (98.4%)","10":"Bacteria (98.4%)","11":"Bacillota (98.4%)","12":"Bacilli (82%)","13":"Lactobacillales (82%)","14":"Streptococcaceae (82%)","15":"Lactococcus (82%)","16":"E03","17":"batch20250620","18":"TRUE"},{"1":"TL39","2":"TL_E7","3":"2","4":"Lactococcus TL39","5":"E07","6":"Turun Linna","7":"Lactococcus lactis subsp. hordniae","8":"203404","9":"Root (99.2%)","10":"Bacteria (99.2%)","11":"Bacillota (99.2%)","12":"Bacilli (88.7%)","13":"Lactobacillales (88.7%)","14":"Streptococcaceae (88.7%)","15":"Lactococcus (88.7%)","16":"E04","17":"batch20250620","18":"TRUE"},{"1":"TL32","2":"TL_D6","3":"2","4":"Lactococcus TL32","5":"D06","6":"Turun Linna","7":"Lactococcus lactis subsp. hordniae","8":"203404","9":"Root (98.8%)","10":"Bacteria (98.8%)","11":"Bacillota (98.8%)","12":"Bacilli (80.9%)","13":"Lactobacillales (80.9%)","14":"Streptococcaceae (80.9%)","15":"Lactococcus (80.9%)","16":"F03","17":"batch20250620","18":"TRUE"},{"1":"TL46","2":"TL_F6","3":"2","4":"Lactococcus TL46","5":"F06","6":"Turun Linna","7":"Lactococcus lactis subsp. hordniae","8":"203404","9":"Root (99.4%)","10":"Bacteria (99.4%)","11":"Bacillota (99.4%)","12":"Bacilli (88.3%)","13":"Lactobacillales (88.3%)","14":"Streptococcaceae (88.3%)","15":"Lactococcus (88.3%)","16":"G03","17":"batch20250620","18":"TRUE"},{"1":"TL62","2":"TL_H8","3":"2","4":"Lactococcus TL62","5":"H08","6":"Turun Linna","7":"Lactococcus lactis subsp. hordniae","8":"203404","9":"Root (99.3%)","10":"Bacteria (99.3%)","11":"Bacillota (99.3%)","12":"Bacilli (84.5%)","13":"Lactobacillales (84.5%)","14":"Streptococcaceae (84.5%)","15":"Lactococcus (84.5%)","16":"G05","17":"batch20250620","18":"TRUE"},{"1":"TL45","2":"TL_F5","3":"2","4":"Lactococcus TL45","5":"F05","6":"Turun Linna","7":"Lactococcus lactis subsp. hordniae","8":"203404","9":"Root (99%)","10":"Bacteria (99%)","11":"Bacillota (99%)","12":"Bacilli (85.7%)","13":"Lactobacillales (85.7%)","14":"Streptococcaceae (85.7%)","15":"Lactococcus (85.7%)","16":"H02","17":"batch20250620","18":"TRUE"},{"1":"TL53","2":"TL_G6","3":"2","4":"Lactococcus TL53","5":"G06","6":"Turun Linna","7":"Lactococcus lactis subsp. hordniae","8":"203404","9":"Root (99.4%)","10":"Bacteria (99.4%)","11":"Bacillota (99.4%)","12":"Bacilli (83.2%)","13":"Lactobacillales (83.2%)","14":"Streptococcaceae (83.2%)","15":"Lactococcus (83.2%)","16":"H03","17":"batch20250620","18":"TRUE"},{"1":"TL12","2":"TL_A8","3":"2","4":"Lactococcus TL12","5":"A08","6":"Turun Linna","7":"Lactococcus lactis subsp. hordniae","8":"203404","9":"Root (97%)","10":"Bacteria (97%)","11":"Bacillota (97%)","12":"Bacilli (77.6%)","13":"Lactobacillales (77.6%)","14":"Streptococcaceae (77.6%)","15":"Lactococcus (77.6%)","16":"H04","17":"batch20250620","18":"TRUE"},{"1":"SJ08","2":"SJ_D5","3":"3","4":"Serratia SJ08","5":"D05","6":"Savojärvi","7":"Serratia fonticola DSM 22080","8":"649197","9":"Root (90%)","10":"Bacteria (90%)","11":"Pseudomonadota (90%)","12":"Gammaproteobacteria (90%)","13":"Enterobacterales (90%)","14":"Enterobacteriaceae (90%)","15":"unclassified_Enterobacteriaceae (90%)","16":"E10","17":"batch20250606","18":"TRUE"},{"1":"SJ20","2":"SJ_D09","3":"3","4":"Serratia SJ20","5":"D09","6":"Savojärvi","7":"Serratia fonticola DSM 22080","8":"649197","9":"Root (89.5%)","10":"Bacteria (89.5%)","11":"Pseudomonadota (89.5%)","12":"Gammaproteobacteria (89.5%)","13":"Enterobacterales (89.5%)","14":"Enterobacteriaceae (89.5%)","15":"unclassified_Enterobacteriaceae (89.5%)","16":"G09","17":"batch20250620","18":"TRUE"},{"1":"SJ18","2":"SJ_H9","3":"4","4":"Aeromonas SJ18","5":"H09","6":"Savojärvi","7":"Aeromonas salmonicida","8":"645","9":"Root (98.3%)","10":"Bacteria (98.3%)","11":"Pseudomonadota (98.3%)","12":"Gammaproteobacteria (98.3%)","13":"unclassified_Gammaproteobacteria (98.3%)","14":"NA","15":"NA","16":"G11","17":"batch20250606","18":"TRUE"},{"1":"HA64","2":"HA_H1","3":"4","4":"Aeromonas HA64","5":"H01","6":"Haunisten Allas","7":"Aeromonas salmonicida","8":"645","9":"Root (99.2%)","10":"Bacteria (99.2%)","11":"Pseudomonadota (99.2%)","12":"Gammaproteobacteria (99.2%)","13":"unclassified_Gammaproteobacteria (99.2%)","14":"NA","15":"NA","16":"H01","17":"batch20250606","18":"TRUE"},{"1":"TL01","2":"TL_A1","3":"5","4":"Pseudomonas TL01","5":"A01","6":"Turun Linna","7":"Pseudomonas germanica","8":"2815720","9":"Root (95.4%)","10":"Bacteria (95.4%)","11":"Pseudomonadota (95.4%)","12":"Gammaproteobacteria (95.4%)","13":"Pseudomonadales (91.2%)","14":"Pseudomonadaceae (91.2%)","15":"Pseudomonas_E (89.6%)","16":"B12","17":"batch20250606","18":"TRUE"},{"1":"TL05","2":"TL_D1","3":"5","4":"Pseudomonas TL05","5":"D01","6":"Turun Linna","7":"Pseudomonas crudilactis","8":"2697028","9":"Root (93.6%)","10":"Bacteria (93.6%)","11":"Pseudomonadota (93.6%)","12":"Gammaproteobacteria (93.6%)","13":"Pseudomonadales (89.9%)","14":"Pseudomonadaceae (89.9%)","15":"Pseudomonas_E (74.5%)","16":"E12","17":"batch20250606","18":"TRUE"},{"1":"TL07","2":"TL_G1","3":"5","4":"Pseudomonas TL07","5":"G01","6":"Turun Linna","7":"Pseudomonas germanica","8":"2815720","9":"Root (96.3%)","10":"Bacteria (96.3%)","11":"Pseudomonadota (96.3%)","12":"Gammaproteobacteria (96.3%)","13":"Pseudomonadales (93.7%)","14":"Pseudomonadaceae (92.8%)","15":"Pseudomonas_E (87.7%)","16":"G12","17":"batch20250606","18":"TRUE"},{"1":"TL16","2":"TL_B2","3":"5","4":"Pseudomonas TL16","5":"B02","6":"Turun Linna","7":"Pseudomonas germanica","8":"2815720","9":"Root (96.3%)","10":"Bacteria (96.3%)","11":"Pseudomonadota (96.3%)","12":"Gammaproteobacteria (96.3%)","13":"Pseudomonadales (92%)","14":"Pseudomonadaceae (91.2%)","15":"Pseudomonas_E (90.3%)","16":"A01","17":"batch20250620","18":"TRUE"},{"1":"TL52","2":"TL_G5","3":"5","4":"Pseudomonas TL52","5":"G05","6":"Turun Linna","7":"Pseudomonas crudilactis","8":"2697028","9":"Root (93.1%)","10":"Bacteria (93.1%)","11":"Pseudomonadota (93.1%)","12":"Gammaproteobacteria (93.1%)","13":"Pseudomonadales (85.7%)","14":"Pseudomonadaceae (85.7%)","15":"Pseudomonas_E (70.3%)","16":"A03","17":"batch20250620","18":"TRUE"},{"1":"TL50","2":"TL_G2","3":"5","4":"Pseudomonas TL50","5":"G02","6":"Turun Linna","7":"Pseudomonas germanica","8":"2815720","9":"Root (97.1%)","10":"Bacteria (97.1%)","11":"Pseudomonadota (97.1%)","12":"Gammaproteobacteria (97.1%)","13":"Pseudomonadales (95.3%)","14":"Pseudomonadaceae (95.3%)","15":"Pseudomonas_E (93.6%)","16":"C01","17":"batch20250620","18":"TRUE"},{"1":"TL30","2":"TL_D3","3":"5","4":"Pseudomonas TL30","5":"D03","6":"Turun Linna","7":"Pseudomonas crudilactis","8":"2697028","9":"Root (93.8%)","10":"Bacteria (93.8%)","11":"Pseudomonadota (93.8%)","12":"Gammaproteobacteria (93.8%)","13":"Pseudomonadales (89.6%)","14":"Pseudomonadaceae (89.6%)","15":"Pseudomonas_E (78.1%)","16":"E01","17":"batch20250620","18":"TRUE"},{"1":"TL42","2":"TL_E10","3":"5","4":"Pseudomonas TL42","5":"E10","6":"Turun Linna","7":"Pseudomonas crudilactis","8":"2697028","9":"Root (93.3%)","10":"Bacteria (93.3%)","11":"Pseudomonadota (93.3%)","12":"Gammaproteobacteria (93.3%)","13":"Pseudomonadales (87%)","14":"Pseudomonadaceae (86.2%)","15":"Pseudomonas_E (80.2%)","16":"E06","17":"batch20250620","18":"TRUE"},{"1":"TL44","2":"TL_F4","3":"5","4":"Pseudomonas TL44","5":"F04","6":"Turun Linna","7":"Pseudomonas germanica","8":"2815720","9":"Root (96.6%)","10":"Bacteria (96.6%)","11":"Pseudomonadota (96.6%)","12":"Gammaproteobacteria (96.6%)","13":"Pseudomonadales (95.1%)","14":"Pseudomonadaceae (95.1%)","15":"Pseudomonas_E (91.5%)","16":"H01","17":"batch20250620","18":"TRUE"},{"1":"TL34","2":"TL_D9","3":"6","4":"Pseudomonas TL34","5":"D09","6":"Turun Linna","7":"Pseudomonas migulae","8":"78543","9":"Root (97.8%)","10":"Bacteria (97.8%)","11":"Pseudomonadota (97.8%)","12":"Gammaproteobacteria (97.8%)","13":"Pseudomonadales (90.5%)","14":"Pseudomonadaceae (90.5%)","15":"Pseudomonas_E (90.5%)","16":"A06","17":"batch20250620","18":"TRUE"},{"1":"TL29","2":"TL_D2","3":"6","4":"Pseudomonas TL29","5":"D02","6":"Turun Linna","7":"Pseudomonas kielensis","8":"2762577","9":"Root (98.9%)","10":"Bacteria (98.9%)","11":"Pseudomonadota (98.9%)","12":"Gammaproteobacteria (98.9%)","13":"Pseudomonadales (94.5%)","14":"Pseudomonadaceae (94.5%)","15":"Pseudomonas_E (94.5%)","16":"B01","17":"batch20250620","18":"TRUE"},{"1":"TL37","2":"TL_E4","3":"6","4":"Pseudomonas TL37","5":"E04","6":"Turun Linna","7":"Pseudomonas migulae","8":"78543","9":"Root (97.8%)","10":"Bacteria (97.8%)","11":"Pseudomonadota (97.8%)","12":"Gammaproteobacteria (97.8%)","13":"Pseudomonadales (90.5%)","14":"Pseudomonadaceae (90.5%)","15":"Pseudomonas_E (89.7%)","16":"G01","17":"batch20250620","18":"TRUE"},{"1":"HA12","2":"HA_B2","3":"7","4":"Pseudomonas HA12","5":"B02","6":"Haunisten Allas","7":"Pseudomonas protegens","8":"380021","9":"Root (98%)","10":"Bacteria (98%)","11":"Pseudomonadota (98%)","12":"Gammaproteobacteria (98%)","13":"Pseudomonadales (93.7%)","14":"Pseudomonadaceae (93.7%)","15":"Pseudomonas_E (87.1%)","16":"B02","17":"batch20250606","18":"TRUE"},{"1":"SJ16","2":"SJ_G5","3":"7","4":"Pseudomonas SJ16","5":"G05","6":"Savojärvi","7":"Pseudomonas protegens","8":"380021","9":"Root (97.1%)","10":"Bacteria (97.1%)","11":"Pseudomonadota (97.1%)","12":"Gammaproteobacteria (97.1%)","13":"Pseudomonadales (96.2%)","14":"Pseudomonadaceae (96.2%)","15":"Pseudomonas_E (93.8%)","16":"H10","17":"batch20250606","18":"TRUE"},{"1":"HA02","2":"HA_A2","3":"8","4":"Pseudomonas HA02","5":"A02","6":"Haunisten Allas","7":"Pseudomonas glycinae","8":"1785145","9":"Root (97.9%)","10":"Bacteria (97.9%)","11":"Pseudomonadota (97.9%)","12":"Gammaproteobacteria (97.9%)","13":"Pseudomonadales (94.1%)","14":"Pseudomonadaceae (94.1%)","15":"Pseudomonas_E (92.1%)","16":"A02","17":"batch20250606","18":"TRUE"},{"1":"HA30","2":"HA_C11","3":"8","4":"Pseudomonas HA30","5":"C11","6":"Haunisten Allas","7":"Pseudomonas glycinae","8":"1785145","9":"Root (95.4%)","10":"Bacteria (95.4%)","11":"Pseudomonadota (95.4%)","12":"Gammaproteobacteria (95.4%)","13":"Pseudomonadales (93.7%)","14":"Pseudomonadaceae (92.9%)","15":"Pseudomonas_E (91.1%)","16":"A09","17":"batch20250606","18":"TRUE"},{"1":"SJ13","2":"SJ_F6","3":"8","4":"Pseudomonas SJ13","5":"F06","6":"Savojärvi","7":"Pseudomonas glycinae","8":"1785145","9":"Root (97.6%)","10":"Bacteria (97.6%)","11":"Pseudomonadota (97.6%)","12":"Gammaproteobacteria (97.6%)","13":"Pseudomonadales (95.7%)","14":"Pseudomonadaceae (95.7%)","15":"Pseudomonas_E (94.2%)","16":"B11","17":"batch20250606","18":"TRUE"},{"1":"HA39","2":"HA_E5","3":"8","4":"Pseudomonas HA39","5":"E05","6":"Haunisten Allas","7":"Pseudomonas glycinae","8":"1785145","9":"Root (97.2%)","10":"Bacteria (97.2%)","11":"Pseudomonadota (97.2%)","12":"Gammaproteobacteria (97.2%)","13":"Pseudomonadales (92.7%)","14":"Pseudomonadaceae (92.7%)","15":"Pseudomonas_E (92.7%)","16":"D04","17":"batch20250606","18":"TRUE"},{"1":"SJ10","2":"SJ_E5","3":"8","4":"Pseudomonas SJ10","5":"E05","6":"Savojärvi","7":"Pseudomonas glycinae","8":"1785145","9":"Root (97%)","10":"Bacteria (97%)","11":"Pseudomonadota (97%)","12":"Gammaproteobacteria (97%)","13":"Pseudomonadales (90.3%)","14":"Pseudomonadaceae (89.4%)","15":"Pseudomonas_E (86.6%)","16":"F10","17":"batch20250606","18":"TRUE"},{"1":"SJ12","2":"SJ_F5","3":"8","4":"Pseudomonas SJ12","5":"F05","6":"Savojärvi","7":"Pseudomonas glycinae","8":"1785145","9":"Root (98.1%)","10":"Bacteria (98.1%)","11":"Pseudomonadota (98.1%)","12":"Gammaproteobacteria (98.1%)","13":"Pseudomonadales (95.6%)","14":"Pseudomonadaceae (94.7%)","15":"Pseudomonas_E (93.8%)","16":"G10","17":"batch20250606","18":"TRUE"},{"1":"SJ07","2":"SJ_D2","3":"8","4":"Pseudomonas SJ07","5":"D02","6":"Savojärvi","7":"Pseudomonas koreensis","8":"198620","9":"Root (98.4%)","10":"Bacteria (98.4%)","11":"Pseudomonadota (98.4%)","12":"Gammaproteobacteria (98.4%)","13":"Pseudomonadales (89.8%)","14":"Pseudomonadaceae (89.8%)","15":"Pseudomonas_E (84.4%)","16":"H09","17":"batch20250606","18":"TRUE"},{"1":"SJ23","2":"SJ_F10","3":"8","4":"Pseudomonas SJ23","5":"F10","6":"Savojärvi","7":"Pseudomonas glycinae","8":"1785145","9":"Root (99.2%)","10":"Bacteria (99.2%)","11":"Pseudomonadota (99.2%)","12":"Gammaproteobacteria (99.2%)","13":"Pseudomonadales (98.3%)","14":"Pseudomonadaceae (98.3%)","15":"Pseudomonas_E (97.5%)","16":"B10","17":"batch20250620","18":"TRUE"},{"1":"HA81","2":"HA_G05","3":"8","4":"Pseudomonas HA81","5":"G05","6":"Haunisten Allas","7":"Pseudomonas glycinae","8":"1785145","9":"Root (98.7%)","10":"Bacteria (98.7%)","11":"Pseudomonadota (98.7%)","12":"Gammaproteobacteria (98.7%)","13":"Pseudomonadales (97.9%)","14":"Pseudomonadaceae (97.9%)","15":"Pseudomonas_E (94.2%)","16":"D09","17":"batch20250620","18":"TRUE"},{"1":"TL38","2":"TL_E5","3":"9","4":"Pantoea TL38","5":"E05","6":"Turun Linna","7":"Pantoea ananatis","8":"553","9":"Root (95.9%)","10":"Bacteria (95.9%)","11":"Pseudomonadota (95.9%)","12":"Gammaproteobacteria (95.9%)","13":"Enterobacterales (82.7%)","14":"Enterobacteriaceae (82.7%)","15":"Pantoea (77.1%)","16":"G02","17":"batch20250620","18":"TRUE"},{"1":"TL06","2":"TL_E1","3":"10","4":"Pseudomonas TL06","5":"E01","6":"Turun Linna","7":"Pseudomonas fungipugnans","8":"3024217","9":"Root (94.4%)","10":"Bacteria (94.4%)","11":"Pseudomonadota (94.4%)","12":"Gammaproteobacteria (94.4%)","13":"Pseudomonadales (93.5%)","14":"Pseudomonadaceae (91.8%)","15":"Pseudomonas_E (91.8%)","16":"F12","17":"batch20250606","18":"TRUE"},{"1":"HA13","2":"HA_B3","3":"11","4":"Aeromonas HA13","5":"B03","6":"Haunisten Allas","7":"Aeromonas jandaei","8":"650","9":"Root (98.1%)","10":"Bacteria (98.1%)","11":"Pseudomonadota (98.1%)","12":"Gammaproteobacteria (98.1%)","13":"Enterobacterales (78%)","14":"Aeromonadaceae (78%)","15":"Aeromonas (78%)","16":"A03","17":"batch20250606","18":"TRUE"},{"1":"HA04","2":"HA_A4","3":"11","4":"Aeromonas HA04","5":"A04","6":"Haunisten Allas","7":"Aeromonas jandaei","8":"650","9":"Root (98.1%)","10":"Bacteria (98.1%)","11":"Pseudomonadota (98.1%)","12":"Gammaproteobacteria (98.1%)","13":"Enterobacterales (72.4%)","14":"Aeromonadaceae (72.4%)","15":"Aeromonas (72.4%)","16":"C03","17":"batch20250606","18":"TRUE"},{"1":"HA23","2":"HA_C4","3":"11","4":"Aeromonas HA23","5":"C04","6":"Haunisten Allas","7":"Aeromonas jandaei","8":"650","9":"Root (98.6%)","10":"Bacteria (98.6%)","11":"Pseudomonadota (98.6%)","12":"Gammaproteobacteria (98.6%)","13":"Enterobacterales (79.3%)","14":"Aeromonadaceae (79.3%)","15":"Aeromonas (79.3%)","16":"E03","17":"batch20250606","18":"TRUE"},{"1":"HA03","2":"HA_A3","3":"11","4":"Aeromonas HA03","5":"A03","6":"Haunisten Allas","7":"Aeromonas jandaei","8":"650","9":"Root (98.6%)","10":"Bacteria (98.6%)","11":"Pseudomonadota (98.6%)","12":"Gammaproteobacteria (98.6%)","13":"Enterobacterales (76.9%)","14":"Aeromonadaceae (76.9%)","15":"Aeromonas (76.9%)","16":"H02","17":"batch20250606","18":"TRUE"},{"1":"TL09","2":"TL_A5","3":"12","4":"Lelliottia TL09","5":"A05","6":"Turun Linna","7":"Lelliottia amnigena","8":"61646","9":"Root (98.5%)","10":"Bacteria (98.5%)","11":"Pseudomonadota (98.5%)","12":"Gammaproteobacteria (98.5%)","13":"Enterobacterales (97.6%)","14":"Enterobacteriaceae (97.6%)","15":"Lelliottia (60.9%)","16":"C02","17":"batch20250620","18":"TRUE"},{"1":"TL23","2":"TL_C5","3":"13","4":"Pseudomonas TL23","5":"C05","6":"Turun Linna","7":"Pseudomonas peli","8":"592361","9":"Root (96.6%)","10":"Bacteria (96.6%)","11":"Pseudomonadota (96.6%)","12":"Gammaproteobacteria (96.6%)","13":"Pseudomonadales (95.9%)","14":"Pseudomonadaceae (95.9%)","15":"Pseudomonas_E (93.3%)","16":"E02","17":"batch20250620","18":"TRUE"},{"1":"TL47","2":"TL_F7","3":"13","4":"Pseudomonas TL47","5":"F07","6":"Turun Linna","7":"Pseudomonas peli","8":"592361","9":"Root (95.2%)","10":"Bacteria (95.2%)","11":"Pseudomonadota (95.2%)","12":"Gammaproteobacteria (95.2%)","13":"Pseudomonadales (92.6%)","14":"Pseudomonadaceae (92.6%)","15":"Pseudomonas_E (91.8%)","16":"F04","17":"batch20250620","18":"TRUE"},{"1":"TL54","2":"TL_G8","3":"13","4":"Pseudomonas TL54","5":"G08","6":"Turun Linna","7":"Pseudomonas peli","8":"592361","9":"Root (95.4%)","10":"Bacteria (95.4%)","11":"Pseudomonadota (95.4%)","12":"Gammaproteobacteria (95.4%)","13":"Pseudomonadales (95.4%)","14":"Pseudomonadaceae (92.4%)","15":"Pseudomonas_E (89.8%)","16":"F05","17":"batch20250620","18":"TRUE"},{"1":"TL61","2":"TL_H7","3":"13","4":"Pseudomonas TL61","5":"H07","6":"Turun Linna","7":"Pseudomonas peli","8":"592361","9":"Root (97.5%)","10":"Bacteria (97.5%)","11":"Pseudomonadota (97.5%)","12":"Gammaproteobacteria (97.5%)","13":"Pseudomonadales (96.7%)","14":"Pseudomonadaceae (96.7%)","15":"Pseudomonas_E (94.9%)","16":"G04","17":"batch20250620","18":"TRUE"},{"1":"HA21","2":"HA_C1","3":"14","4":"Aeromonas HA21","5":"C01","6":"Haunisten Allas","7":"Aeromonas allosaccharophila","8":"656","9":"Root (96.2%)","10":"Bacteria (96.2%)","11":"Pseudomonadota (96.2%)","12":"Gammaproteobacteria (96.2%)","13":"Enterobacterales (71.8%)","14":"Aeromonadaceae (70.9%)","15":"Aeromonas (70.9%)","16":"C01","17":"batch20250606","18":"TRUE"},{"1":"TL03","2":"TL_B1","3":"15","4":"Pseudomonas TL03","5":"B01","6":"Turun Linna","7":"Pseudomonas mohnii","8":"395600","9":"Root (96.5%)","10":"Bacteria (96.5%)","11":"Pseudomonadota (93.9%)","12":"Gammaproteobacteria (93.9%)","13":"Pseudomonadales (90.1%)","14":"Pseudomonadaceae (83.7%)","15":"Pseudomonas_E (74.2%)","16":"C12","17":"batch20250606","18":"TRUE"},{"1":"TL04","2":"TL_C1","3":"15","4":"Pseudomonas TL04","5":"C01","6":"Turun Linna","7":"Pseudomonas germanica","8":"2815720","9":"Root (96.8%)","10":"Bacteria (96.8%)","11":"Pseudomonadota (96.8%)","12":"Gammaproteobacteria (96.8%)","13":"Pseudomonadales (94.2%)","14":"Pseudomonadaceae (93.4%)","15":"Pseudomonas_E (90.6%)","16":"D12","17":"batch20250606","18":"TRUE"},{"1":"TL51","2":"TL_G4","3":"15","4":"Pseudomonas TL51","5":"G04","6":"Turun Linna","7":"Pseudomonas germanica","8":"2815720","9":"Root (96.5%)","10":"Bacteria (96.5%)","11":"Pseudomonadota (96.5%)","12":"Gammaproteobacteria (96.5%)","13":"Pseudomonadales (94%)","14":"Pseudomonadaceae (94%)","15":"Pseudomonas_E (93.2%)","16":"A02","17":"batch20250620","18":"TRUE"},{"1":"TL11","2":"TL_A7","3":"15","4":"Pseudomonas TL11","5":"A07","6":"Turun Linna","7":"Pseudomonas germanica","8":"2815720","9":"Root (95.6%)","10":"Bacteria (95.6%)","11":"Pseudomonadota (95.6%)","12":"Gammaproteobacteria (95.6%)","13":"Pseudomonadales (92.3%)","14":"Pseudomonadaceae (92.3%)","15":"Pseudomonas_E (89.7%)","16":"B04","17":"batch20250620","18":"TRUE"},{"1":"TL41","2":"TL_E9","3":"15","4":"Pseudomonas TL41","5":"E09","6":"Turun Linna","7":"Pseudomonas germanica","8":"2815720","9":"Root (97.9%)","10":"Bacteria (97.9%)","11":"Pseudomonadota (97.9%)","12":"Gammaproteobacteria (97.9%)","13":"Pseudomonadales (95.4%)","14":"Pseudomonadaceae (95.4%)","15":"Pseudomonas_E (92.1%)","16":"B06","17":"batch20250620","18":"TRUE"},{"1":"TL22","2":"TL_C3","3":"15","4":"Pseudomonas TL22","5":"C03","6":"Turun Linna","7":"Pseudomonas germanica","8":"2815720","9":"Root (97.3%)","10":"Bacteria (97.3%)","11":"Pseudomonadota (97.3%)","12":"Gammaproteobacteria (97.3%)","13":"Pseudomonadales (91.6%)","14":"Pseudomonadaceae (90.9%)","15":"Pseudomonas_E (89.1%)","16":"D01","17":"batch20250620","18":"TRUE"},{"1":"TL18","2":"TL_B6","3":"15","4":"Pseudomonas TL18","5":"B06","6":"Turun Linna","7":"Pseudomonas germanica","8":"2815720","9":"Root (96.9%)","10":"Bacteria (96.9%)","11":"Pseudomonadota (96.9%)","12":"Gammaproteobacteria (96.9%)","13":"Pseudomonadales (92.6%)","14":"Pseudomonadaceae (91.6%)","15":"Pseudomonas_E (84.6%)","16":"D03","17":"batch20250620","18":"TRUE"},{"1":"TL63","2":"TL_H9","3":"15","4":"Pseudomonas TL63","5":"H09","6":"Turun Linna","7":"Pseudomonas germanica","8":"2815720","9":"Root (96%)","10":"Bacteria (96%)","11":"Pseudomonadota (96%)","12":"Gammaproteobacteria (96%)","13":"Pseudomonadales (93.2%)","14":"Pseudomonadaceae (92.3%)","15":"Pseudomonas_E (90.8%)","16":"D06","17":"batch20250620","18":"TRUE"},{"1":"TL65","2":"TL_H11","3":"15","4":"Pseudomonas TL65","5":"H11","6":"Turun Linna","7":"Pseudomonas germanica","8":"2815720","9":"Root (97%)","10":"Bacteria (97%)","11":"Pseudomonadota (97%)","12":"Gammaproteobacteria (97%)","13":"Pseudomonadales (94.2%)","14":"Pseudomonadaceae (94.2%)","15":"Pseudomonas_E (89%)","16":"E07","17":"batch20250620","18":"TRUE"},{"1":"TL31","2":"TL_D5","3":"15","4":"Pseudomonas TL31","5":"D05","6":"Turun Linna","7":"Pseudomonas germanica","8":"2815720","9":"Root (97.2%)","10":"Bacteria (97.2%)","11":"Pseudomonadota (97.2%)","12":"Gammaproteobacteria (97.2%)","13":"Pseudomonadales (95.7%)","14":"Pseudomonadaceae (95.7%)","15":"Pseudomonas_E (91.5%)","16":"F02","17":"batch20250620","18":"TRUE"},{"1":"TL14","2":"TL_A11","3":"15","4":"Pseudomonas TL14","5":"A11","6":"Turun Linna","7":"Pseudomonas germanica","8":"2815720","9":"Root (97.8%)","10":"Bacteria (97.8%)","11":"Pseudomonadota (97.8%)","12":"Gammaproteobacteria (97.8%)","13":"Pseudomonadales (92.5%)","14":"Pseudomonadaceae (92.5%)","15":"Pseudomonas_E (87%)","16":"H06","17":"batch20250620","18":"TRUE"},{"1":"HA82","2":"HA_H10","3":"16","4":"Acinetobacter HA82","5":"H10","6":"Haunisten Allas","7":"Acinetobacter modestus","8":"1776740","9":"Root (91.8%)","10":"Bacteria (91.8%)","11":"Pseudomonadota (91.8%)","12":"Gammaproteobacteria (91.8%)","13":"unclassified_Gammaproteobacteria (91.8%)","14":"NA","15":"NA","16":"E09","17":"batch20250620","18":"TRUE"},{"1":"HA46","2":"HA_F3","3":"17","4":"Aquitalea HA46","5":"F03","6":"Haunisten Allas","7":"Aquitalea aquatilis","8":"1537400","9":"Root (98.4%)","10":"Bacteria (98.4%)","11":"Pseudomonadota (98.4%)","12":"Gammaproteobacteria (98.4%)","13":"Burkholderiales (98.4%)","14":"Chromobacteriaceae (98.4%)","15":"Aquitalea (98.4%)","16":"B03","17":"batch20250606","18":"TRUE"},{"1":"HA32","2":"HA_D7","3":"17","4":"Aquitalea HA32","5":"D07","6":"Haunisten Allas","7":"Aquitalea magnusonii","8":"332411","9":"Root (98.9%)","10":"Bacteria (98.9%)","11":"Pseudomonadota (98.9%)","12":"Gammaproteobacteria (98.9%)","13":"Burkholderiales (98.9%)","14":"Chromobacteriaceae (98.9%)","15":"Aquitalea (98.9%)","16":"B06","17":"batch20250606","18":"TRUE"},{"1":"HA68","2":"HA_H8","3":"17","4":"Aquitalea HA68","5":"H08","6":"Haunisten Allas","7":"Aquitalea magnusonii","8":"332411","9":"Root (98.7%)","10":"Bacteria (98.7%)","11":"Pseudomonadota (98.7%)","12":"Gammaproteobacteria (98.7%)","13":"Burkholderiales (98.7%)","14":"Chromobacteriaceae (98.7%)","15":"Aquitalea (97.9%)","16":"C07","17":"batch20250606","18":"TRUE"},{"1":"HA35","2":"HA_D12","3":"17","4":"Aquitalea HA35","5":"D12","6":"Haunisten Allas","7":"Aquitalea magnusonii","8":"332411","9":"Root (98.5%)","10":"Bacteria (98.5%)","11":"Pseudomonadota (98.5%)","12":"Gammaproteobacteria (98.5%)","13":"Burkholderiales (98.5%)","14":"Chromobacteriaceae (98.5%)","15":"Aquitalea (98.5%)","16":"D09","17":"batch20250606","18":"TRUE"},{"1":"HA65","2":"HA_H2","3":"17","4":"Aquitalea HA65","5":"H02","6":"Haunisten Allas","7":"Aquitalea aquatilis","8":"1537400","9":"Root (100%)","10":"Bacteria (100%)","11":"Pseudomonadota (100%)","12":"Gammaproteobacteria (100%)","13":"Burkholderiales (100%)","14":"Chromobacteriaceae (100%)","15":"Aquitalea (100%)","16":"G02","17":"batch20250606","18":"TRUE"},{"1":"SJ05","2":"SJ_C5","3":"18","4":"Pseudomonas SJ05","5":"C05","6":"Savojärvi","7":"Pseudomonas graminis","8":"158627","9":"Root (88.1%)","10":"Bacteria (88.1%)","11":"Pseudomonadota (88.1%)","12":"Gammaproteobacteria (88.1%)","13":"Pseudomonadales (73.2%)","14":"Pseudomonadaceae (73.2%)","15":"unclassified_Pseudomonadaceae (73.2%)","16":"D10","17":"batch20250606","18":"TRUE"},{"1":"TL55","2":"TL_G9","3":"19","4":"Pseudomonas TL55","5":"G09","6":"Turun Linna","7":"Pseudomonas pratensis","8":"2654755","9":"Root (84.8%)","10":"Bacteria (84.8%)","11":"Pseudomonadota (84.8%)","12":"Gammaproteobacteria (84.8%)","13":"Pseudomonadales (79.8%)","14":"Pseudomonadaceae (77.5%)","15":"unclassified_Pseudomonadaceae (77.5%)","16":"C06","17":"batch20250620","18":"TRUE"},{"1":"SJ03","2":"SJ_A10","3":"20","4":"Pelomonas SJ03","5":"A10","6":"Savojärvi","7":"Pelomonas candidula","8":"3299025","9":"Root (95.8%)","10":"Bacteria (95.8%)","11":"Pseudomonadota (95.8%)","12":"Gammaproteobacteria (95.8%)","13":"Burkholderiales (95.8%)","14":"Burkholderiaceae (95.8%)","15":"Pelomonas (64.4%)","16":"H11","17":"batch20250606","18":"TRUE"},{"1":"HA51","2":"HA_F8","3":"21","4":"Chryseobacterium HA51","5":"F08","6":"Haunisten Allas","7":"Chryseobacterium gambrini","8":"373672","9":"Root (99.6%)","10":"Bacteria (99.6%)","11":"Bacteroidota (99.6%)","12":"Bacteroidia (99.6%)","13":"Flavobacteriales (99.6%)","14":"Weeksellaceae (99.6%)","15":"Chryseobacterium (97.2%)","16":"A07","17":"batch20250606","18":"TRUE"},{"1":"HA08","2":"HA_A8","3":"21","4":"Chryseobacterium HA08","5":"A08","6":"Haunisten Allas","7":"Chryseobacterium gambrini","8":"373672","9":"Root (99.5%)","10":"Bacteria (99.5%)","11":"Bacteroidota (99.5%)","12":"Bacteroidia (99.5%)","13":"Flavobacteriales (99.5%)","14":"Weeksellaceae (99.5%)","15":"Chryseobacterium (99.5%)","16":"D06","17":"batch20250606","18":"TRUE"},{"1":"HA28","2":"HA_C9","3":"21","4":"Chryseobacterium HA28","5":"C09","6":"Haunisten Allas","7":"Chryseobacterium gambrini","8":"373672","9":"Root (97.9%)","10":"Bacteria (97.9%)","11":"Bacteroidota (97.9%)","12":"Bacteroidia (97.9%)","13":"Flavobacteriales (97.9%)","14":"Weeksellaceae (97.9%)","15":"Chryseobacterium (93.5%)","16":"D07","17":"batch20250606","18":"TRUE"},{"1":"HA45","2":"HA_F2","3":"21","4":"Chryseobacterium HA45","5":"F02","6":"Haunisten Allas","7":"Chryseobacterium gambrini","8":"373672","9":"Root (96%)","10":"Bacteria (96%)","11":"Bacteroidota (96%)","12":"Bacteroidia (96%)","13":"Flavobacteriales (96%)","14":"Weeksellaceae (96%)","15":"Chryseobacterium (92%)","16":"E02","17":"batch20250606","18":"TRUE"},{"1":"HA56","2":"HA_G2","3":"21","4":"Chryseobacterium HA56","5":"G02","6":"Haunisten Allas","7":"Chryseobacterium gambrini","8":"373672","9":"Root (86.1%)","10":"Bacteria (86.1%)","11":"Bacteroidota (86.1%)","12":"Bacteroidia (86.1%)","13":"Flavobacteriales (86.1%)","14":"Weeksellaceae (86.1%)","15":"Chryseobacterium (83.1%)","16":"F02","17":"batch20250606","18":"TRUE"},{"1":"HA67","2":"HA_H6","3":"21","4":"Chryseobacterium HA67","5":"H06","6":"Haunisten Allas","7":"Chryseobacterium gambrini","8":"373672","9":"Root (99.5%)","10":"Bacteria (99.5%)","11":"Bacteroidota (99.5%)","12":"Bacteroidia (99.5%)","13":"Flavobacteriales (99.5%)","14":"Weeksellaceae (99.5%)","15":"Chryseobacterium (99.5%)","16":"F05","17":"batch20250606","18":"TRUE"},{"1":"HA33","2":"HA_D8","3":"21","4":"Chryseobacterium HA33","5":"D08","6":"Haunisten Allas","7":"Chryseobacterium gambrini","8":"373672","9":"Root (97.6%)","10":"Bacteria (97.6%)","11":"Bacteroidota (97.6%)","12":"Bacteroidia (97.6%)","13":"Flavobacteriales (97.6%)","14":"Weeksellaceae (97.6%)","15":"Chryseobacterium (94.8%)","16":"G06","17":"batch20250606","18":"TRUE"},{"1":"HA57","2":"HA_G4","3":"21","4":"Chryseobacterium HA57","5":"G04","6":"Haunisten Allas","7":"Chryseobacterium gambrini","8":"373672","9":"Root (99.4%)","10":"Bacteria (99.4%)","11":"Bacteroidota (99.4%)","12":"Bacteroidia (99.4%)","13":"Flavobacteriales (99.4%)","14":"Weeksellaceae (99.4%)","15":"Chryseobacterium (99.4%)","16":"H03","17":"batch20250606","18":"TRUE"},{"1":"HA80","2":"HA_G02","3":"21","4":"Chryseobacterium HA80","5":"G02","6":"Haunisten Allas","7":"Chryseobacterium gambrini","8":"373672","9":"Root (96.9%)","10":"Bacteria (96.9%)","11":"Bacteroidota (96.9%)","12":"Bacteroidia (96.9%)","13":"Flavobacteriales (96.1%)","14":"Weeksellaceae (96.1%)","15":"Chryseobacterium (95.4%)","16":"C09","17":"batch20250620","18":"TRUE"},{"1":"HA16","2":"HA_B6","3":"22","4":"Comamonas HA16","5":"B06","6":"Haunisten Allas","7":"Delftia acidovorans","8":"80866","9":"Root (99.4%)","10":"Bacteria (99.4%)","11":"Pseudomonadota (99.4%)","12":"Gammaproteobacteria (99.4%)","13":"Burkholderiales (99.4%)","14":"Burkholderiaceae (99.4%)","15":"Comamonas (97.8%)","16":"A05","17":"batch20250606","18":"TRUE"},{"1":"TL64","2":"TL_H10","3":"23","4":"Acinetobacter TL64","5":"H10","6":"Turun Linna","7":"Acinetobacter johnsonii","8":"40214","9":"Root (99.7%)","10":"Bacteria (99.7%)","11":"Pseudomonadota (99.7%)","12":"Gammaproteobacteria (99.7%)","13":"Pseudomonadales (98.8%)","14":"Moraxellaceae (98.8%)","15":"Acinetobacter (98.8%)","16":"G06","17":"batch20250620","18":"TRUE"},{"1":"SJ14","2":"SJ_F9","3":"24","4":"Roseateles SJ14","5":"F09","6":"Savojärvi","7":"Roseateles depolymerans","8":"76731","9":"Root (98.9%)","10":"Bacteria (98.9%)","11":"Pseudomonadota (98.9%)","12":"Gammaproteobacteria (98.9%)","13":"Burkholderiales (98.9%)","14":"Burkholderiaceae (98.9%)","15":"Roseateles (95.2%)","16":"F11","17":"batch20250606","18":"TRUE"},{"1":"HA40","2":"HA_E6","3":"25","4":"Aeromonas HA40","5":"E06","6":"Haunisten Allas","7":"Aeromonas finlandensis","8":"1543375","9":"Root (96.3%)","10":"Bacteria (96.3%)","11":"Pseudomonadota (96.3%)","12":"Gammaproteobacteria (96.3%)","13":"Enterobacterales (79.2%)","14":"Aeromonadaceae (79.2%)","15":"Aeromonas (79.2%)","16":"C05","17":"batch20250606","18":"TRUE"},{"1":"HA50","2":"HA_F7","3":"25","4":"Aeromonas HA50","5":"F07","6":"Haunisten Allas","7":"Aeromonas finlandensis","8":"1543375","9":"Root (95%)","10":"Bacteria (95%)","11":"Pseudomonadota (95%)","12":"Gammaproteobacteria (95%)","13":"Enterobacterales (76.8%)","14":"Aeromonadaceae (76.8%)","15":"Aeromonas (76.8%)","16":"C06","17":"batch20250606","18":"TRUE"},{"1":"HA48","2":"HA_F5","3":"25","4":"Aeromonas HA48","5":"F05","6":"Haunisten Allas","7":"Aeromonas tecta","8":"324617","9":"Root (97.3%)","10":"Bacteria (97.3%)","11":"Pseudomonadota (97.3%)","12":"Gammaproteobacteria (97.3%)","13":"Enterobacterales (69.9%)","14":"Aeromonadaceae (69.2%)","15":"Aeromonas (69.2%)","16":"E04","17":"batch20250606","18":"TRUE"},{"1":"HA17","2":"HA_B7","3":"25","4":"Aeromonas HA17","5":"B07","6":"Haunisten Allas","7":"Aeromonas veronii bv. veronii","8":"197701","9":"Root (95.1%)","10":"Bacteria (95.1%)","11":"Pseudomonadota (95.1%)","12":"Gammaproteobacteria (95.1%)","13":"Enterobacterales (70.6%)","14":"Aeromonadaceae (69.7%)","15":"Aeromonas (69.7%)","16":"H05","17":"batch20250606","18":"TRUE"},{"1":"HA01","2":"HA_A1","3":"26","4":"Chromobacterium HA01","5":"A01","6":"Haunisten Allas","7":"Chromobacterium piscinae","8":"686831","9":"Root (98.6%)","10":"Bacteria (98.6%)","11":"Pseudomonadota (98.6%)","12":"Gammaproteobacteria (98.6%)","13":"Burkholderiales (98.6%)","14":"Chromobacteriaceae (98.6%)","15":"Chromobacterium (97.7%)","16":"A01","17":"batch20250606","18":"TRUE"},{"1":"HA11","2":"HA_B1","3":"26","4":"Chromobacterium HA11","5":"B01","6":"Haunisten Allas","7":"Chromobacterium vaccinii","8":"1108595","9":"Root (98.6%)","10":"Bacteria (98.6%)","11":"Pseudomonadota (98.6%)","12":"Gammaproteobacteria (98.6%)","13":"Burkholderiales (98.6%)","14":"Chromobacteriaceae (98.6%)","15":"Chromobacterium (98.6%)","16":"B01","17":"batch20250606","18":"TRUE"},{"1":"HA47","2":"HA_F4","3":"26","4":"Chromobacterium HA47","5":"F04","6":"Haunisten Allas","7":"Chromobacterium vaccinii","8":"1108595","9":"Root (98.3%)","10":"Bacteria (98.3%)","11":"Pseudomonadota (98.3%)","12":"Gammaproteobacteria (98.3%)","13":"Burkholderiales (98.3%)","14":"Chromobacteriaceae (98.3%)","15":"Chromobacterium (98.3%)","16":"G03","17":"batch20250606","18":"TRUE"},{"1":"HA06","2":"HA_A6","3":"26","4":"Chromobacterium HA06","5":"A06","6":"Haunisten Allas","7":"Chromobacterium vaccinii","8":"1108595","9":"Root (97.6%)","10":"Bacteria (97.6%)","11":"Pseudomonadota (97.6%)","12":"Gammaproteobacteria (97.6%)","13":"Burkholderiales (97.6%)","14":"Chromobacteriaceae (97.6%)","15":"Chromobacterium (97.6%)","16":"H04","17":"batch20250606","18":"TRUE"},{"1":"HA72","2":"HA_A05","3":"26","4":"Chromobacterium HA72","5":"A05","6":"Haunisten Allas","7":"Chromobacterium vaccinii","8":"1108595","9":"Root (99.1%)","10":"Bacteria (99.1%)","11":"Pseudomonadota (99.1%)","12":"Gammaproteobacteria (99.1%)","13":"Burkholderiales (99.1%)","14":"Chromobacteriaceae (99.1%)","15":"Chromobacterium (99.1%)","16":"C08","17":"batch20250620","18":"TRUE"},{"1":"HA10","2":"HA_A12","3":"27","4":"Yersinia HA10","5":"A12","6":"Haunisten Allas","7":"Yersinia massiliensis","8":"419257","9":"Root (31.2%)","10":"unclassified_Root (31.2%)","11":"NA","12":"NA","13":"NA","14":"NA","15":"NA","16":"B09","17":"batch20250606","18":"TRUE"},{"1":"HA14","2":"HA_B4","3":"27","4":"Yersinia HA14","5":"B04","6":"Haunisten Allas","7":"Yersinia intermedia","8":"631","9":"Root (97.7%)","10":"Bacteria (97.7%)","11":"Pseudomonadota (97.7%)","12":"Gammaproteobacteria (97.7%)","13":"Enterobacterales (90.4%)","14":"Enterobacteriaceae (90.4%)","15":"Yersinia (86.2%)","16":"D03","17":"batch20250606","18":"TRUE"},{"1":"HA61","2":"HA_G9","3":"27","4":"Yersinia HA61","5":"G09","6":"Haunisten Allas","7":"Yersinia rochesterensis","8":"1604335","9":"Root (98%)","10":"Bacteria (98%)","11":"Pseudomonadota (98%)","12":"Gammaproteobacteria (98%)","13":"Enterobacterales (93.3%)","14":"Enterobacteriaceae (93.3%)","15":"Yersinia (85%)","16":"G07","17":"batch20250606","18":"TRUE"},{"1":"HA59","2":"HA_G6","3":"28","4":"Pseudomonas HA59","5":"G06","6":"Haunisten Allas","7":"Pseudomonas grimontii","8":"129847","9":"Root (96.5%)","10":"Bacteria (96.5%)","11":"Pseudomonadota (96.5%)","12":"Gammaproteobacteria (96.5%)","13":"Pseudomonadales (72%)","14":"Pseudomonadaceae (72%)","15":"Pseudomonas_E (70%)","16":"E05","17":"batch20250606","18":"TRUE"},{"1":"HA07","2":"HA_A7","3":"29","4":"Aeromonas HA07","5":"A07","6":"Haunisten Allas","7":"Aeromonas hydrophila","8":"644","9":"Root (97%)","10":"Bacteria (97%)","11":"Pseudomonadota (97%)","12":"Gammaproteobacteria (97%)","13":"unclassified_Gammaproteobacteria (97%)","14":"NA","15":"NA","16":"G05","17":"batch20250606","18":"TRUE"},{"1":"HA41","2":"HA_E8","3":"29","4":"Aeromonas HA41","5":"E08","6":"Haunisten Allas","7":"Aeromonas hydrophila","8":"644","9":"Root (100%)","10":"Bacteria (100%)","11":"Pseudomonadota (100%)","12":"Gammaproteobacteria (100%)","13":"Enterobacterales (66.5%)","14":"Aeromonadaceae (66.5%)","15":"Aeromonas (66.5%)","16":"H06","17":"batch20250606","18":"TRUE"},{"1":"TL58","2":"TL_H4","3":"30","4":"Chryseobacterium TL58","5":"H04","6":"Turun Linna","7":"Chryseobacterium yeoncheonense","8":"1216946","9":"Root (92.5%)","10":"Bacteria (92.5%)","11":"Bacteroidota (92.5%)","12":"Bacteroidia (92.5%)","13":"Flavobacteriales (92.5%)","14":"Weeksellaceae (92.5%)","15":"Chryseobacterium (88.3%)","16":"B02","17":"batch20250620","18":"TRUE"},{"1":"SJ02","2":"SJ_A9","3":"31","4":"Sphingomonas SJ02","5":"A09","6":"Savojärvi","7":"Sphingomonas azotifigens","8":"330920","9":"Root (98.1%)","10":"Bacteria (98.1%)","11":"Pseudomonadota (98.1%)","12":"Alphaproteobacteria (98.1%)","13":"Sphingomonadales (98.1%)","14":"Sphingomonadaceae (98.1%)","15":"Sphingomonas (98.1%)","16":"C11","17":"batch20250606","18":"TRUE"},{"1":"HA29","2":"HA_C10","3":"32","4":"Deinococcus HA29","5":"C10","6":"Haunisten Allas","7":"Deinococcus aquaticus","8":"328692","9":"Root (96.7%)","10":"Bacteria (96.7%)","11":"Deinococcota (96.7%)","12":"Deinococci (96.7%)","13":"Deinococcales (96.7%)","14":"Deinococcaceae (96.7%)","15":"Deinococcus (96.7%)","16":"C08","17":"batch20250606","18":"TRUE"},{"1":"HA34","2":"HA_D10","3":"32","4":"Deinococcus HA34","5":"D10","6":"Haunisten Allas","7":"Deinococcus aquaticus","8":"328692","9":"Root (96.9%)","10":"Bacteria (96.9%)","11":"Deinococcota (96.9%)","12":"Deinococci (96.9%)","13":"Deinococcales (96.9%)","14":"Deinococcaceae (96.9%)","15":"Deinococcus (96.9%)","16":"D08","17":"batch20250606","18":"TRUE"},{"1":"HA42","2":"HA_E9","3":"32","4":"Deinococcus HA42","5":"E09","6":"Haunisten Allas","7":"Deinococcus aquaticus","8":"328692","9":"Root (97.4%)","10":"Bacteria (97.4%)","11":"Deinococcota (97.4%)","12":"Deinococci (97.4%)","13":"Deinococcales (97.4%)","14":"Deinococcaceae (97.4%)","15":"Deinococcus (97.4%)","16":"E07","17":"batch20250606","18":"TRUE"},{"1":"HA69","2":"HA_H9","3":"33","4":"Undibacterium HA69","5":"H09","6":"Haunisten Allas","7":"Undibacterium aquatile","8":"1537398","9":"Root (96.6%)","10":"Bacteria (96.6%)","11":"Pseudomonadota (96.6%)","12":"Gammaproteobacteria (96.6%)","13":"Burkholderiales (96.6%)","14":"Burkholderiaceae (96.6%)","15":"Undibacterium (96.6%)","16":"H07","17":"batch20250606","18":"TRUE"},{"1":"HA44","2":"HA_F1","3":"34","4":"Erwinia HA44","5":"F01","6":"Haunisten Allas","7":"Erwinia rhapontici","8":"55212","9":"Root (92%)","10":"Bacteria (92%)","11":"Pseudomonadota (92%)","12":"Gammaproteobacteria (92%)","13":"Enterobacterales (92%)","14":"Enterobacteriaceae (92%)","15":"Erwinia (64%)","16":"F01","17":"batch20250606","18":"TRUE"},{"1":"HA18","2":"HA_B8","3":"35","4":"Herbaspirillum HA18","5":"B08","6":"Haunisten Allas","7":"Herbaspirillum aquaticum","8":"568783","9":"Root (99.1%)","10":"Bacteria (99.1%)","11":"Pseudomonadota (99.1%)","12":"Gammaproteobacteria (99.1%)","13":"Burkholderiales (99.1%)","14":"Burkholderiaceae (99.1%)","15":"Herbaspirillum (93.8%)","16":"E06","17":"batch20250606","18":"TRUE"},{"1":"HA52","2":"HA_F9","3":"36","4":"Acidovorax HA52","5":"F09","6":"Haunisten Allas","7":"Acidovorax radicis N35","8":"999386","9":"Root (95.9%)","10":"Bacteria (95.9%)","11":"Pseudomonadota (95.9%)","12":"Gammaproteobacteria (95.9%)","13":"Burkholderiales (95.9%)","14":"Burkholderiaceae (95.9%)","15":"Acidovorax (69.7%)","16":"F07","17":"batch20250606","18":"TRUE"},{"1":"HA27","2":"HA_C8","3":"37","4":"Herbaspirillum HA27","5":"C08","6":"Haunisten Allas","7":"Herbaspirillum autotrophicum","8":"180195","9":"Root (88.7%)","10":"Bacteria (88.7%)","11":"Pseudomonadota (88.7%)","12":"Gammaproteobacteria (88.7%)","13":"Burkholderiales (88.7%)","14":"Burkholderiaceae (88.7%)","15":"unclassified_Burkholderiaceae (88.7%)","16":"F06","17":"batch20250606","18":"TRUE"},{"1":"TL02","2":"TL_A2","3":"38","4":"Rouxiella TL02","5":"A02","6":"Turun Linna","7":"Enterobacter ludwigii","8":"299767","9":"Root (96.8%)","10":"Bacteria (96.8%)","11":"Pseudomonadota (96.8%)","12":"Gammaproteobacteria (96.8%)","13":"Enterobacterales (96.8%)","14":"Enterobacteriaceae (96.8%)","15":"Rouxiella (65.6%)","16":"H12","17":"batch20250606","18":"TRUE"},{"1":"SJ17","2":"SJ_H2","3":"39","4":"Pseudomonas SJ17","5":"H02","6":"Savojärvi","7":"Pseudomonas kribbensis","8":"1628086","9":"Root (99.4%)","10":"Bacteria (99.4%)","11":"Pseudomonadota (98.7%)","12":"Gammaproteobacteria (98.7%)","13":"Pseudomonadales (72.3%)","14":"Pseudomonadaceae (69%)","15":"unclassified_Pseudomonadaceae (69%)","16":"A10","17":"batch20250606","18":"TRUE"},{"1":"HA36","2":"HA_E1","3":"40","4":"Pseudomonas HA36","5":"E01","6":"Haunisten Allas","7":"Pseudomonas fildesensis","8":"1674920","9":"Root (100%)","10":"Bacteria (100%)","11":"Pseudomonadota (88.5%)","12":"Gammaproteobacteria (88.5%)","13":"Pseudomonadales (70.7%)","14":"Pseudomonadaceae (70%)","15":"Pseudomonas_E (67.8%)","16":"E01","17":"batch20250606","18":"TRUE"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Compiled table with taxonomic info, isolation source, and mapping of new strainID to the original <code>google_drive_id.</code> Taxa cluster refers to the 99% sequence identity cluster that each strain is a member of. Table is sorted by <code>taxa_cluster.</code> Columns <code>domain</code> through <code>genus</code> are the taxonomic output from the IDTAXA algorithm using the <a href="https://gtdb.ecogenomic.org/">Genome Taxonomy Database (GTDB)</a> 16S rRNA reference training set. The percentage following the assigned taxa classification represents the classification confidence/probability.</p>
 </div>
 
 
@@ -1200,418 +1249,444 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb42" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb42-1"><a href="#cb42-1"></a><span class="co">---</span></span>
-<span id="cb42-2"><a href="#cb42-2"></a><span class="an">title:</span><span class="co"> "Clustering/phylogenetics of 16S rRNA sequences from duckweed SynCom"</span></span>
-<span id="cb42-3"><a href="#cb42-3"></a><span class="an">subtitle:</span><span class="co"> ""</span></span>
-<span id="cb42-4"><a href="#cb42-4"></a><span class="an">author:</span><span class="co"> "Shane Hogle"</span></span>
-<span id="cb42-5"><a href="#cb42-5"></a><span class="an">date:</span><span class="co"> today</span></span>
-<span id="cb42-6"><a href="#cb42-6"></a><span class="an">abstract:</span><span class="co"> "Various operations to group the isolates into clusters using clustering algorithms and phylogenetic inference. At the end a phylogenetic tree for the isolates is plotting with associated taxonomic information as well as clustering identity based on shared kmers."</span></span>
-<span id="cb42-7"><a href="#cb42-7"></a><span class="co">---</span></span>
-<span id="cb42-8"><a href="#cb42-8"></a></span>
-<span id="cb42-9"><a href="#cb42-9"></a><span class="fu"># Setup</span></span>
-<span id="cb42-10"><a href="#cb42-10"></a></span>
-<span id="cb42-11"><a href="#cb42-11"></a>Loads required libraries</span>
-<span id="cb42-12"><a href="#cb42-12"></a></span>
-<span id="cb42-15"><a href="#cb42-15"></a><span class="in">```{r}</span></span>
-<span id="cb42-16"><a href="#cb42-16"></a><span class="co">#| output: false</span></span>
-<span id="cb42-17"><a href="#cb42-17"></a><span class="fu">options</span>(<span class="at">repos =</span> <span class="fu">c</span>(<span class="at">CRAN =</span> <span class="st">"https://packagemanager.posit.co/cran/__linux__/jammy/latest"</span>))</span>
-<span id="cb42-18"><a href="#cb42-18"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb42-19"><a href="#cb42-19"></a><span class="fu">library</span>(here)</span>
-<span id="cb42-20"><a href="#cb42-20"></a><span class="fu">library</span>(fs)</span>
-<span id="cb42-21"><a href="#cb42-21"></a><span class="fu">library</span>(DECIPHER)</span>
-<span id="cb42-22"><a href="#cb42-22"></a><span class="in">```</span></span>
-<span id="cb42-23"><a href="#cb42-23"></a></span>
-<span id="cb42-24"><a href="#cb42-24"></a><span class="fu"># Read and format</span></span>
-<span id="cb42-25"><a href="#cb42-25"></a></span>
-<span id="cb42-26"><a href="#cb42-26"></a>Read 16S rRNA fasta sequences from the prior step.</span>
-<span id="cb42-27"><a href="#cb42-27"></a></span>
-<span id="cb42-30"><a href="#cb42-30"></a><span class="in">```{r}</span></span>
-<span id="cb42-31"><a href="#cb42-31"></a>syncom16s_fna <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"16S_rRNA_SynCom.fna"</span>)</span>
-<span id="cb42-32"><a href="#cb42-32"></a><span class="in">```</span></span>
-<span id="cb42-33"><a href="#cb42-33"></a></span>
-<span id="cb42-34"><a href="#cb42-34"></a>Convert to a DNA stringset object</span>
-<span id="cb42-35"><a href="#cb42-35"></a></span>
-<span id="cb42-38"><a href="#cb42-38"></a><span class="in">```{r}</span></span>
-<span id="cb42-39"><a href="#cb42-39"></a>syncom16s_seqs <span class="ot">&lt;-</span> <span class="fu">readDNAStringSet</span>(syncom16s_fna)</span>
-<span id="cb42-40"><a href="#cb42-40"></a><span class="in">```</span></span>
-<span id="cb42-41"><a href="#cb42-41"></a></span>
-<span id="cb42-42"><a href="#cb42-42"></a><span class="fu"># Redundancy</span></span>
-<span id="cb42-43"><a href="#cb42-43"></a></span>
-<span id="cb42-44"><a href="#cb42-44"></a>All sequences are unique which is expected</span>
-<span id="cb42-45"><a href="#cb42-45"></a></span>
-<span id="cb42-48"><a href="#cb42-48"></a><span class="in">```{r}</span></span>
-<span id="cb42-49"><a href="#cb42-49"></a><span class="fu">duplicated</span>(syncom16s_seqs)</span>
-<span id="cb42-50"><a href="#cb42-50"></a><span class="in">```</span></span>
-<span id="cb42-51"><a href="#cb42-51"></a></span>
-<span id="cb42-52"><a href="#cb42-52"></a><span class="fu"># Cluster</span></span>
-<span id="cb42-53"><a href="#cb42-53"></a></span>
-<span id="cb42-56"><a href="#cb42-56"></a><span class="in">```{r}</span></span>
-<span id="cb42-57"><a href="#cb42-57"></a><span class="fu">set.seed</span>(<span class="dv">36742</span>)</span>
-<span id="cb42-58"><a href="#cb42-58"></a>syncom16s_clusters <span class="ot">&lt;-</span> <span class="fu">Clusterize</span>(syncom16s_seqs,</span>
-<span id="cb42-59"><a href="#cb42-59"></a>                       <span class="at">cutoff=</span><span class="fl">0.01</span>,     <span class="co"># at ~ species level (ie 99% identity)</span></span>
-<span id="cb42-60"><a href="#cb42-60"></a>                       <span class="at">minCoverage=</span><span class="fl">0.5</span>, <span class="co"># &gt; 50% coverage</span></span>
-<span id="cb42-61"><a href="#cb42-61"></a>                       <span class="at">processors=</span><span class="cn">NULL</span>) <span class="co"># use all CPUs</span></span>
-<span id="cb42-62"><a href="#cb42-62"></a><span class="co"># reset random seed</span></span>
-<span id="cb42-63"><a href="#cb42-63"></a><span class="fu">rm</span>(.Random.seed, <span class="at">envir=</span><span class="fu">globalenv</span>())</span>
-<span id="cb42-64"><a href="#cb42-64"></a><span class="in">```</span></span>
-<span id="cb42-65"><a href="#cb42-65"></a></span>
-<span id="cb42-66"><a href="#cb42-66"></a><span class="fu"># Classify (IDTAXA)</span></span>
-<span id="cb42-67"><a href="#cb42-67"></a></span>
-<span id="cb42-68"><a href="#cb42-68"></a>Using</span>
-<span id="cb42-69"><a href="#cb42-69"></a><span class="co">[</span><span class="ot">IDTAXA</span><span class="co">](https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-018-0521-5)</span></span>
-<span id="cb42-70"><a href="#cb42-70"></a>following the [approach shown</span>
-<span id="cb42-71"><a href="#cb42-71"></a>here](https://www2.decipher.codes/ClassifyOrganisms.html).</span>
-<span id="cb42-72"><a href="#cb42-72"></a></span>
-<span id="cb42-75"><a href="#cb42-75"></a><span class="in">```{r}</span></span>
-<span id="cb42-76"><a href="#cb42-76"></a><span class="co">#| eval: false</span></span>
-<span id="cb42-77"><a href="#cb42-77"></a><span class="co">#| include: true</span></span>
-<span id="cb42-78"><a href="#cb42-78"></a><span class="fu">set.seed</span>(<span class="dv">234676</span>)</span>
-<span id="cb42-79"><a href="#cb42-79"></a></span>
-<span id="cb42-80"><a href="#cb42-80"></a><span class="co"># load the training data set</span></span>
-<span id="cb42-81"><a href="#cb42-81"></a><span class="fu">load</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"_data_raw"</span>, <span class="st">"idtaxa"</span>, <span class="st">"GTDB_r226-mod_April2025.RData"</span>))</span>
-<span id="cb42-82"><a href="#cb42-82"></a></span>
-<span id="cb42-83"><a href="#cb42-83"></a><span class="co"># classify the sequences</span></span>
-<span id="cb42-84"><a href="#cb42-84"></a>syncom16s_ids <span class="ot">&lt;-</span> <span class="fu">IdTaxa</span>(syncom16s_seqs,</span>
-<span id="cb42-85"><a href="#cb42-85"></a>   trainingSet,</span>
-<span id="cb42-86"><a href="#cb42-86"></a>   <span class="at">strand=</span><span class="st">"both"</span>, <span class="co"># or "top" if same as trainingSet</span></span>
-<span id="cb42-87"><a href="#cb42-87"></a>   <span class="at">threshold=</span><span class="dv">60</span>, <span class="co"># 60 (cautious) or 50 (sensible)</span></span>
-<span id="cb42-88"><a href="#cb42-88"></a>   <span class="at">processors=</span><span class="cn">NULL</span>) <span class="co"># use all available processors</span></span>
-<span id="cb42-89"><a href="#cb42-89"></a><span class="co"># reset random seed</span></span>
-<span id="cb42-90"><a href="#cb42-90"></a><span class="fu">rm</span>(.Random.seed, <span class="at">envir=</span><span class="fu">globalenv</span>())</span>
-<span id="cb42-91"><a href="#cb42-91"></a><span class="in">```</span></span>
-<span id="cb42-92"><a href="#cb42-92"></a></span>
-<span id="cb42-95"><a href="#cb42-95"></a><span class="in">```{r}</span></span>
-<span id="cb42-96"><a href="#cb42-96"></a><span class="co">#| eval: false</span></span>
-<span id="cb42-97"><a href="#cb42-97"></a><span class="co">#| include: false</span></span>
-<span id="cb42-98"><a href="#cb42-98"></a><span class="fu">write_rds</span>(syncom16s_ids, here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"syncom16s_ids.rds"</span>))</span>
-<span id="cb42-99"><a href="#cb42-99"></a><span class="in">```</span></span>
-<span id="cb42-100"><a href="#cb42-100"></a></span>
-<span id="cb42-103"><a href="#cb42-103"></a><span class="in">```{r}</span></span>
-<span id="cb42-104"><a href="#cb42-104"></a><span class="co">#| eval: true</span></span>
-<span id="cb42-105"><a href="#cb42-105"></a><span class="co">#| include: false</span></span>
-<span id="cb42-106"><a href="#cb42-106"></a>syncom16s_ids <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"syncom16s_ids.rds"</span>))</span>
-<span id="cb42-107"><a href="#cb42-107"></a><span class="in">```</span></span>
-<span id="cb42-108"><a href="#cb42-108"></a></span>
-<span id="cb42-111"><a href="#cb42-111"></a><span class="in">```{r}</span></span>
-<span id="cb42-112"><a href="#cb42-112"></a>syncom16s_idtx <span class="ot">&lt;-</span> <span class="fu">imap</span>(</span>
-<span id="cb42-113"><a href="#cb42-113"></a>  syncom16s_ids,</span>
-<span id="cb42-114"><a href="#cb42-114"></a>  \(x, idx) <span class="fu">tibble</span>(<span class="at">a =</span> x<span class="sc">$</span>rank, <span class="at">b =</span> <span class="fu">paste</span>(x<span class="sc">$</span>taxon,<span class="st">" ("</span>,<span class="fu">round</span>(x<span class="sc">$</span>confidence, <span class="at">digits =</span> <span class="dv">1</span>),<span class="st">"%)"</span>, <span class="at">sep =</span> <span class="st">""</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb42-115"><a href="#cb42-115"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> a, <span class="at">values_from =</span> b) <span class="sc">%&gt;%</span></span>
-<span id="cb42-116"><a href="#cb42-116"></a>    <span class="fu">mutate</span>(<span class="at">id =</span> idx)</span>
-<span id="cb42-117"><a href="#cb42-117"></a>) <span class="sc">%&gt;%</span></span>
-<span id="cb42-118"><a href="#cb42-118"></a>  <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb42-119"><a href="#cb42-119"></a>  <span class="fu">relocate</span>(id)</span>
-<span id="cb42-120"><a href="#cb42-120"></a><span class="in">```</span></span>
-<span id="cb42-121"><a href="#cb42-121"></a></span>
-<span id="cb42-122"><a href="#cb42-122"></a><span class="fu"># Classify (Blastn)</span></span>
-<span id="cb42-123"><a href="#cb42-123"></a></span>
-<span id="cb42-124"><a href="#cb42-124"></a>These steps need to be run outside of R/Rstudio</span>
-<span id="cb42-125"><a href="#cb42-125"></a></span>
-<span id="cb42-126"><a href="#cb42-126"></a>First we need to</span>
-<span id="cb42-127"><a href="#cb42-127"></a><span class="co">[</span><span class="ot">download</span><span class="co">](https://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/)</span> and</span>
-<span id="cb42-128"><a href="#cb42-128"></a><span class="co">[</span><span class="ot">install</span><span class="co">](https://www.ncbi.nlm.nih.gov/books/NBK52640/)</span> NCBI blast+</span>
-<span id="cb42-129"><a href="#cb42-129"></a>suite (I am using v2.16.0) and</span>
-<span id="cb42-130"><a href="#cb42-130"></a><span class="co">[</span><span class="ot">download</span><span class="co">](https://ftp.ncbi.nlm.nih.gov/blast/db/)</span> the 16S_ribosomal_RNA</span>
-<span id="cb42-131"><a href="#cb42-131"></a>database.</span>
-<span id="cb42-132"><a href="#cb42-132"></a></span>
-<span id="cb42-133"><a href="#cb42-133"></a><span class="in">```</span></span>
-<span id="cb42-134"><a href="#cb42-134"></a><span class="in">blastn -num_threads 12 -db 16S_ribosomal_RNA -query 16S_rRNA_SynCom.fna -dust no -max_target_seqs 5 -out 16S_rRNA_SynCom_v_blast16SDB.tsv -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxid"</span></span>
-<span id="cb42-135"><a href="#cb42-135"></a><span class="in">```</span></span>
-<span id="cb42-136"><a href="#cb42-136"></a></span>
-<span id="cb42-137"><a href="#cb42-137"></a>The last column contains the taxonomy ID from the NCBI 16S Ribosomal</span>
-<span id="cb42-138"><a href="#cb42-138"></a>database. We will just take the taxonomic lineage of the best hit</span>
-<span id="cb42-139"><a href="#cb42-139"></a></span>
-<span id="cb42-140"><a href="#cb42-140"></a><span class="in">```</span></span>
-<span id="cb42-141"><a href="#cb42-141"></a><span class="in">csvtk tab2csv 16S_rRNA_SynCom_v_blast16SDB.tsv | csvtk cut -f1,13 | csvtk spread -k1 -v2 | sed 's/^,//g' | csvtk transpose | cut -d ";" -f1 | csvtk cut -f2,1 | csvtk csv2tab &gt; a</span></span>
-<span id="cb42-142"><a href="#cb42-142"></a><span class="in">csvtk tab2csv 16S_rRNA_SynCom_v_blast16SDB.tsv | csvtk cut -f1,13 | csvtk spread -k1 -v2 | sed 's/^,//g' | csvtk transpose | cut -d ";" -f1 | csvtk cut -f2 | taxonkit lineage -n -L &gt; b</span></span>
-<span id="cb42-143"><a href="#cb42-143"></a><span class="in"># combine into one file</span></span>
-<span id="cb42-144"><a href="#cb42-144"></a><span class="in">paste a b &gt; blastn_lineage_best_hit.tsv</span></span>
-<span id="cb42-145"><a href="#cb42-145"></a><span class="in">rm a b</span></span>
-<span id="cb42-146"><a href="#cb42-146"></a><span class="in">```</span></span>
-<span id="cb42-147"><a href="#cb42-147"></a></span>
-<span id="cb42-148"><a href="#cb42-148"></a>Now read this file back into R</span>
-<span id="cb42-149"><a href="#cb42-149"></a></span>
-<span id="cb42-152"><a href="#cb42-152"></a><span class="in">```{r}</span></span>
-<span id="cb42-153"><a href="#cb42-153"></a>syncom16s_blastn <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"blastn_lineage_best_hit.tsv"</span>),</span>
-<span id="cb42-154"><a href="#cb42-154"></a>                <span class="at">col_names =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb42-155"><a href="#cb42-155"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="at">id =</span> X2, <span class="at">ncbi_taxid =</span> X1, <span class="at">ncbi_best_species =</span> X4)</span>
-<span id="cb42-156"><a href="#cb42-156"></a><span class="in">```</span></span>
-<span id="cb42-157"><a href="#cb42-157"></a></span>
-<span id="cb42-158"><a href="#cb42-158"></a><span class="fu"># Combine clustering and classification</span></span>
-<span id="cb42-159"><a href="#cb42-159"></a></span>
-<span id="cb42-162"><a href="#cb42-162"></a><span class="in">```{r}</span></span>
-<span id="cb42-163"><a href="#cb42-163"></a>syncom16s_idtx_lineage_info <span class="ot">&lt;-</span> syncom16s_idtx <span class="sc">%&gt;%</span> </span>
-<span id="cb42-164"><a href="#cb42-164"></a>  <span class="fu">left_join</span>(<span class="fu">rownames_to_column</span>(syncom16s_clusters, <span class="at">var =</span> <span class="st">"id"</span>), <span class="at">by =</span> <span class="fu">join_by</span>(id)) <span class="sc">%&gt;%</span> </span>
-<span id="cb42-165"><a href="#cb42-165"></a>  <span class="fu">left_join</span>(syncom16s_blastn, <span class="at">by =</span> <span class="fu">join_by</span>(id)) <span class="sc">%&gt;%</span> </span>
-<span id="cb42-166"><a href="#cb42-166"></a>  <span class="fu">relocate</span>(ncbi_best_species, <span class="at">.after=</span><span class="st">"genus"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb42-167"><a href="#cb42-167"></a>  <span class="fu">relocate</span>(cluster, <span class="at">.after=</span><span class="st">"id"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb42-168"><a href="#cb42-168"></a>  <span class="fu">arrange</span>(cluster)</span>
-<span id="cb42-169"><a href="#cb42-169"></a><span class="in">```</span></span>
-<span id="cb42-170"><a href="#cb42-170"></a></span>
-<span id="cb42-171"><a href="#cb42-171"></a><span class="fu"># 16S rRNA sequence alignment</span></span>
-<span id="cb42-172"><a href="#cb42-172"></a></span>
-<span id="cb42-173"><a href="#cb42-173"></a>We start with DNA sequences and convert to RNA so that DECIPHER can leverage structural information from the RNA</span>
-<span id="cb42-174"><a href="#cb42-174"></a></span>
-<span id="cb42-177"><a href="#cb42-177"></a><span class="in">```{r}</span></span>
-<span id="cb42-178"><a href="#cb42-178"></a>syncom16s_seqs_rna <span class="ot">&lt;-</span> <span class="fu">RNAStringSet</span>(syncom16s_seqs)</span>
-<span id="cb42-179"><a href="#cb42-179"></a><span class="in">```</span></span>
-<span id="cb42-180"><a href="#cb42-180"></a></span>
-<span id="cb42-181"><a href="#cb42-181"></a>Align the sequences</span>
-<span id="cb42-182"><a href="#cb42-182"></a></span>
-<span id="cb42-183"><a href="#cb42-183"></a>From [DECIPHER documentation on sequence</span>
-<span id="cb42-184"><a href="#cb42-184"></a>alignment](https://bioconductor.org/packages/devel/bioc/vignettes/DECIPHER/inst/doc/ArtOfAlignmentInR.pdf)</span>
-<span id="cb42-185"><a href="#cb42-185"></a></span>
-<span id="cb42-186"><a href="#cb42-186"></a><span class="at">&gt; 5.2 Example: Non-coding RNA sequences Much like proteins, non-coding</span></span>
-<span id="cb42-187"><a href="#cb42-187"></a><span class="at">&gt; RNAs often have a conserved secondary structure that can be used to</span></span>
-<span id="cb42-188"><a href="#cb42-188"></a><span class="at">&gt; improve their alignment. The PredictDBN function will predict base</span></span>
-<span id="cb42-189"><a href="#cb42-189"></a><span class="at">&gt; pairings from a sequence alignment by calculating the mutual</span></span>
-<span id="cb42-190"><a href="#cb42-190"></a><span class="at">&gt; information between pairs of positions. If RNA sequences are given as</span></span>
-<span id="cb42-191"><a href="#cb42-191"></a><span class="at">&gt; input, AlignSeqs will automatically use the output of PredictDBN to</span></span>
-<span id="cb42-192"><a href="#cb42-192"></a><span class="at">&gt; iteratively improve the alignment. Providing an RNAStringSet also</span></span>
-<span id="cb42-193"><a href="#cb42-193"></a><span class="at">&gt; causes single-base and double-base substitution matrices to be used,</span></span>
-<span id="cb42-194"><a href="#cb42-194"></a><span class="at">&gt; and is preferable to providing a DNAStringSet when the sequences are</span></span>
-<span id="cb42-195"><a href="#cb42-195"></a><span class="at">&gt; non-coding RNA. The type of the input sequences can easily be</span></span>
-<span id="cb42-196"><a href="#cb42-196"></a><span class="at">&gt; converted to RNA, as shown below.</span></span>
-<span id="cb42-197"><a href="#cb42-197"></a></span>
-<span id="cb42-200"><a href="#cb42-200"></a><span class="in">```{r}</span></span>
-<span id="cb42-201"><a href="#cb42-201"></a><span class="co">#| eval: false</span></span>
-<span id="cb42-202"><a href="#cb42-202"></a><span class="co">#| include: true</span></span>
-<span id="cb42-203"><a href="#cb42-203"></a><span class="fu">set.seed</span>(<span class="dv">2342</span>)</span>
-<span id="cb42-204"><a href="#cb42-204"></a>syncom16s_seqs_rna_aligned <span class="ot">&lt;-</span> <span class="fu">AlignSeqs</span>(syncom16s_seqs_rna)</span>
-<span id="cb42-205"><a href="#cb42-205"></a><span class="co"># reset random seed</span></span>
-<span id="cb42-206"><a href="#cb42-206"></a><span class="fu">rm</span>(.Random.seed, <span class="at">envir=</span><span class="fu">globalenv</span>())</span>
-<span id="cb42-207"><a href="#cb42-207"></a><span class="in">```</span></span>
-<span id="cb42-208"><a href="#cb42-208"></a></span>
-<span id="cb42-211"><a href="#cb42-211"></a><span class="in">```{r}</span></span>
-<span id="cb42-212"><a href="#cb42-212"></a><span class="co">#| eval: false</span></span>
-<span id="cb42-213"><a href="#cb42-213"></a><span class="co">#| include: false</span></span>
-<span id="cb42-214"><a href="#cb42-214"></a><span class="fu">write_rds</span>(syncom16s_seqs_rna_aligned, here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"syncom16s_seqs_rna_aligned.rds"</span>))</span>
-<span id="cb42-215"><a href="#cb42-215"></a><span class="in">```</span></span>
-<span id="cb42-216"><a href="#cb42-216"></a></span>
-<span id="cb42-219"><a href="#cb42-219"></a><span class="in">```{r}</span></span>
-<span id="cb42-220"><a href="#cb42-220"></a><span class="co">#| eval: true</span></span>
-<span id="cb42-221"><a href="#cb42-221"></a><span class="co">#| include: false</span></span>
-<span id="cb42-222"><a href="#cb42-222"></a>syncom16s_seqs_rna_aligned <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"syncom16s_seqs_rna_aligned.rds"</span>))</span>
-<span id="cb42-223"><a href="#cb42-223"></a><span class="in">```</span></span>
-<span id="cb42-224"><a href="#cb42-224"></a></span>
-<span id="cb42-227"><a href="#cb42-227"></a><span class="in">```{r}</span></span>
-<span id="cb42-228"><a href="#cb42-228"></a><span class="co"># Write as aligned fasta DNA file </span></span>
-<span id="cb42-229"><a href="#cb42-229"></a><span class="fu">writeXStringSet</span>(<span class="fu">DNAStringSet</span>(syncom16s_seqs_rna_aligned),</span>
-<span id="cb42-230"><a href="#cb42-230"></a>                here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"16S_rRNA_SynCom_aligned.fna"</span>),</span>
-<span id="cb42-231"><a href="#cb42-231"></a>                <span class="at">format=</span><span class="st">'fasta'</span>)</span>
-<span id="cb42-232"><a href="#cb42-232"></a><span class="in">```</span></span>
-<span id="cb42-233"><a href="#cb42-233"></a></span>
-<span id="cb42-234"><a href="#cb42-234"></a><span class="fu"># Phylogenetic tree building</span></span>
-<span id="cb42-235"><a href="#cb42-235"></a></span>
-<span id="cb42-236"><a href="#cb42-236"></a>Following maximum likelihood tutorial [DECIPHER documentation on</span>
-<span id="cb42-237"><a href="#cb42-237"></a>phylogenetic</span>
-<span id="cb42-238"><a href="#cb42-238"></a>trees](https://bioconductor.org/packages/devel/bioc/vignettes/DECIPHER/inst/doc/GrowingTrees.pdf)</span>
-<span id="cb42-239"><a href="#cb42-239"></a></span>
-<span id="cb42-240"><a href="#cb42-240"></a>This step constructs a phylogenetic tree using the general time reversable (GTR) model with a discrete Gamma model <span class="co">[</span><span class="ot">(Yang, 1994)</span><span class="co">](https://link.springer.com/article/10.1007/BF00160154)</span> with the default 4 rate categories. Branch support is depicted using aBayes probabilities, which is a Bayesian-like transformation of an approximate Likelihood Ratio Test <span class="co">[</span><span class="ot">(Anisimova et al., 2011)</span><span class="co">](https://academic.oup.com/sysbio/article/60/5/685/1644562)</span>. </span>
-<span id="cb42-241"><a href="#cb42-241"></a></span>
-<span id="cb42-244"><a href="#cb42-244"></a><span class="in">```{r}</span></span>
-<span id="cb42-245"><a href="#cb42-245"></a><span class="co">#| eval: false</span></span>
-<span id="cb42-246"><a href="#cb42-246"></a><span class="co">#| include: true</span></span>
-<span id="cb42-247"><a href="#cb42-247"></a><span class="fu">set.seed</span>(<span class="dv">26345</span>)</span>
-<span id="cb42-248"><a href="#cb42-248"></a>syncom16s_seqs_mltree <span class="ot">&lt;-</span> <span class="fu">Treeline</span>(</span>
-<span id="cb42-249"><a href="#cb42-249"></a>  syncom16s_seqs_rna_aligned,</span>
-<span id="cb42-250"><a href="#cb42-250"></a>  <span class="at">method =</span> <span class="st">"ML"</span>,</span>
-<span id="cb42-251"><a href="#cb42-251"></a>  <span class="at">model =</span> <span class="st">"GTR+G4"</span>,</span>
-<span id="cb42-252"><a href="#cb42-252"></a>  <span class="at">verbose =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb42-253"><a href="#cb42-253"></a>  <span class="at">processors =</span> <span class="dv">12</span></span>
-<span id="cb42-254"><a href="#cb42-254"></a>)</span>
-<span id="cb42-255"><a href="#cb42-255"></a><span class="co"># reset random seed</span></span>
-<span id="cb42-256"><a href="#cb42-256"></a><span class="fu">rm</span>(.Random.seed, <span class="at">envir=</span><span class="fu">globalenv</span>())</span>
-<span id="cb42-257"><a href="#cb42-257"></a><span class="in">```</span></span>
-<span id="cb42-258"><a href="#cb42-258"></a></span>
-<span id="cb42-261"><a href="#cb42-261"></a><span class="in">```{r}</span></span>
-<span id="cb42-262"><a href="#cb42-262"></a><span class="co">#| eval: false</span></span>
-<span id="cb42-263"><a href="#cb42-263"></a><span class="co">#| include: false</span></span>
-<span id="cb42-264"><a href="#cb42-264"></a><span class="fu">write_rds</span>(syncom16s_seqs_mltree, here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"syncom16s_seqs_mltree.rds"</span>))</span>
-<span id="cb42-265"><a href="#cb42-265"></a><span class="in">```</span></span>
-<span id="cb42-266"><a href="#cb42-266"></a></span>
-<span id="cb42-269"><a href="#cb42-269"></a><span class="in">```{r}</span></span>
-<span id="cb42-270"><a href="#cb42-270"></a><span class="co">#| eval: true</span></span>
-<span id="cb42-271"><a href="#cb42-271"></a><span class="co">#| include: false</span></span>
-<span id="cb42-272"><a href="#cb42-272"></a>syncom16s_seqs_mltree <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"syncom16s_seqs_mltree.rds"</span>))</span>
-<span id="cb42-273"><a href="#cb42-273"></a><span class="in">```</span></span>
-<span id="cb42-274"><a href="#cb42-274"></a></span>
-<span id="cb42-277"><a href="#cb42-277"></a><span class="in">```{r}</span></span>
-<span id="cb42-278"><a href="#cb42-278"></a><span class="co"># this function adds an 'edgetext' attribute that is recognized by WriteDendrogram so that</span></span>
-<span id="cb42-279"><a href="#cb42-279"></a><span class="co"># branch support values (aBayes) are written properly</span></span>
-<span id="cb42-280"><a href="#cb42-280"></a>add_boots <span class="ot">&lt;-</span> <span class="cf">function</span>(node){</span>
-<span id="cb42-281"><a href="#cb42-281"></a>  s <span class="ot">&lt;-</span> <span class="fu">attr</span>(node, <span class="st">"probability"</span>)</span>
-<span id="cb42-282"><a href="#cb42-282"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(s))</span>
-<span id="cb42-283"><a href="#cb42-283"></a>    <span class="fu">attr</span>(node, <span class="st">"edgetext"</span>) <span class="ot">&lt;-</span> <span class="fu">formatC</span>(<span class="fu">as.numeric</span>(s), <span class="at">digits=</span><span class="dv">2</span>, <span class="at">format=</span><span class="st">"f"</span>)</span>
-<span id="cb42-284"><a href="#cb42-284"></a>  <span class="fu">return</span>(node)</span>
-<span id="cb42-285"><a href="#cb42-285"></a>}</span>
-<span id="cb42-286"><a href="#cb42-286"></a></span>
-<span id="cb42-287"><a href="#cb42-287"></a>syncom16s_seqs_mltree <span class="ot">&lt;-</span> <span class="fu">dendrapply</span>(syncom16s_seqs_mltree, add_boots)</span>
-<span id="cb42-288"><a href="#cb42-288"></a><span class="in">```</span></span>
-<span id="cb42-289"><a href="#cb42-289"></a></span>
-<span id="cb42-290"><a href="#cb42-290"></a>Save ML tree as newick file</span>
-<span id="cb42-291"><a href="#cb42-291"></a></span>
-<span id="cb42-294"><a href="#cb42-294"></a><span class="in">```{r}</span></span>
-<span id="cb42-295"><a href="#cb42-295"></a><span class="fu">WriteDendrogram</span>(syncom16s_seqs_mltree, </span>
-<span id="cb42-296"><a href="#cb42-296"></a>                <span class="at">file=</span>here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"syncom16s_seqs_mltree.nwk"</span>),</span>
-<span id="cb42-297"><a href="#cb42-297"></a>                <span class="co"># quote ="" ensure that bootstraps are not written quoted as strings</span></span>
-<span id="cb42-298"><a href="#cb42-298"></a>                <span class="co"># so that ggtree doesn't fail to parse them</span></span>
-<span id="cb42-299"><a href="#cb42-299"></a>                <span class="at">quote=</span><span class="st">""</span>)</span>
-<span id="cb42-300"><a href="#cb42-300"></a><span class="in">```</span></span>
-<span id="cb42-301"><a href="#cb42-301"></a></span>
-<span id="cb42-302"><a href="#cb42-302"></a>Tree building results</span>
-<span id="cb42-303"><a href="#cb42-303"></a></span>
-<span id="cb42-304"><a href="#cb42-304"></a><span class="in">```         </span></span>
-<span id="cb42-305"><a href="#cb42-305"></a><span class="in">Fitting initial tree to model:</span></span>
-<span id="cb42-306"><a href="#cb42-306"></a><span class="in">GTR+G4 -ln(L) = 15520, AICc = 31633, BIC = 32781</span></span>
-<span id="cb42-307"><a href="#cb42-307"></a></span>
-<span id="cb42-308"><a href="#cb42-308"></a><span class="in">Optimizing up to 400 candidate trees:</span></span>
-<span id="cb42-309"><a href="#cb42-309"></a><span class="in">Tree #136. -ln(L) = 15395.993 (0.000%), 9 Climbs, 0 Grafts of 7                                                                                                       </span></span>
-<span id="cb42-310"><a href="#cb42-310"></a></span>
-<span id="cb42-311"><a href="#cb42-311"></a><span class="in">Finalizing the best tree (#130):</span></span>
-<span id="cb42-312"><a href="#cb42-312"></a><span class="in">-ln(L) = 15395.993 (0.000%), 1 Climb                                                                                                                                  </span></span>
-<span id="cb42-313"><a href="#cb42-313"></a></span>
-<span id="cb42-314"><a href="#cb42-314"></a><span class="in">Model parameters:</span></span>
-<span id="cb42-315"><a href="#cb42-315"></a><span class="in">Frequency(A) = 0.244</span></span>
-<span id="cb42-316"><a href="#cb42-316"></a><span class="in">Frequency(C) = 0.223</span></span>
-<span id="cb42-317"><a href="#cb42-317"></a><span class="in">Frequency(G) = 0.312</span></span>
-<span id="cb42-318"><a href="#cb42-318"></a><span class="in">Frequency(T) = 0.221</span></span>
-<span id="cb42-319"><a href="#cb42-319"></a><span class="in">Rate A &lt;-&gt; C = 0.816</span></span>
-<span id="cb42-320"><a href="#cb42-320"></a><span class="in">Rate A &lt;-&gt; G = 1.978</span></span>
-<span id="cb42-321"><a href="#cb42-321"></a><span class="in">Rate A &lt;-&gt; T = 1.262</span></span>
-<span id="cb42-322"><a href="#cb42-322"></a><span class="in">Rate C &lt;-&gt; G = 0.677</span></span>
-<span id="cb42-323"><a href="#cb42-323"></a><span class="in">Rate C &lt;-&gt; T = 3.029</span></span>
-<span id="cb42-324"><a href="#cb42-324"></a><span class="in">Rate G &lt;-&gt; T = 1.000</span></span>
-<span id="cb42-325"><a href="#cb42-325"></a><span class="in">Alpha = 0.302</span></span>
-<span id="cb42-326"><a href="#cb42-326"></a></span>
-<span id="cb42-327"><a href="#cb42-327"></a><span class="in">Time difference of 1090.3 secs</span></span>
-<span id="cb42-328"><a href="#cb42-328"></a><span class="in">```</span></span>
-<span id="cb42-329"><a href="#cb42-329"></a></span>
-<span id="cb42-330"><a href="#cb42-330"></a><span class="fu"># Phylogenetic tree plotting</span></span>
-<span id="cb42-331"><a href="#cb42-331"></a></span>
-<span id="cb42-334"><a href="#cb42-334"></a><span class="in">```{r}</span></span>
-<span id="cb42-335"><a href="#cb42-335"></a><span class="fu">library</span>(ggtree)</span>
-<span id="cb42-336"><a href="#cb42-336"></a><span class="fu">library</span>(treeio)</span>
-<span id="cb42-337"><a href="#cb42-337"></a>syncom16s_seqs_mltree_nwk <span class="ot">&lt;-</span> treeio<span class="sc">::</span><span class="fu">read.newick</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"syncom16s_seqs_mltree.nwk"</span>),</span>
-<span id="cb42-338"><a href="#cb42-338"></a>                            <span class="at">node.label=</span><span class="st">"support"</span>)</span>
-<span id="cb42-339"><a href="#cb42-339"></a><span class="in">```</span></span>
-<span id="cb42-340"><a href="#cb42-340"></a></span>
-<span id="cb42-341"><a href="#cb42-341"></a>Goal is to produce a tree that has for tip labels the Genus assigned by IDTAXA + the strain identifier, with different internal nodes labeled by coarser taxonomic grouping. The clusters assigned by <span class="in">`clusterizer`</span> will be represented by different colors at the tips.</span>
-<span id="cb42-342"><a href="#cb42-342"></a></span>
-<span id="cb42-343"><a href="#cb42-343"></a>First lets look at the tree with just the identifiers on the leaves</span>
-<span id="cb42-344"><a href="#cb42-344"></a></span>
-<span id="cb42-345"><a href="#cb42-345"></a>::: {#fig-01}</span>
-<span id="cb42-348"><a href="#cb42-348"></a><span class="in">```{r}</span></span>
-<span id="cb42-349"><a href="#cb42-349"></a><span class="co">#| fig-width: 7</span></span>
-<span id="cb42-350"><a href="#cb42-350"></a><span class="co">#| fig-height: 12</span></span>
-<span id="cb42-351"><a href="#cb42-351"></a><span class="fu">ggtree</span>(syncom16s_seqs_mltree_nwk, <span class="at">layout=</span><span class="st">"rectangular"</span>) <span class="sc">+</span> </span>
-<span id="cb42-352"><a href="#cb42-352"></a>  <span class="fu">geom_tiplab</span>(<span class="at">size=</span><span class="dv">3</span>, <span class="at">hjust =</span> <span class="sc">-</span><span class="fl">0.10</span>) <span class="sc">+</span></span>
-<span id="cb42-353"><a href="#cb42-353"></a>  <span class="fu">xlim</span>(<span class="cn">NA</span>, <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb42-354"><a href="#cb42-354"></a>  <span class="fu">geom_treescale</span>(<span class="at">offset=</span><span class="dv">1</span>)</span>
-<span id="cb42-355"><a href="#cb42-355"></a><span class="in">```</span></span>
-<span id="cb42-356"><a href="#cb42-356"></a>Maximum likelihood phylogenetic tree inferred from an alignment of the 16S rRNA gene amplified by Sanger sequencing from the duckweed SynCom. Scale bar at bottom represents 0.1 substitutions per site.</span>
-<span id="cb42-357"><a href="#cb42-357"></a>:::</span>
-<span id="cb42-358"><a href="#cb42-358"></a></span>
-<span id="cb42-359"><a href="#cb42-359"></a>We can also look at the internal node numbering by rendering the tree as a dataframe</span>
-<span id="cb42-360"><a href="#cb42-360"></a></span>
-<span id="cb42-363"><a href="#cb42-363"></a><span class="in">```{r}</span></span>
-<span id="cb42-364"><a href="#cb42-364"></a><span class="co"># the second tibble call is so quarto renders it properly</span></span>
-<span id="cb42-365"><a href="#cb42-365"></a>syncom16s_seqs_mltree_nwk <span class="sc">%&gt;%</span> treeio<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> <span class="fu">tibble</span>()</span>
-<span id="cb42-366"><a href="#cb42-366"></a><span class="in">```</span></span>
-<span id="cb42-367"><a href="#cb42-367"></a>First we need to get our naming scheme set up</span>
-<span id="cb42-368"><a href="#cb42-368"></a></span>
-<span id="cb42-371"><a href="#cb42-371"></a><span class="in">```{r}</span></span>
-<span id="cb42-372"><a href="#cb42-372"></a>newtipnames <span class="ot">&lt;-</span> syncom16s_idtx_lineage_info <span class="sc">%&gt;%</span> </span>
-<span id="cb42-373"><a href="#cb42-373"></a>  <span class="fu">mutate</span>(<span class="at">genus =</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(genus, <span class="st">"(^[:alpha:]*).*"</span>, <span class="at">group =</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb42-374"><a href="#cb42-374"></a>  <span class="fu">mutate</span>(<span class="at">genus =</span> <span class="fu">case_when</span>(<span class="fu">is.na</span>(genus) <span class="sc">|</span> genus <span class="sc">==</span> <span class="st">"unclassified"</span> <span class="sc">~</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(ncbi_best_species, <span class="st">"^[:alpha:]*"</span>),</span>
-<span id="cb42-375"><a href="#cb42-375"></a>                           <span class="cn">TRUE</span> <span class="sc">~</span> genus)) <span class="sc">%&gt;%</span> </span>
-<span id="cb42-376"><a href="#cb42-376"></a>  <span class="fu">mutate</span>(<span class="at">newname =</span> <span class="fu">paste</span>(genus, id)) <span class="sc">%&gt;%</span> </span>
-<span id="cb42-377"><a href="#cb42-377"></a>  <span class="fu">mutate</span>(<span class="at">cluster =</span> <span class="fu">paste0</span>(<span class="st">"c"</span>, cluster)) <span class="sc">%&gt;%</span> </span>
-<span id="cb42-378"><a href="#cb42-378"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(id, newname, cluster, genus, order, family)</span>
-<span id="cb42-379"><a href="#cb42-379"></a><span class="in">```</span></span>
-<span id="cb42-380"><a href="#cb42-380"></a></span>
-<span id="cb42-381"><a href="#cb42-381"></a>First we need to generate a color palette that lets us distinguish the different colors</span>
-<span id="cb42-382"><a href="#cb42-382"></a></span>
-<span id="cb42-385"><a href="#cb42-385"></a><span class="in">```{r}</span></span>
-<span id="cb42-386"><a href="#cb42-386"></a><span class="fu">library</span>(Polychrome)</span>
-<span id="cb42-387"><a href="#cb42-387"></a><span class="fu">set.seed</span>(<span class="dv">341234</span>)</span>
-<span id="cb42-388"><a href="#cb42-388"></a>mypal <span class="ot">&lt;-</span> <span class="fu">unname</span>(<span class="fu">createPalette</span>(<span class="fu">max</span>(syncom16s_idtx_lineage_info<span class="sc">$</span>cluster), <span class="fu">c</span>(<span class="st">"#F3874AFF"</span>, <span class="st">"#FCD125FF"</span>), <span class="at">M=</span><span class="dv">5000</span>))</span>
-<span id="cb42-389"><a href="#cb42-389"></a><span class="fu">rm</span>(.Random.seed, <span class="at">envir=</span><span class="fu">globalenv</span>())</span>
-<span id="cb42-390"><a href="#cb42-390"></a><span class="in">```</span></span>
-<span id="cb42-391"><a href="#cb42-391"></a></span>
-<span id="cb42-392"><a href="#cb42-392"></a>Now we need to identify the internal nodes that we want to highlight. We can do this using the <span class="in">`MRCA`</span> function from ggtree</span>
-<span id="cb42-393"><a href="#cb42-393"></a></span>
-<span id="cb42-396"><a href="#cb42-396"></a><span class="in">```{r}</span></span>
-<span id="cb42-397"><a href="#cb42-397"></a><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"TL22"</span>, <span class="st">"TL23"</span>)</span>
-<span id="cb42-398"><a href="#cb42-398"></a><span class="in">```</span></span>
-<span id="cb42-399"><a href="#cb42-399"></a></span>
-<span id="cb42-400"><a href="#cb42-400"></a>Code to plot the tree</span>
-<span id="cb42-401"><a href="#cb42-401"></a></span>
-<span id="cb42-404"><a href="#cb42-404"></a><span class="in">```{r}</span></span>
-<span id="cb42-405"><a href="#cb42-405"></a>offset <span class="ot">&lt;-</span> <span class="fl">0.1</span></span>
-<span id="cb42-406"><a href="#cb42-406"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggtree</span>(syncom16s_seqs_mltree_nwk, <span class="at">layout=</span><span class="st">"rectangular"</span>)</span>
-<span id="cb42-407"><a href="#cb42-407"></a></span>
-<span id="cb42-408"><a href="#cb42-408"></a>p2 <span class="ot">&lt;-</span> p1 <span class="sc">%&lt;+%</span> newtipnames <span class="sc">+</span> </span>
-<span id="cb42-409"><a href="#cb42-409"></a>  <span class="fu">geom_tiplab</span>(<span class="fu">aes</span>(<span class="at">label =</span> newname), <span class="at">size=</span><span class="dv">3</span>, <span class="at">hjust =</span> <span class="sc">-</span><span class="fl">0.10</span>) <span class="sc">+</span></span>
-<span id="cb42-410"><a href="#cb42-410"></a>  <span class="fu">geom_tippoint</span>(<span class="fu">aes</span>(<span class="at">color =</span> cluster), <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb42-411"><a href="#cb42-411"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> mypal, <span class="at">guide=</span><span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb42-412"><a href="#cb42-412"></a>  <span class="co"># Pseudomonadaceae </span></span>
-<span id="cb42-413"><a href="#cb42-413"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"TL22"</span>, <span class="st">"TL23"</span>), </span>
-<span id="cb42-414"><a href="#cb42-414"></a>                <span class="at">label=</span><span class="st">"(γ) Pseudomonadaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
-<span id="cb42-415"><a href="#cb42-415"></a>                <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
-<span id="cb42-416"><a href="#cb42-416"></a>  <span class="co"># Aeromonadaceae</span></span>
-<span id="cb42-417"><a href="#cb42-417"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"HA41"</span>, <span class="st">"HA04"</span>), </span>
-<span id="cb42-418"><a href="#cb42-418"></a>                <span class="at">label=</span><span class="st">"(γ) Aeromonadaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
-<span id="cb42-419"><a href="#cb42-419"></a>                <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
-<span id="cb42-420"><a href="#cb42-420"></a>  <span class="co"># Enterobacteriaceae</span></span>
-<span id="cb42-421"><a href="#cb42-421"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"HA14"</span>, <span class="st">"HA44"</span>), </span>
-<span id="cb42-422"><a href="#cb42-422"></a>                <span class="at">label=</span><span class="st">"(γ) Enterobacteriaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
-<span id="cb42-423"><a href="#cb42-423"></a>                <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
-<span id="cb42-424"><a href="#cb42-424"></a>  <span class="co"># Moraxellaceae</span></span>
-<span id="cb42-425"><a href="#cb42-425"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"TL64"</span>, <span class="st">"HA82"</span>), </span>
-<span id="cb42-426"><a href="#cb42-426"></a>                <span class="at">label=</span><span class="st">"(γ) Moraxellaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
-<span id="cb42-427"><a href="#cb42-427"></a>                <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
-<span id="cb42-428"><a href="#cb42-428"></a>  <span class="co"># Chromobacteriaceae</span></span>
-<span id="cb42-429"><a href="#cb42-429"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"HA47"</span>, <span class="st">"HA65"</span>), </span>
-<span id="cb42-430"><a href="#cb42-430"></a>                <span class="at">label=</span><span class="st">"(γ) Chromobacteriaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
-<span id="cb42-431"><a href="#cb42-431"></a>                <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
-<span id="cb42-432"><a href="#cb42-432"></a>  <span class="co"># Burkholderiaceae</span></span>
-<span id="cb42-433"><a href="#cb42-433"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"HA52"</span>, <span class="st">"HA18"</span>), </span>
-<span id="cb42-434"><a href="#cb42-434"></a>                <span class="at">label=</span><span class="st">"(γ) Burkholderiaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
-<span id="cb42-435"><a href="#cb42-435"></a>                <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
-<span id="cb42-436"><a href="#cb42-436"></a>  <span class="co"># Sphingomonadaceae</span></span>
-<span id="cb42-437"><a href="#cb42-437"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="dv">23</span>, </span>
-<span id="cb42-438"><a href="#cb42-438"></a>                <span class="at">label=</span><span class="st">"(α) Sphingomonadaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
-<span id="cb42-439"><a href="#cb42-439"></a>                <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
-<span id="cb42-440"><a href="#cb42-440"></a>  <span class="co"># Streptococcaceae</span></span>
-<span id="cb42-441"><a href="#cb42-441"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"TL12"</span>, <span class="st">"TL39"</span>), </span>
-<span id="cb42-442"><a href="#cb42-442"></a>                <span class="at">label=</span><span class="st">"(Bacilli) Streptococcaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
-<span id="cb42-443"><a href="#cb42-443"></a>                <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
-<span id="cb42-444"><a href="#cb42-444"></a>  <span class="co"># Exiguobacteriaceae</span></span>
-<span id="cb42-445"><a href="#cb42-445"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"HA63"</span>, <span class="st">"HA25"</span>), </span>
-<span id="cb42-446"><a href="#cb42-446"></a>                <span class="at">label=</span><span class="st">"(Bacilli) Exiguobacteriaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
-<span id="cb42-447"><a href="#cb42-447"></a>                  <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
-<span id="cb42-448"><a href="#cb42-448"></a>  <span class="co"># Deinococcaceae</span></span>
-<span id="cb42-449"><a href="#cb42-449"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"HA42"</span>, <span class="st">"HA29"</span>), </span>
-<span id="cb42-450"><a href="#cb42-450"></a>                <span class="at">label=</span><span class="st">"(Deinococci) Deinococcaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
-<span id="cb42-451"><a href="#cb42-451"></a>                  <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset<span class="fl">+0.2</span>) <span class="sc">+</span></span>
-<span id="cb42-452"><a href="#cb42-452"></a>  <span class="co"># Weeksellaceae</span></span>
-<span id="cb42-453"><a href="#cb42-453"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"HA56"</span>, <span class="st">"HA57"</span>), </span>
-<span id="cb42-454"><a href="#cb42-454"></a>                <span class="at">label=</span><span class="st">"(Bacteroidia) Weeksellaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
-<span id="cb42-455"><a href="#cb42-455"></a>                  <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset<span class="fl">+0.4</span>) <span class="sc">+</span></span>
-<span id="cb42-456"><a href="#cb42-456"></a>  <span class="fu">xlim</span>(<span class="cn">NA</span>, <span class="dv">2</span>)</span>
-<span id="cb42-457"><a href="#cb42-457"></a><span class="in">```</span></span>
-<span id="cb42-458"><a href="#cb42-458"></a></span>
-<span id="cb42-459"><a href="#cb42-459"></a>::: {#fig-02}</span>
-<span id="cb42-462"><a href="#cb42-462"></a><span class="in">```{r}</span></span>
-<span id="cb42-463"><a href="#cb42-463"></a><span class="co">#| fig-width: 7</span></span>
-<span id="cb42-464"><a href="#cb42-464"></a><span class="co">#| fig-height: 15</span></span>
-<span id="cb42-465"><a href="#cb42-465"></a><span class="co">#| eval: true</span></span>
-<span id="cb42-466"><a href="#cb42-466"></a><span class="co">#| echo: false</span></span>
-<span id="cb42-467"><a href="#cb42-467"></a>p2</span>
-<span id="cb42-468"><a href="#cb42-468"></a><span class="in">```</span></span>
-<span id="cb42-469"><a href="#cb42-469"></a>As in @fig-01, but isolates have been labeled with their inferred genus (text) as well as their broader taxonomic class (right, vertical lines). Colors represent sequences clusters based on a 99% identity threshold (i.e., nodes of the same color have 16S rRNA gene sequences that are &gt; 99% similar)</span>
-<span id="cb42-470"><a href="#cb42-470"></a>:::</span>
+<div class="sourceCode" id="cb45" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb45-1"><a href="#cb45-1"></a><span class="co">---</span></span>
+<span id="cb45-2"><a href="#cb45-2"></a><span class="an">title:</span><span class="co"> "Clustering/phylogenetics of 16S rRNA sequences from duckweed SynCom"</span></span>
+<span id="cb45-3"><a href="#cb45-3"></a><span class="an">subtitle:</span><span class="co"> ""</span></span>
+<span id="cb45-4"><a href="#cb45-4"></a><span class="an">author:</span><span class="co"> "Shane Hogle"</span></span>
+<span id="cb45-5"><a href="#cb45-5"></a><span class="an">date:</span><span class="co"> today</span></span>
+<span id="cb45-6"><a href="#cb45-6"></a><span class="an">abstract:</span><span class="co"> "Various operations to group the isolates into clusters using clustering algorithms and phylogenetic inference. At the end a phylogenetic tree for the isolates is plotting with associated taxonomic information as well as clustering identity based on shared kmers."</span></span>
+<span id="cb45-7"><a href="#cb45-7"></a><span class="co">---</span></span>
+<span id="cb45-8"><a href="#cb45-8"></a></span>
+<span id="cb45-9"><a href="#cb45-9"></a><span class="fu"># Setup</span></span>
+<span id="cb45-10"><a href="#cb45-10"></a></span>
+<span id="cb45-11"><a href="#cb45-11"></a>Loads required libraries</span>
+<span id="cb45-12"><a href="#cb45-12"></a></span>
+<span id="cb45-15"><a href="#cb45-15"></a><span class="in">```{r}</span></span>
+<span id="cb45-16"><a href="#cb45-16"></a><span class="co">#| output: false</span></span>
+<span id="cb45-17"><a href="#cb45-17"></a><span class="fu">options</span>(<span class="at">repos =</span> <span class="fu">c</span>(<span class="at">CRAN =</span> <span class="st">"https://packagemanager.posit.co/cran/__linux__/jammy/latest"</span>))</span>
+<span id="cb45-18"><a href="#cb45-18"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb45-19"><a href="#cb45-19"></a><span class="fu">library</span>(here)</span>
+<span id="cb45-20"><a href="#cb45-20"></a><span class="fu">library</span>(fs)</span>
+<span id="cb45-21"><a href="#cb45-21"></a><span class="fu">library</span>(DECIPHER)</span>
+<span id="cb45-22"><a href="#cb45-22"></a><span class="in">```</span></span>
+<span id="cb45-23"><a href="#cb45-23"></a></span>
+<span id="cb45-24"><a href="#cb45-24"></a><span class="fu"># Read and format</span></span>
+<span id="cb45-25"><a href="#cb45-25"></a></span>
+<span id="cb45-26"><a href="#cb45-26"></a>Read 16S rRNA fasta sequences from the prior step.</span>
+<span id="cb45-27"><a href="#cb45-27"></a></span>
+<span id="cb45-30"><a href="#cb45-30"></a><span class="in">```{r}</span></span>
+<span id="cb45-31"><a href="#cb45-31"></a>syncom16s_fna <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"16S_rRNA_SynCom.fna"</span>)</span>
+<span id="cb45-32"><a href="#cb45-32"></a><span class="in">```</span></span>
+<span id="cb45-33"><a href="#cb45-33"></a></span>
+<span id="cb45-34"><a href="#cb45-34"></a>Convert to a DNA stringset object</span>
+<span id="cb45-35"><a href="#cb45-35"></a></span>
+<span id="cb45-38"><a href="#cb45-38"></a><span class="in">```{r}</span></span>
+<span id="cb45-39"><a href="#cb45-39"></a>syncom16s_seqs <span class="ot">&lt;-</span> <span class="fu">readDNAStringSet</span>(syncom16s_fna)</span>
+<span id="cb45-40"><a href="#cb45-40"></a><span class="in">```</span></span>
+<span id="cb45-41"><a href="#cb45-41"></a></span>
+<span id="cb45-42"><a href="#cb45-42"></a><span class="fu"># Redundancy</span></span>
+<span id="cb45-43"><a href="#cb45-43"></a></span>
+<span id="cb45-44"><a href="#cb45-44"></a>All sequences are unique which is expected</span>
+<span id="cb45-45"><a href="#cb45-45"></a></span>
+<span id="cb45-48"><a href="#cb45-48"></a><span class="in">```{r}</span></span>
+<span id="cb45-49"><a href="#cb45-49"></a><span class="fu">duplicated</span>(syncom16s_seqs)</span>
+<span id="cb45-50"><a href="#cb45-50"></a><span class="in">```</span></span>
+<span id="cb45-51"><a href="#cb45-51"></a></span>
+<span id="cb45-52"><a href="#cb45-52"></a><span class="fu"># Cluster</span></span>
+<span id="cb45-53"><a href="#cb45-53"></a></span>
+<span id="cb45-56"><a href="#cb45-56"></a><span class="in">```{r}</span></span>
+<span id="cb45-57"><a href="#cb45-57"></a><span class="fu">set.seed</span>(<span class="dv">36742</span>)</span>
+<span id="cb45-58"><a href="#cb45-58"></a>syncom16s_clusters <span class="ot">&lt;-</span> <span class="fu">Clusterize</span>(syncom16s_seqs,</span>
+<span id="cb45-59"><a href="#cb45-59"></a>                       <span class="at">cutoff=</span><span class="fl">0.01</span>,     <span class="co"># at ~ species level (ie 99% identity)</span></span>
+<span id="cb45-60"><a href="#cb45-60"></a>                       <span class="at">minCoverage=</span><span class="fl">0.5</span>, <span class="co"># &gt; 50% coverage</span></span>
+<span id="cb45-61"><a href="#cb45-61"></a>                       <span class="at">processors=</span><span class="cn">NULL</span>) <span class="co"># use all CPUs</span></span>
+<span id="cb45-62"><a href="#cb45-62"></a><span class="co"># reset random seed</span></span>
+<span id="cb45-63"><a href="#cb45-63"></a><span class="fu">rm</span>(.Random.seed, <span class="at">envir=</span><span class="fu">globalenv</span>())</span>
+<span id="cb45-64"><a href="#cb45-64"></a><span class="in">```</span></span>
+<span id="cb45-65"><a href="#cb45-65"></a></span>
+<span id="cb45-66"><a href="#cb45-66"></a><span class="fu"># Classify (IDTAXA)</span></span>
+<span id="cb45-67"><a href="#cb45-67"></a></span>
+<span id="cb45-68"><a href="#cb45-68"></a>Using</span>
+<span id="cb45-69"><a href="#cb45-69"></a><span class="co">[</span><span class="ot">IDTAXA</span><span class="co">](https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-018-0521-5)</span></span>
+<span id="cb45-70"><a href="#cb45-70"></a>following the [approach shown</span>
+<span id="cb45-71"><a href="#cb45-71"></a>here](https://www2.decipher.codes/ClassifyOrganisms.html).</span>
+<span id="cb45-72"><a href="#cb45-72"></a></span>
+<span id="cb45-75"><a href="#cb45-75"></a><span class="in">```{r}</span></span>
+<span id="cb45-76"><a href="#cb45-76"></a><span class="co">#| eval: false</span></span>
+<span id="cb45-77"><a href="#cb45-77"></a><span class="co">#| include: true</span></span>
+<span id="cb45-78"><a href="#cb45-78"></a><span class="fu">set.seed</span>(<span class="dv">234676</span>)</span>
+<span id="cb45-79"><a href="#cb45-79"></a></span>
+<span id="cb45-80"><a href="#cb45-80"></a><span class="co"># load the training data set</span></span>
+<span id="cb45-81"><a href="#cb45-81"></a><span class="fu">load</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"_data_raw"</span>, <span class="st">"idtaxa"</span>, <span class="st">"GTDB_r226-mod_April2025.RData"</span>))</span>
+<span id="cb45-82"><a href="#cb45-82"></a></span>
+<span id="cb45-83"><a href="#cb45-83"></a><span class="co"># classify the sequences</span></span>
+<span id="cb45-84"><a href="#cb45-84"></a>syncom16s_ids <span class="ot">&lt;-</span> <span class="fu">IdTaxa</span>(syncom16s_seqs,</span>
+<span id="cb45-85"><a href="#cb45-85"></a>   trainingSet,</span>
+<span id="cb45-86"><a href="#cb45-86"></a>   <span class="at">strand=</span><span class="st">"both"</span>, <span class="co"># or "top" if same as trainingSet</span></span>
+<span id="cb45-87"><a href="#cb45-87"></a>   <span class="at">threshold=</span><span class="dv">60</span>, <span class="co"># 60 (cautious) or 50 (sensible)</span></span>
+<span id="cb45-88"><a href="#cb45-88"></a>   <span class="at">processors=</span><span class="cn">NULL</span>) <span class="co"># use all available processors</span></span>
+<span id="cb45-89"><a href="#cb45-89"></a><span class="co"># reset random seed</span></span>
+<span id="cb45-90"><a href="#cb45-90"></a><span class="fu">rm</span>(.Random.seed, <span class="at">envir=</span><span class="fu">globalenv</span>())</span>
+<span id="cb45-91"><a href="#cb45-91"></a><span class="in">```</span></span>
+<span id="cb45-92"><a href="#cb45-92"></a></span>
+<span id="cb45-95"><a href="#cb45-95"></a><span class="in">```{r}</span></span>
+<span id="cb45-96"><a href="#cb45-96"></a><span class="co">#| eval: false</span></span>
+<span id="cb45-97"><a href="#cb45-97"></a><span class="co">#| include: false</span></span>
+<span id="cb45-98"><a href="#cb45-98"></a><span class="fu">write_rds</span>(syncom16s_ids, here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"syncom16s_ids.rds"</span>))</span>
+<span id="cb45-99"><a href="#cb45-99"></a><span class="in">```</span></span>
+<span id="cb45-100"><a href="#cb45-100"></a></span>
+<span id="cb45-103"><a href="#cb45-103"></a><span class="in">```{r}</span></span>
+<span id="cb45-104"><a href="#cb45-104"></a><span class="co">#| eval: true</span></span>
+<span id="cb45-105"><a href="#cb45-105"></a><span class="co">#| include: false</span></span>
+<span id="cb45-106"><a href="#cb45-106"></a>syncom16s_ids <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"syncom16s_ids.rds"</span>))</span>
+<span id="cb45-107"><a href="#cb45-107"></a><span class="in">```</span></span>
+<span id="cb45-108"><a href="#cb45-108"></a></span>
+<span id="cb45-111"><a href="#cb45-111"></a><span class="in">```{r}</span></span>
+<span id="cb45-112"><a href="#cb45-112"></a>syncom16s_idtx <span class="ot">&lt;-</span> <span class="fu">imap</span>(</span>
+<span id="cb45-113"><a href="#cb45-113"></a>  syncom16s_ids,</span>
+<span id="cb45-114"><a href="#cb45-114"></a>  \(x, idx) <span class="fu">tibble</span>(<span class="at">a =</span> x<span class="sc">$</span>rank, <span class="at">b =</span> <span class="fu">paste</span>(x<span class="sc">$</span>taxon,<span class="st">" ("</span>,<span class="fu">round</span>(x<span class="sc">$</span>confidence, <span class="at">digits =</span> <span class="dv">1</span>),<span class="st">"%)"</span>, <span class="at">sep =</span> <span class="st">""</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb45-115"><a href="#cb45-115"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> a, <span class="at">values_from =</span> b) <span class="sc">%&gt;%</span></span>
+<span id="cb45-116"><a href="#cb45-116"></a>    <span class="fu">mutate</span>(<span class="at">id =</span> idx)</span>
+<span id="cb45-117"><a href="#cb45-117"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb45-118"><a href="#cb45-118"></a>  <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb45-119"><a href="#cb45-119"></a>  <span class="fu">relocate</span>(id)</span>
+<span id="cb45-120"><a href="#cb45-120"></a><span class="in">```</span></span>
+<span id="cb45-121"><a href="#cb45-121"></a></span>
+<span id="cb45-122"><a href="#cb45-122"></a><span class="fu"># Classify (Blastn)</span></span>
+<span id="cb45-123"><a href="#cb45-123"></a></span>
+<span id="cb45-124"><a href="#cb45-124"></a>These steps need to be run outside of R/Rstudio</span>
+<span id="cb45-125"><a href="#cb45-125"></a></span>
+<span id="cb45-126"><a href="#cb45-126"></a>First we need to</span>
+<span id="cb45-127"><a href="#cb45-127"></a><span class="co">[</span><span class="ot">download</span><span class="co">](https://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/)</span> and</span>
+<span id="cb45-128"><a href="#cb45-128"></a><span class="co">[</span><span class="ot">install</span><span class="co">](https://www.ncbi.nlm.nih.gov/books/NBK52640/)</span> NCBI blast+</span>
+<span id="cb45-129"><a href="#cb45-129"></a>suite (I am using v2.16.0) and</span>
+<span id="cb45-130"><a href="#cb45-130"></a><span class="co">[</span><span class="ot">download</span><span class="co">](https://ftp.ncbi.nlm.nih.gov/blast/db/)</span> the 16S_ribosomal_RNA</span>
+<span id="cb45-131"><a href="#cb45-131"></a>database.</span>
+<span id="cb45-132"><a href="#cb45-132"></a></span>
+<span id="cb45-133"><a href="#cb45-133"></a><span class="in">```</span></span>
+<span id="cb45-134"><a href="#cb45-134"></a><span class="in">blastn -num_threads 12 -db 16S_ribosomal_RNA -query 16S_rRNA_SynCom.fna -dust no -max_target_seqs 5 -out 16S_rRNA_SynCom_v_blast16SDB.tsv -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxid"</span></span>
+<span id="cb45-135"><a href="#cb45-135"></a><span class="in">```</span></span>
+<span id="cb45-136"><a href="#cb45-136"></a></span>
+<span id="cb45-137"><a href="#cb45-137"></a>The last column contains the taxonomy ID from the NCBI 16S Ribosomal</span>
+<span id="cb45-138"><a href="#cb45-138"></a>database. We will just take the taxonomic lineage of the best hit</span>
+<span id="cb45-139"><a href="#cb45-139"></a></span>
+<span id="cb45-140"><a href="#cb45-140"></a><span class="in">```</span></span>
+<span id="cb45-141"><a href="#cb45-141"></a><span class="in">csvtk tab2csv 16S_rRNA_SynCom_v_blast16SDB.tsv | csvtk cut -f1,13 | csvtk spread -k1 -v2 | sed 's/^,//g' | csvtk transpose | cut -d ";" -f1 | csvtk cut -f2,1 | csvtk csv2tab &gt; a</span></span>
+<span id="cb45-142"><a href="#cb45-142"></a><span class="in">csvtk tab2csv 16S_rRNA_SynCom_v_blast16SDB.tsv | csvtk cut -f1,13 | csvtk spread -k1 -v2 | sed 's/^,//g' | csvtk transpose | cut -d ";" -f1 | csvtk cut -f2 | taxonkit lineage -n -L &gt; b</span></span>
+<span id="cb45-143"><a href="#cb45-143"></a><span class="in"># combine into one file</span></span>
+<span id="cb45-144"><a href="#cb45-144"></a><span class="in">paste a b &gt; blastn_lineage_best_hit.tsv</span></span>
+<span id="cb45-145"><a href="#cb45-145"></a><span class="in">rm a b</span></span>
+<span id="cb45-146"><a href="#cb45-146"></a><span class="in">```</span></span>
+<span id="cb45-147"><a href="#cb45-147"></a></span>
+<span id="cb45-148"><a href="#cb45-148"></a>Now read this file back into R</span>
+<span id="cb45-149"><a href="#cb45-149"></a></span>
+<span id="cb45-152"><a href="#cb45-152"></a><span class="in">```{r}</span></span>
+<span id="cb45-153"><a href="#cb45-153"></a>syncom16s_blastn <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"blastn_lineage_best_hit.tsv"</span>),</span>
+<span id="cb45-154"><a href="#cb45-154"></a>                <span class="at">col_names =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-155"><a href="#cb45-155"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="at">id =</span> X2, <span class="at">ncbi_taxid =</span> X1, <span class="at">ncbi_best_species =</span> X4)</span>
+<span id="cb45-156"><a href="#cb45-156"></a><span class="in">```</span></span>
+<span id="cb45-157"><a href="#cb45-157"></a></span>
+<span id="cb45-158"><a href="#cb45-158"></a><span class="fu"># Combine clustering and classification</span></span>
+<span id="cb45-159"><a href="#cb45-159"></a></span>
+<span id="cb45-162"><a href="#cb45-162"></a><span class="in">```{r}</span></span>
+<span id="cb45-163"><a href="#cb45-163"></a>syncom16s_idtx_lineage_info <span class="ot">&lt;-</span> syncom16s_idtx <span class="sc">%&gt;%</span> </span>
+<span id="cb45-164"><a href="#cb45-164"></a>  <span class="fu">left_join</span>(<span class="fu">rownames_to_column</span>(syncom16s_clusters, <span class="at">var =</span> <span class="st">"id"</span>), <span class="at">by =</span> <span class="fu">join_by</span>(id)) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-165"><a href="#cb45-165"></a>  <span class="fu">left_join</span>(syncom16s_blastn, <span class="at">by =</span> <span class="fu">join_by</span>(id)) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-166"><a href="#cb45-166"></a>  <span class="fu">relocate</span>(ncbi_best_species, <span class="at">.after=</span><span class="st">"genus"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-167"><a href="#cb45-167"></a>  <span class="fu">relocate</span>(cluster, <span class="at">.after=</span><span class="st">"id"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-168"><a href="#cb45-168"></a>  <span class="fu">arrange</span>(cluster)</span>
+<span id="cb45-169"><a href="#cb45-169"></a><span class="in">```</span></span>
+<span id="cb45-170"><a href="#cb45-170"></a></span>
+<span id="cb45-171"><a href="#cb45-171"></a><span class="fu"># 16S rRNA sequence alignment</span></span>
+<span id="cb45-172"><a href="#cb45-172"></a></span>
+<span id="cb45-173"><a href="#cb45-173"></a>We start with DNA sequences and convert to RNA so that DECIPHER can leverage structural information from the RNA</span>
+<span id="cb45-174"><a href="#cb45-174"></a></span>
+<span id="cb45-177"><a href="#cb45-177"></a><span class="in">```{r}</span></span>
+<span id="cb45-178"><a href="#cb45-178"></a>syncom16s_seqs_rna <span class="ot">&lt;-</span> <span class="fu">RNAStringSet</span>(syncom16s_seqs)</span>
+<span id="cb45-179"><a href="#cb45-179"></a><span class="in">```</span></span>
+<span id="cb45-180"><a href="#cb45-180"></a></span>
+<span id="cb45-181"><a href="#cb45-181"></a>Align the sequences</span>
+<span id="cb45-182"><a href="#cb45-182"></a></span>
+<span id="cb45-183"><a href="#cb45-183"></a>From [DECIPHER documentation on sequence</span>
+<span id="cb45-184"><a href="#cb45-184"></a>alignment](https://bioconductor.org/packages/devel/bioc/vignettes/DECIPHER/inst/doc/ArtOfAlignmentInR.pdf)</span>
+<span id="cb45-185"><a href="#cb45-185"></a></span>
+<span id="cb45-186"><a href="#cb45-186"></a><span class="at">&gt; 5.2 Example: Non-coding RNA sequences Much like proteins, non-coding</span></span>
+<span id="cb45-187"><a href="#cb45-187"></a><span class="at">&gt; RNAs often have a conserved secondary structure that can be used to</span></span>
+<span id="cb45-188"><a href="#cb45-188"></a><span class="at">&gt; improve their alignment. The PredictDBN function will predict base</span></span>
+<span id="cb45-189"><a href="#cb45-189"></a><span class="at">&gt; pairings from a sequence alignment by calculating the mutual</span></span>
+<span id="cb45-190"><a href="#cb45-190"></a><span class="at">&gt; information between pairs of positions. If RNA sequences are given as</span></span>
+<span id="cb45-191"><a href="#cb45-191"></a><span class="at">&gt; input, AlignSeqs will automatically use the output of PredictDBN to</span></span>
+<span id="cb45-192"><a href="#cb45-192"></a><span class="at">&gt; iteratively improve the alignment. Providing an RNAStringSet also</span></span>
+<span id="cb45-193"><a href="#cb45-193"></a><span class="at">&gt; causes single-base and double-base substitution matrices to be used,</span></span>
+<span id="cb45-194"><a href="#cb45-194"></a><span class="at">&gt; and is preferable to providing a DNAStringSet when the sequences are</span></span>
+<span id="cb45-195"><a href="#cb45-195"></a><span class="at">&gt; non-coding RNA. The type of the input sequences can easily be</span></span>
+<span id="cb45-196"><a href="#cb45-196"></a><span class="at">&gt; converted to RNA, as shown below.</span></span>
+<span id="cb45-197"><a href="#cb45-197"></a></span>
+<span id="cb45-200"><a href="#cb45-200"></a><span class="in">```{r}</span></span>
+<span id="cb45-201"><a href="#cb45-201"></a><span class="co">#| eval: false</span></span>
+<span id="cb45-202"><a href="#cb45-202"></a><span class="co">#| include: true</span></span>
+<span id="cb45-203"><a href="#cb45-203"></a><span class="fu">set.seed</span>(<span class="dv">2342</span>)</span>
+<span id="cb45-204"><a href="#cb45-204"></a>syncom16s_seqs_rna_aligned <span class="ot">&lt;-</span> <span class="fu">AlignSeqs</span>(syncom16s_seqs_rna)</span>
+<span id="cb45-205"><a href="#cb45-205"></a><span class="co"># reset random seed</span></span>
+<span id="cb45-206"><a href="#cb45-206"></a><span class="fu">rm</span>(.Random.seed, <span class="at">envir=</span><span class="fu">globalenv</span>())</span>
+<span id="cb45-207"><a href="#cb45-207"></a><span class="in">```</span></span>
+<span id="cb45-208"><a href="#cb45-208"></a></span>
+<span id="cb45-211"><a href="#cb45-211"></a><span class="in">```{r}</span></span>
+<span id="cb45-212"><a href="#cb45-212"></a><span class="co">#| eval: false</span></span>
+<span id="cb45-213"><a href="#cb45-213"></a><span class="co">#| include: false</span></span>
+<span id="cb45-214"><a href="#cb45-214"></a><span class="fu">write_rds</span>(syncom16s_seqs_rna_aligned, here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"syncom16s_seqs_rna_aligned.rds"</span>))</span>
+<span id="cb45-215"><a href="#cb45-215"></a><span class="in">```</span></span>
+<span id="cb45-216"><a href="#cb45-216"></a></span>
+<span id="cb45-219"><a href="#cb45-219"></a><span class="in">```{r}</span></span>
+<span id="cb45-220"><a href="#cb45-220"></a><span class="co">#| eval: true</span></span>
+<span id="cb45-221"><a href="#cb45-221"></a><span class="co">#| include: false</span></span>
+<span id="cb45-222"><a href="#cb45-222"></a>syncom16s_seqs_rna_aligned <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"syncom16s_seqs_rna_aligned.rds"</span>))</span>
+<span id="cb45-223"><a href="#cb45-223"></a><span class="in">```</span></span>
+<span id="cb45-224"><a href="#cb45-224"></a></span>
+<span id="cb45-227"><a href="#cb45-227"></a><span class="in">```{r}</span></span>
+<span id="cb45-228"><a href="#cb45-228"></a><span class="co"># Write as aligned fasta DNA file </span></span>
+<span id="cb45-229"><a href="#cb45-229"></a><span class="fu">writeXStringSet</span>(<span class="fu">DNAStringSet</span>(syncom16s_seqs_rna_aligned),</span>
+<span id="cb45-230"><a href="#cb45-230"></a>                here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"16S_rRNA_SynCom_aligned.fna"</span>),</span>
+<span id="cb45-231"><a href="#cb45-231"></a>                <span class="at">format=</span><span class="st">'fasta'</span>)</span>
+<span id="cb45-232"><a href="#cb45-232"></a><span class="in">```</span></span>
+<span id="cb45-233"><a href="#cb45-233"></a></span>
+<span id="cb45-234"><a href="#cb45-234"></a><span class="fu"># Phylogenetic tree building</span></span>
+<span id="cb45-235"><a href="#cb45-235"></a></span>
+<span id="cb45-236"><a href="#cb45-236"></a>Following maximum likelihood tutorial [DECIPHER documentation on</span>
+<span id="cb45-237"><a href="#cb45-237"></a>phylogenetic</span>
+<span id="cb45-238"><a href="#cb45-238"></a>trees](https://bioconductor.org/packages/devel/bioc/vignettes/DECIPHER/inst/doc/GrowingTrees.pdf)</span>
+<span id="cb45-239"><a href="#cb45-239"></a></span>
+<span id="cb45-240"><a href="#cb45-240"></a>This step constructs a phylogenetic tree using the general time reversable (GTR) model with a discrete Gamma model <span class="co">[</span><span class="ot">(Yang, 1994)</span><span class="co">](https://link.springer.com/article/10.1007/BF00160154)</span> with the default 4 rate categories. Branch support is depicted using aBayes probabilities, which is a Bayesian-like transformation of an approximate Likelihood Ratio Test <span class="co">[</span><span class="ot">(Anisimova et al., 2011)</span><span class="co">](https://academic.oup.com/sysbio/article/60/5/685/1644562)</span>. </span>
+<span id="cb45-241"><a href="#cb45-241"></a></span>
+<span id="cb45-244"><a href="#cb45-244"></a><span class="in">```{r}</span></span>
+<span id="cb45-245"><a href="#cb45-245"></a><span class="co">#| eval: false</span></span>
+<span id="cb45-246"><a href="#cb45-246"></a><span class="co">#| include: true</span></span>
+<span id="cb45-247"><a href="#cb45-247"></a><span class="fu">set.seed</span>(<span class="dv">26345</span>)</span>
+<span id="cb45-248"><a href="#cb45-248"></a>syncom16s_seqs_mltree <span class="ot">&lt;-</span> <span class="fu">Treeline</span>(</span>
+<span id="cb45-249"><a href="#cb45-249"></a>  syncom16s_seqs_rna_aligned,</span>
+<span id="cb45-250"><a href="#cb45-250"></a>  <span class="at">method =</span> <span class="st">"ML"</span>,</span>
+<span id="cb45-251"><a href="#cb45-251"></a>  <span class="at">model =</span> <span class="st">"GTR+G4"</span>,</span>
+<span id="cb45-252"><a href="#cb45-252"></a>  <span class="at">verbose =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb45-253"><a href="#cb45-253"></a>  <span class="at">processors =</span> <span class="dv">12</span></span>
+<span id="cb45-254"><a href="#cb45-254"></a>)</span>
+<span id="cb45-255"><a href="#cb45-255"></a><span class="co"># reset random seed</span></span>
+<span id="cb45-256"><a href="#cb45-256"></a><span class="fu">rm</span>(.Random.seed, <span class="at">envir=</span><span class="fu">globalenv</span>())</span>
+<span id="cb45-257"><a href="#cb45-257"></a><span class="in">```</span></span>
+<span id="cb45-258"><a href="#cb45-258"></a></span>
+<span id="cb45-261"><a href="#cb45-261"></a><span class="in">```{r}</span></span>
+<span id="cb45-262"><a href="#cb45-262"></a><span class="co">#| eval: false</span></span>
+<span id="cb45-263"><a href="#cb45-263"></a><span class="co">#| include: false</span></span>
+<span id="cb45-264"><a href="#cb45-264"></a><span class="fu">write_rds</span>(syncom16s_seqs_mltree, here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"syncom16s_seqs_mltree.rds"</span>))</span>
+<span id="cb45-265"><a href="#cb45-265"></a><span class="in">```</span></span>
+<span id="cb45-266"><a href="#cb45-266"></a></span>
+<span id="cb45-269"><a href="#cb45-269"></a><span class="in">```{r}</span></span>
+<span id="cb45-270"><a href="#cb45-270"></a><span class="co">#| eval: true</span></span>
+<span id="cb45-271"><a href="#cb45-271"></a><span class="co">#| include: false</span></span>
+<span id="cb45-272"><a href="#cb45-272"></a>syncom16s_seqs_mltree <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"syncom16s_seqs_mltree.rds"</span>))</span>
+<span id="cb45-273"><a href="#cb45-273"></a><span class="in">```</span></span>
+<span id="cb45-274"><a href="#cb45-274"></a></span>
+<span id="cb45-277"><a href="#cb45-277"></a><span class="in">```{r}</span></span>
+<span id="cb45-278"><a href="#cb45-278"></a><span class="co"># this function adds an 'edgetext' attribute that is recognized by WriteDendrogram so that</span></span>
+<span id="cb45-279"><a href="#cb45-279"></a><span class="co"># branch support values (aBayes) are written properly</span></span>
+<span id="cb45-280"><a href="#cb45-280"></a>add_boots <span class="ot">&lt;-</span> <span class="cf">function</span>(node){</span>
+<span id="cb45-281"><a href="#cb45-281"></a>  s <span class="ot">&lt;-</span> <span class="fu">attr</span>(node, <span class="st">"probability"</span>)</span>
+<span id="cb45-282"><a href="#cb45-282"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(s))</span>
+<span id="cb45-283"><a href="#cb45-283"></a>    <span class="fu">attr</span>(node, <span class="st">"edgetext"</span>) <span class="ot">&lt;-</span> <span class="fu">formatC</span>(<span class="fu">as.numeric</span>(s), <span class="at">digits=</span><span class="dv">2</span>, <span class="at">format=</span><span class="st">"f"</span>)</span>
+<span id="cb45-284"><a href="#cb45-284"></a>  <span class="fu">return</span>(node)</span>
+<span id="cb45-285"><a href="#cb45-285"></a>}</span>
+<span id="cb45-286"><a href="#cb45-286"></a></span>
+<span id="cb45-287"><a href="#cb45-287"></a>syncom16s_seqs_mltree <span class="ot">&lt;-</span> <span class="fu">dendrapply</span>(syncom16s_seqs_mltree, add_boots)</span>
+<span id="cb45-288"><a href="#cb45-288"></a><span class="in">```</span></span>
+<span id="cb45-289"><a href="#cb45-289"></a></span>
+<span id="cb45-290"><a href="#cb45-290"></a>Save ML tree as newick file</span>
+<span id="cb45-291"><a href="#cb45-291"></a></span>
+<span id="cb45-294"><a href="#cb45-294"></a><span class="in">```{r}</span></span>
+<span id="cb45-295"><a href="#cb45-295"></a><span class="fu">WriteDendrogram</span>(syncom16s_seqs_mltree, </span>
+<span id="cb45-296"><a href="#cb45-296"></a>                <span class="at">file=</span>here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"syncom16s_seqs_mltree.nwk"</span>),</span>
+<span id="cb45-297"><a href="#cb45-297"></a>                <span class="co"># quote ="" ensure that bootstraps are not written quoted as strings</span></span>
+<span id="cb45-298"><a href="#cb45-298"></a>                <span class="co"># so that ggtree doesn't fail to parse them</span></span>
+<span id="cb45-299"><a href="#cb45-299"></a>                <span class="at">quote=</span><span class="st">""</span>)</span>
+<span id="cb45-300"><a href="#cb45-300"></a><span class="in">```</span></span>
+<span id="cb45-301"><a href="#cb45-301"></a></span>
+<span id="cb45-302"><a href="#cb45-302"></a>Tree building results</span>
+<span id="cb45-303"><a href="#cb45-303"></a></span>
+<span id="cb45-304"><a href="#cb45-304"></a><span class="in">```         </span></span>
+<span id="cb45-305"><a href="#cb45-305"></a><span class="in">Fitting initial tree to model:</span></span>
+<span id="cb45-306"><a href="#cb45-306"></a><span class="in">GTR+G4 -ln(L) = 15520, AICc = 31633, BIC = 32781</span></span>
+<span id="cb45-307"><a href="#cb45-307"></a></span>
+<span id="cb45-308"><a href="#cb45-308"></a><span class="in">Optimizing up to 400 candidate trees:</span></span>
+<span id="cb45-309"><a href="#cb45-309"></a><span class="in">Tree #136. -ln(L) = 15395.993 (0.000%), 9 Climbs, 0 Grafts of 7                                                                                                       </span></span>
+<span id="cb45-310"><a href="#cb45-310"></a></span>
+<span id="cb45-311"><a href="#cb45-311"></a><span class="in">Finalizing the best tree (#130):</span></span>
+<span id="cb45-312"><a href="#cb45-312"></a><span class="in">-ln(L) = 15395.993 (0.000%), 1 Climb                                                                                                                                  </span></span>
+<span id="cb45-313"><a href="#cb45-313"></a></span>
+<span id="cb45-314"><a href="#cb45-314"></a><span class="in">Model parameters:</span></span>
+<span id="cb45-315"><a href="#cb45-315"></a><span class="in">Frequency(A) = 0.244</span></span>
+<span id="cb45-316"><a href="#cb45-316"></a><span class="in">Frequency(C) = 0.223</span></span>
+<span id="cb45-317"><a href="#cb45-317"></a><span class="in">Frequency(G) = 0.312</span></span>
+<span id="cb45-318"><a href="#cb45-318"></a><span class="in">Frequency(T) = 0.221</span></span>
+<span id="cb45-319"><a href="#cb45-319"></a><span class="in">Rate A &lt;-&gt; C = 0.816</span></span>
+<span id="cb45-320"><a href="#cb45-320"></a><span class="in">Rate A &lt;-&gt; G = 1.978</span></span>
+<span id="cb45-321"><a href="#cb45-321"></a><span class="in">Rate A &lt;-&gt; T = 1.262</span></span>
+<span id="cb45-322"><a href="#cb45-322"></a><span class="in">Rate C &lt;-&gt; G = 0.677</span></span>
+<span id="cb45-323"><a href="#cb45-323"></a><span class="in">Rate C &lt;-&gt; T = 3.029</span></span>
+<span id="cb45-324"><a href="#cb45-324"></a><span class="in">Rate G &lt;-&gt; T = 1.000</span></span>
+<span id="cb45-325"><a href="#cb45-325"></a><span class="in">Alpha = 0.302</span></span>
+<span id="cb45-326"><a href="#cb45-326"></a></span>
+<span id="cb45-327"><a href="#cb45-327"></a><span class="in">Time difference of 1090.3 secs</span></span>
+<span id="cb45-328"><a href="#cb45-328"></a><span class="in">```</span></span>
+<span id="cb45-329"><a href="#cb45-329"></a></span>
+<span id="cb45-330"><a href="#cb45-330"></a><span class="fu"># Phylogenetic tree plotting</span></span>
+<span id="cb45-331"><a href="#cb45-331"></a></span>
+<span id="cb45-334"><a href="#cb45-334"></a><span class="in">```{r}</span></span>
+<span id="cb45-335"><a href="#cb45-335"></a><span class="fu">library</span>(ggtree)</span>
+<span id="cb45-336"><a href="#cb45-336"></a><span class="fu">library</span>(treeio)</span>
+<span id="cb45-337"><a href="#cb45-337"></a>syncom16s_seqs_mltree_nwk <span class="ot">&lt;-</span> treeio<span class="sc">::</span><span class="fu">read.newick</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"syncom16s_seqs_mltree.nwk"</span>),</span>
+<span id="cb45-338"><a href="#cb45-338"></a>                            <span class="at">node.label=</span><span class="st">"support"</span>)</span>
+<span id="cb45-339"><a href="#cb45-339"></a><span class="in">```</span></span>
+<span id="cb45-340"><a href="#cb45-340"></a></span>
+<span id="cb45-341"><a href="#cb45-341"></a>Goal is to produce a tree that has for tip labels the Genus assigned by IDTAXA + the strain identifier, with different internal nodes labeled by coarser taxonomic grouping. The clusters assigned by <span class="in">`clusterizer`</span> will be represented by different colors at the tips.</span>
+<span id="cb45-342"><a href="#cb45-342"></a></span>
+<span id="cb45-343"><a href="#cb45-343"></a>First lets look at the tree with just the identifiers on the leaves</span>
+<span id="cb45-344"><a href="#cb45-344"></a></span>
+<span id="cb45-345"><a href="#cb45-345"></a>::: {#fig-01}</span>
+<span id="cb45-348"><a href="#cb45-348"></a><span class="in">```{r}</span></span>
+<span id="cb45-349"><a href="#cb45-349"></a><span class="co">#| fig-width: 7</span></span>
+<span id="cb45-350"><a href="#cb45-350"></a><span class="co">#| fig-height: 12</span></span>
+<span id="cb45-351"><a href="#cb45-351"></a><span class="fu">ggtree</span>(syncom16s_seqs_mltree_nwk, <span class="at">layout=</span><span class="st">"rectangular"</span>) <span class="sc">+</span> </span>
+<span id="cb45-352"><a href="#cb45-352"></a>  <span class="fu">geom_tiplab</span>(<span class="at">size=</span><span class="dv">3</span>, <span class="at">hjust =</span> <span class="sc">-</span><span class="fl">0.10</span>) <span class="sc">+</span></span>
+<span id="cb45-353"><a href="#cb45-353"></a>  <span class="fu">xlim</span>(<span class="cn">NA</span>, <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb45-354"><a href="#cb45-354"></a>  <span class="fu">geom_treescale</span>(<span class="at">offset=</span><span class="dv">1</span>)</span>
+<span id="cb45-355"><a href="#cb45-355"></a><span class="in">```</span></span>
+<span id="cb45-356"><a href="#cb45-356"></a>Maximum likelihood phylogenetic tree inferred from an alignment of the 16S rRNA gene amplified by Sanger sequencing from the duckweed SynCom. Scale bar at bottom represents 0.1 substitutions per site.</span>
+<span id="cb45-357"><a href="#cb45-357"></a>:::</span>
+<span id="cb45-358"><a href="#cb45-358"></a></span>
+<span id="cb45-359"><a href="#cb45-359"></a>We can also look at the internal node numbering by rendering the tree as a dataframe</span>
+<span id="cb45-360"><a href="#cb45-360"></a></span>
+<span id="cb45-363"><a href="#cb45-363"></a><span class="in">```{r}</span></span>
+<span id="cb45-364"><a href="#cb45-364"></a><span class="co"># the second tibble call is so quarto renders it properly</span></span>
+<span id="cb45-365"><a href="#cb45-365"></a>syncom16s_seqs_mltree_nwk <span class="sc">%&gt;%</span> treeio<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> <span class="fu">tibble</span>()</span>
+<span id="cb45-366"><a href="#cb45-366"></a><span class="in">```</span></span>
+<span id="cb45-367"><a href="#cb45-367"></a>First we need to get our naming scheme set up</span>
+<span id="cb45-368"><a href="#cb45-368"></a></span>
+<span id="cb45-371"><a href="#cb45-371"></a><span class="in">```{r}</span></span>
+<span id="cb45-372"><a href="#cb45-372"></a>newtipnames <span class="ot">&lt;-</span> syncom16s_idtx_lineage_info <span class="sc">%&gt;%</span> </span>
+<span id="cb45-373"><a href="#cb45-373"></a>  <span class="fu">mutate</span>(<span class="at">genus =</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(genus, <span class="st">"(^[:alpha:]*).*"</span>, <span class="at">group =</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-374"><a href="#cb45-374"></a>  <span class="fu">mutate</span>(<span class="at">genus =</span> <span class="fu">case_when</span>(<span class="fu">is.na</span>(genus) <span class="sc">|</span> genus <span class="sc">==</span> <span class="st">"unclassified"</span> <span class="sc">~</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(ncbi_best_species, <span class="st">"^[:alpha:]*"</span>),</span>
+<span id="cb45-375"><a href="#cb45-375"></a>                           <span class="cn">TRUE</span> <span class="sc">~</span> genus)) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-376"><a href="#cb45-376"></a>  <span class="fu">mutate</span>(<span class="at">newname =</span> <span class="fu">paste</span>(genus, id)) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-377"><a href="#cb45-377"></a>  <span class="fu">mutate</span>(<span class="at">cluster =</span> <span class="fu">paste0</span>(<span class="st">"c"</span>, cluster)) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-378"><a href="#cb45-378"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(id, newname, cluster, genus, order, family)</span>
+<span id="cb45-379"><a href="#cb45-379"></a><span class="in">```</span></span>
+<span id="cb45-380"><a href="#cb45-380"></a></span>
+<span id="cb45-381"><a href="#cb45-381"></a>First we need to generate a color palette that lets us distinguish the different colors</span>
+<span id="cb45-382"><a href="#cb45-382"></a></span>
+<span id="cb45-385"><a href="#cb45-385"></a><span class="in">```{r}</span></span>
+<span id="cb45-386"><a href="#cb45-386"></a><span class="fu">library</span>(Polychrome)</span>
+<span id="cb45-387"><a href="#cb45-387"></a><span class="fu">set.seed</span>(<span class="dv">341234</span>)</span>
+<span id="cb45-388"><a href="#cb45-388"></a>mypal <span class="ot">&lt;-</span> <span class="fu">unname</span>(<span class="fu">createPalette</span>(<span class="fu">max</span>(syncom16s_idtx_lineage_info<span class="sc">$</span>cluster), <span class="fu">c</span>(<span class="st">"#F3874AFF"</span>, <span class="st">"#FCD125FF"</span>), <span class="at">M=</span><span class="dv">5000</span>))</span>
+<span id="cb45-389"><a href="#cb45-389"></a><span class="fu">rm</span>(.Random.seed, <span class="at">envir=</span><span class="fu">globalenv</span>())</span>
+<span id="cb45-390"><a href="#cb45-390"></a><span class="in">```</span></span>
+<span id="cb45-391"><a href="#cb45-391"></a></span>
+<span id="cb45-392"><a href="#cb45-392"></a>Now we need to identify the internal nodes that we want to highlight. We can do this using the <span class="in">`MRCA`</span> function from ggtree</span>
+<span id="cb45-393"><a href="#cb45-393"></a></span>
+<span id="cb45-396"><a href="#cb45-396"></a><span class="in">```{r}</span></span>
+<span id="cb45-397"><a href="#cb45-397"></a><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"TL22"</span>, <span class="st">"TL23"</span>)</span>
+<span id="cb45-398"><a href="#cb45-398"></a><span class="in">```</span></span>
+<span id="cb45-399"><a href="#cb45-399"></a></span>
+<span id="cb45-400"><a href="#cb45-400"></a>Code to plot the tree</span>
+<span id="cb45-401"><a href="#cb45-401"></a></span>
+<span id="cb45-404"><a href="#cb45-404"></a><span class="in">```{r}</span></span>
+<span id="cb45-405"><a href="#cb45-405"></a>offset <span class="ot">&lt;-</span> <span class="fl">0.1</span></span>
+<span id="cb45-406"><a href="#cb45-406"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggtree</span>(syncom16s_seqs_mltree_nwk, <span class="at">layout=</span><span class="st">"rectangular"</span>)</span>
+<span id="cb45-407"><a href="#cb45-407"></a></span>
+<span id="cb45-408"><a href="#cb45-408"></a>p2 <span class="ot">&lt;-</span> p1 <span class="sc">%&lt;+%</span> newtipnames <span class="sc">+</span> </span>
+<span id="cb45-409"><a href="#cb45-409"></a>  <span class="fu">geom_tiplab</span>(<span class="fu">aes</span>(<span class="at">label =</span> newname), <span class="at">size=</span><span class="dv">3</span>, <span class="at">hjust =</span> <span class="sc">-</span><span class="fl">0.10</span>) <span class="sc">+</span></span>
+<span id="cb45-410"><a href="#cb45-410"></a>  <span class="fu">geom_tippoint</span>(<span class="fu">aes</span>(<span class="at">color =</span> cluster), <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb45-411"><a href="#cb45-411"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> mypal, <span class="at">guide=</span><span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb45-412"><a href="#cb45-412"></a>  <span class="co"># Pseudomonadaceae </span></span>
+<span id="cb45-413"><a href="#cb45-413"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"TL22"</span>, <span class="st">"TL23"</span>), </span>
+<span id="cb45-414"><a href="#cb45-414"></a>                <span class="at">label=</span><span class="st">"(γ) Pseudomonadaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
+<span id="cb45-415"><a href="#cb45-415"></a>                <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
+<span id="cb45-416"><a href="#cb45-416"></a>  <span class="co"># Aeromonadaceae</span></span>
+<span id="cb45-417"><a href="#cb45-417"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"HA41"</span>, <span class="st">"HA04"</span>), </span>
+<span id="cb45-418"><a href="#cb45-418"></a>                <span class="at">label=</span><span class="st">"(γ) Aeromonadaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
+<span id="cb45-419"><a href="#cb45-419"></a>                <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
+<span id="cb45-420"><a href="#cb45-420"></a>  <span class="co"># Enterobacteriaceae</span></span>
+<span id="cb45-421"><a href="#cb45-421"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"HA14"</span>, <span class="st">"HA44"</span>), </span>
+<span id="cb45-422"><a href="#cb45-422"></a>                <span class="at">label=</span><span class="st">"(γ) Enterobacteriaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
+<span id="cb45-423"><a href="#cb45-423"></a>                <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
+<span id="cb45-424"><a href="#cb45-424"></a>  <span class="co"># Moraxellaceae</span></span>
+<span id="cb45-425"><a href="#cb45-425"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"TL64"</span>, <span class="st">"HA82"</span>), </span>
+<span id="cb45-426"><a href="#cb45-426"></a>                <span class="at">label=</span><span class="st">"(γ) Moraxellaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
+<span id="cb45-427"><a href="#cb45-427"></a>                <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
+<span id="cb45-428"><a href="#cb45-428"></a>  <span class="co"># Chromobacteriaceae</span></span>
+<span id="cb45-429"><a href="#cb45-429"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"HA47"</span>, <span class="st">"HA65"</span>), </span>
+<span id="cb45-430"><a href="#cb45-430"></a>                <span class="at">label=</span><span class="st">"(γ) Chromobacteriaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
+<span id="cb45-431"><a href="#cb45-431"></a>                <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
+<span id="cb45-432"><a href="#cb45-432"></a>  <span class="co"># Burkholderiaceae</span></span>
+<span id="cb45-433"><a href="#cb45-433"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"HA52"</span>, <span class="st">"HA18"</span>), </span>
+<span id="cb45-434"><a href="#cb45-434"></a>                <span class="at">label=</span><span class="st">"(γ) Burkholderiaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
+<span id="cb45-435"><a href="#cb45-435"></a>                <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
+<span id="cb45-436"><a href="#cb45-436"></a>  <span class="co"># Sphingomonadaceae</span></span>
+<span id="cb45-437"><a href="#cb45-437"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="dv">23</span>, </span>
+<span id="cb45-438"><a href="#cb45-438"></a>                <span class="at">label=</span><span class="st">"(α) Sphingomonadaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
+<span id="cb45-439"><a href="#cb45-439"></a>                <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
+<span id="cb45-440"><a href="#cb45-440"></a>  <span class="co"># Streptococcaceae</span></span>
+<span id="cb45-441"><a href="#cb45-441"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"TL12"</span>, <span class="st">"TL39"</span>), </span>
+<span id="cb45-442"><a href="#cb45-442"></a>                <span class="at">label=</span><span class="st">"(Bacilli) Streptococcaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
+<span id="cb45-443"><a href="#cb45-443"></a>                <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
+<span id="cb45-444"><a href="#cb45-444"></a>  <span class="co"># Exiguobacteriaceae</span></span>
+<span id="cb45-445"><a href="#cb45-445"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"HA63"</span>, <span class="st">"HA25"</span>), </span>
+<span id="cb45-446"><a href="#cb45-446"></a>                <span class="at">label=</span><span class="st">"(Bacilli) Exiguobacteriaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
+<span id="cb45-447"><a href="#cb45-447"></a>                  <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset) <span class="sc">+</span></span>
+<span id="cb45-448"><a href="#cb45-448"></a>  <span class="co"># Deinococcaceae</span></span>
+<span id="cb45-449"><a href="#cb45-449"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"HA42"</span>, <span class="st">"HA29"</span>), </span>
+<span id="cb45-450"><a href="#cb45-450"></a>                <span class="at">label=</span><span class="st">"(Deinococci) Deinococcaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
+<span id="cb45-451"><a href="#cb45-451"></a>                  <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset<span class="fl">+0.2</span>) <span class="sc">+</span></span>
+<span id="cb45-452"><a href="#cb45-452"></a>  <span class="co"># Weeksellaceae</span></span>
+<span id="cb45-453"><a href="#cb45-453"></a>  <span class="fu">geom_cladelab</span>(<span class="at">node=</span><span class="fu">MRCA</span>(syncom16s_seqs_mltree_nwk, <span class="st">"HA56"</span>, <span class="st">"HA57"</span>), </span>
+<span id="cb45-454"><a href="#cb45-454"></a>                <span class="at">label=</span><span class="st">"(Bacteroidia) Weeksellaceae"</span>, <span class="at">align=</span><span class="cn">TRUE</span>, </span>
+<span id="cb45-455"><a href="#cb45-455"></a>                  <span class="at">geom=</span><span class="st">'text'</span>, <span class="at">offset=</span>offset<span class="fl">+0.4</span>) <span class="sc">+</span></span>
+<span id="cb45-456"><a href="#cb45-456"></a>  <span class="fu">xlim</span>(<span class="cn">NA</span>, <span class="dv">2</span>)</span>
+<span id="cb45-457"><a href="#cb45-457"></a><span class="in">```</span></span>
+<span id="cb45-458"><a href="#cb45-458"></a></span>
+<span id="cb45-459"><a href="#cb45-459"></a>::: {#fig-02}</span>
+<span id="cb45-462"><a href="#cb45-462"></a><span class="in">```{r}</span></span>
+<span id="cb45-463"><a href="#cb45-463"></a><span class="co">#| fig-width: 7</span></span>
+<span id="cb45-464"><a href="#cb45-464"></a><span class="co">#| fig-height: 15</span></span>
+<span id="cb45-465"><a href="#cb45-465"></a><span class="co">#| eval: true</span></span>
+<span id="cb45-466"><a href="#cb45-466"></a><span class="co">#| echo: false</span></span>
+<span id="cb45-467"><a href="#cb45-467"></a>p2</span>
+<span id="cb45-468"><a href="#cb45-468"></a><span class="in">```</span></span>
+<span id="cb45-469"><a href="#cb45-469"></a>As in @fig-01, but isolates have been labeled with their inferred genus (text) as well as their broader taxonomic class (right, vertical lines). Colors represent sequences clusters based on a 99% identity threshold (i.e., nodes of the same color have 16S rRNA gene sequences that are &gt; 99% similar)</span>
+<span id="cb45-470"><a href="#cb45-470"></a>:::</span>
+<span id="cb45-471"><a href="#cb45-471"></a></span>
+<span id="cb45-472"><a href="#cb45-472"></a><span class="fu"># Aggregate various taxa information</span></span>
+<span id="cb45-473"><a href="#cb45-473"></a></span>
+<span id="cb45-476"><a href="#cb45-476"></a><span class="in">```{r}</span></span>
+<span id="cb45-477"><a href="#cb45-477"></a>sanger_batch_info <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sanger_seq"</span>, <span class="st">"sanger_batch_info_01.tsv"</span>))</span>
+<span id="cb45-478"><a href="#cb45-478"></a><span class="in">```</span></span>
+<span id="cb45-479"><a href="#cb45-479"></a></span>
+<span id="cb45-480"><a href="#cb45-480"></a>::: {#tab-01}</span>
+<span id="cb45-483"><a href="#cb45-483"></a><span class="in">```{r}</span></span>
+<span id="cb45-484"><a href="#cb45-484"></a>final_table <span class="ot">&lt;-</span> <span class="fu">left_join</span>(syncom16s_idtx_lineage_info, sanger_batch_info, <span class="at">by =</span> <span class="fu">join_by</span>(id <span class="sc">==</span> strainID)) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-485"><a href="#cb45-485"></a>  dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">strainID =</span> id, <span class="at">taxa_cluster =</span> cluster) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-486"><a href="#cb45-486"></a>  <span class="fu">mutate</span>(<span class="at">genus1 =</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(genus, <span class="st">"(^[:alpha:]*).*"</span>, <span class="at">group =</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-487"><a href="#cb45-487"></a>  <span class="fu">mutate</span>(<span class="at">genus1 =</span> <span class="fu">case_when</span>(<span class="fu">is.na</span>(genus1) <span class="sc">|</span> genus1 <span class="sc">==</span> <span class="st">"unclassified"</span> <span class="sc">~</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(ncbi_best_species, <span class="st">"^[:alpha:]*"</span>),</span>
+<span id="cb45-488"><a href="#cb45-488"></a>                           <span class="cn">TRUE</span> <span class="sc">~</span> genus1)) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-489"><a href="#cb45-489"></a>  <span class="fu">mutate</span>(<span class="at">tree_name =</span> <span class="fu">paste</span>(genus1, strainID)) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-490"><a href="#cb45-490"></a>  <span class="fu">relocate</span>(<span class="fu">c</span>(bacteria_plate_well, location, google_drive_id, tree_name), <span class="at">.after =</span> strainID) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-491"><a href="#cb45-491"></a>  <span class="fu">relocate</span>(google_drive_id, taxa_cluster, tree_name, <span class="at">.after =</span> strainID) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-492"><a href="#cb45-492"></a>  <span class="fu">relocate</span>(ncbi_best_species, ncbi_taxid, <span class="at">.after =</span> location) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-493"><a href="#cb45-493"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>genus1)</span>
+<span id="cb45-494"><a href="#cb45-494"></a></span>
+<span id="cb45-495"><a href="#cb45-495"></a><span class="fu">write_tsv</span>(final_table, here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"strain_table_info.tsv"</span>))</span>
+<span id="cb45-496"><a href="#cb45-496"></a></span>
+<span id="cb45-497"><a href="#cb45-497"></a>final_table</span>
+<span id="cb45-498"><a href="#cb45-498"></a><span class="in">```</span></span>
+<span id="cb45-499"><a href="#cb45-499"></a>Compiled table with taxonomic info, isolation source, and mapping of new strainID to the original <span class="in">`google_drive_id.`</span> Taxa cluster refers to the 99% sequence identity cluster that each strain is a member of. Table is sorted by <span class="in">`taxa_cluster.`</span> Columns <span class="in">`domain`</span> through <span class="in">`genus`</span> are the taxonomic output from the IDTAXA algorithm using the <span class="co">[</span><span class="ot">Genome Taxonomy Database (GTDB)</span><span class="co">](https://gtdb.ecogenomic.org/)</span> 16S rRNA reference training set. The percentage following the assigned taxa classification represents the classification confidence/probability.</span>
+<span id="cb45-500"><a href="#cb45-500"></a>:::</span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

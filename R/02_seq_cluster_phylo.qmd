@@ -411,3 +411,28 @@ p2
 As in @fig-01, but isolates have been labeled with their inferred genus (text) as well as their broader taxonomic class (right, vertical lines). Colors represent sequences clusters based on a 99% identity threshold (i.e., nodes of the same color have 16S rRNA gene sequences that are > 99% similar)
 :::
 
+# Aggregate various taxa information
+
+```{r}
+sanger_batch_info <- read_tsv(here::here("data", "sanger_seq", "sanger_batch_info_01.tsv"))
+```
+
+::: {#tab-01}
+```{r}
+final_table <- left_join(syncom16s_idtx_lineage_info, sanger_batch_info, by = join_by(id == strainID)) %>% 
+  dplyr::rename(strainID = id, taxa_cluster = cluster) %>% 
+  mutate(genus1 = stringr::str_extract(genus, "(^[:alpha:]*).*", group = 1)) %>% 
+  mutate(genus1 = case_when(is.na(genus1) | genus1 == "unclassified" ~ stringr::str_extract(ncbi_best_species, "^[:alpha:]*"),
+                           TRUE ~ genus1)) %>% 
+  mutate(tree_name = paste(genus1, strainID)) %>% 
+  relocate(c(bacteria_plate_well, location, google_drive_id, tree_name), .after = strainID) %>% 
+  relocate(google_drive_id, taxa_cluster, tree_name, .after = strainID) %>% 
+  relocate(ncbi_best_species, ncbi_taxid, .after = location) %>% 
+  dplyr::select(-genus1)
+
+write_tsv(final_table, here::here("data", "strain_table_info.tsv"))
+
+final_table
+```
+Compiled table with taxonomic info, isolation source, and mapping of new strainID to the original `google_drive_id.` Taxa cluster refers to the 99% sequence identity cluster that each strain is a member of. Table is sorted by `taxa_cluster.` Columns `domain` through `genus` are the taxonomic output from the IDTAXA algorithm using the [Genome Taxonomy Database (GTDB)](https://gtdb.ecogenomic.org/) 16S rRNA reference training set. The percentage following the assigned taxa classification represents the classification confidence/probability.
+:::
