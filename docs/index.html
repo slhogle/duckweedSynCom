@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Shane L Hogle">
-<meta name="dcterms.date" content="2025-07-18">
-<meta name="keywords" content="Microbiology, Ecology, Evolution, Antimicrobial resistance (AMR)">
+<meta name="author" content="Milla Similä">
+<meta name="dcterms.date" content="2025-07-31">
+<meta name="keywords" content="Microbiology, Ecology, Evolution">
 
 <title>Data analysis for the project duckweedSynCom – duckweedSynCom</title>
 <style>
@@ -103,6 +104,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<link href="site_libs/leaflet-1.3.1/leaflet.css" rel="stylesheet">
+<script src="site_libs/leaflet-1.3.1/leaflet.js"></script>
+<link href="site_libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet">
+<script src="site_libs/proj4-2.6.2/proj4.min.js"></script>
+<script src="site_libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+<link href="site_libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet">
+<script src="site_libs/leaflet-binding-2.2.2/leaflet.js"></script>
+<script src="site_libs/leaflet-providers-2.0.0/leaflet-providers_2.0.0.js"></script>
+<script src="site_libs/leaflet-providers-plugin-2.2.2/leaflet-providers-plugin.js"></script>
+<script src="site_libs/HomeButton-0.0.1/home-button.js"></script>
+<script src="site_libs/HomeButton-0.0.1/easy-button-src.min.js"></script>
+<link href="site_libs/.-CSS-0.0.1/._home-button.css" rel="stylesheet">
+<script src="site_libs/clipboard-0.0.1/setClipboardText.js"></script>
+<link href="site_libs/mapviewCSS-0.0.1/mapview-popup.css" rel="stylesheet">
+<link href="site_libs/mapviewCSS-0.0.1/mapview.css" rel="stylesheet">
 <link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
 <script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
@@ -148,7 +167,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text">1. 16S rRNA gene Sanger sequencing</span></a>
+ <span class="menu-text">1. Taxonomic characterization of plant-associated heterotrophic bacteria</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -156,14 +175,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./R/01_read_format_sanger.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">i) Process ab1files to fasta</span></a>
+  <a href="./R/bac_taxonomy_sanger_16S/01_read_format_sanger.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">i) 16S rRNA gene Sanger sequencing: Process ab1files to fasta</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./R/02_seq_cluster_phylo.html" class="sidebar-item-text sidebar-link">
+  <a href="./R/bac_taxonomy_sanger_16S/02_seq_cluster_phylo.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">ii) Clustering and phylogeny of 16S gene</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./R/bac_taxonomy_sanger_16S/03_tree_summary_table.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">iii) Taxonomy summary</span></a>
   </div>
 </li>
       </ul>
@@ -184,10 +209,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#preprint" id="toc-preprint" class="nav-link" data-scroll-target="#preprint"><span class="header-section-number">1.2</span> Preprint</a></li>
   </ul></li>
   <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction"><span class="header-section-number">2</span> Introduction</a></li>
-  <li><a href="#experiment-overview" id="toc-experiment-overview" class="nav-link" data-scroll-target="#experiment-overview"><span class="header-section-number">3</span> Experiment overview</a></li>
-  <li><a href="#analysis-overview" id="toc-analysis-overview" class="nav-link" data-scroll-target="#analysis-overview"><span class="header-section-number">4</span> Analysis overview</a></li>
-  <li><a href="#availability" id="toc-availability" class="nav-link" data-scroll-target="#availability"><span class="header-section-number">5</span> Availability</a></li>
-  <li><a href="#reproducibility" id="toc-reproducibility" class="nav-link" data-scroll-target="#reproducibility"><span class="header-section-number">6</span> Reproducibility</a></li>
+  <li><a href="#sampling-plants-and-bacteria" id="toc-sampling-plants-and-bacteria" class="nav-link" data-scroll-target="#sampling-plants-and-bacteria"><span class="header-section-number">3</span> Sampling plants and bacteria</a></li>
+  <li><a href="#laboratory-processing-of-plants-and-bacteria" id="toc-laboratory-processing-of-plants-and-bacteria" class="nav-link" data-scroll-target="#laboratory-processing-of-plants-and-bacteria"><span class="header-section-number">4</span> Laboratory processing of plants and bacteria</a>
+  <ul class="collapse">
+  <li><a href="#plant-maintanence-and-generation-of-isogenic-lemna-minor-lines" id="toc-plant-maintanence-and-generation-of-isogenic-lemna-minor-lines" class="nav-link" data-scroll-target="#plant-maintanence-and-generation-of-isogenic-lemna-minor-lines"><span class="header-section-number">4.1</span> Plant maintanence and generation of isogenic <em>Lemna minor</em> lines</a></li>
+  <li><a href="#isolation-of-plant-associated-heterotrophic-bacteria" id="toc-isolation-of-plant-associated-heterotrophic-bacteria" class="nav-link" data-scroll-target="#isolation-of-plant-associated-heterotrophic-bacteria"><span class="header-section-number">4.2</span> Isolation of plant-associated heterotrophic bacteria</a></li>
+  </ul></li>
+  <li><a href="#experimental-measurements-and-data-analysis" id="toc-experimental-measurements-and-data-analysis" class="nav-link" data-scroll-target="#experimental-measurements-and-data-analysis"><span class="header-section-number">5</span> Experimental measurements and data analysis</a>
+  <ul class="collapse">
+  <li><a href="#taxonomic-characterization-of-plant-associated-heterotrophic-bacteria" id="toc-taxonomic-characterization-of-plant-associated-heterotrophic-bacteria" class="nav-link" data-scroll-target="#taxonomic-characterization-of-plant-associated-heterotrophic-bacteria"><span class="header-section-number">5.1</span> Taxonomic characterization of plant-associated heterotrophic bacteria</a></li>
+  </ul></li>
+  <li><a href="#availability" id="toc-availability" class="nav-link" data-scroll-target="#availability"><span class="header-section-number">6</span> Availability</a></li>
+  <li><a href="#reproducibility" id="toc-reproducibility" class="nav-link" data-scroll-target="#reproducibility"><span class="header-section-number">7</span> Reproducibility</a></li>
   </ul>
 </nav>
     </div>
@@ -201,11 +234,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <div class="quarto-title-meta-author">
-  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Authors</div>
   <div class="quarto-title-meta-heading">Affiliation</div>
   
     <div class="quarto-title-meta-contents">
     <p class="author">Shane L Hogle <a href="https://orcid.org/0000-0003-2595-3863" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            <a href="https://www.utu.fi/en">
+            University of Turku
+            </a>
+          </p>
+      </div>
+    <div class="quarto-title-meta-contents">
+    <p class="author">Milla Similä </p>
   </div>
   <div class="quarto-title-meta-contents">
         <p class="affiliation">
@@ -222,7 +265,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 18, 2025</p>
+      <p class="date">July 31, 2025</p>
     </div>
   </div>
   
@@ -233,7 +276,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div>
   <div class="keywords">
     <div class="block-title">Keywords</div>
-    <p>Microbiology, Ecology, Evolution, Antimicrobial resistance (AMR)</p>
+    <p>Microbiology, Ecology, Evolution</p>
   </div>
 </div>
 
@@ -253,24 +296,69 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="introduction" class="level2" data-number="2">
 <h2 data-number="2" class="anchored" data-anchor-id="introduction"><span class="header-section-number">2</span> Introduction</h2>
-<p>The goal of this project is construct and characterize a synthetic bacterial community (SynCom) associated with duckweed (Lemna minor). The plants and bacteria have all been isolated form Southwest Finland.</p>
+<p>The goal of this project is construct and characterize a synthetic bacterial community (SynCom) associated with duckweed (<em>Lemna minor</em>). The plants and bacteria have all been isolated form Southwest Finland. The plant and bacteria isolate system will be used to explored fundamental questions in host-microbiome ecology and evolution.</p>
 </section>
-<section id="experiment-overview" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="experiment-overview"><span class="header-section-number">3</span> Experiment overview</h2>
-<p>This is how we did our experiment…</p>
+<section id="sampling-plants-and-bacteria" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="sampling-plants-and-bacteria"><span class="header-section-number">3</span> Sampling plants and bacteria</h2>
+<p>Between June-August 2024 Milla and Shane collected duckweed plants (<em>Lemna minor</em>) from various aquatic habitats in Southwest Finland. The general collection approach was to collect approximately 50 individual plants using sterile tweezers and place these plants in 50 mL Falcon tubes containing water from the sampling location. Once collected plants and water were placed in a cooler and rapidly taken to a laboratory for processing. We collected plants from three locations in Finland (see map in <a href="#fig-01" class="quarto-xref">Figure&nbsp;1</a> below). The culturable fraction of the bacterial communities associated with each plant were cultured and isolated on nutrient agar back in the laboratory.</p>
+<div id="fig-01" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell">
+<div class="cell-output-display">
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-99fe3ad159c1fd222827" style="width:100%;height:487px;"></div>
+<script type="application/json" data-for="htmlwidget-99fe3ad159c1fd222827">{"x":{"options":{"minZoom":1,"maxZoom":52,"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}},"preferCanvas":false,"bounceAtZoomLimits":false,"maxBounds":[[[-90,-370]],[[90,370]]]},"calls":[{"method":"addProviderTiles","args":["OpenStreetMap","OpenStreetMap","OpenStreetMap",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"addProviderTiles","args":["Esri.WorldImagery","Esri.WorldImagery","Esri.WorldImagery",{"errorTileUrl":"","noWrap":false,"detectRetina":false,"pane":"tilePane"}]},{"method":"createMapPane","args":["point",440]},{"method":"addCircleMarkers","args":[[60.50386,60.435369,60.742212],[22.20311,22.23116,22.415589],6,null,".",{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}},"pane":"point","stroke":true,"color":"#333333","weight":1,"opacity":0.9,"fill":true,"fillColor":"#FF0000","fillOpacity":0.6},null,null,["<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>1&emsp;<\/td><\/tr><tr><td>1<\/td><th>Sample site&emsp;<\/th><td>Haunisten allas&emsp;<\/td><\/tr><tr><td>2<\/td><th>Temperature (C)&emsp;<\/th><td>21.5&emsp;<\/td><\/tr><tr><td>3<\/td><th>Latitude&emsp;<\/th><td>60.50386&emsp;<\/td><\/tr><tr><td>4<\/td><th>Longitude&emsp;<\/th><td>22.20311&emsp;<\/td><\/tr><tr><td>5<\/td><th>Date of sampling&emsp;<\/th><td>June 17, 2024&emsp;<\/td><\/tr><tr><td>6<\/td><th>Approximate time of sampling&emsp;<\/th><td>0900&emsp;<\/td><\/tr><tr><td>7<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>2&emsp;<\/td><\/tr><tr><td>1<\/td><th>Sample site&emsp;<\/th><td>Turun Linna&emsp;<\/td><\/tr><tr><td>2<\/td><th>Temperature (C)&emsp;<\/th><td>16.0&emsp;<\/td><\/tr><tr><td>3<\/td><th>Latitude&emsp;<\/th><td>60.43537&emsp;<\/td><\/tr><tr><td>4<\/td><th>Longitude&emsp;<\/th><td>22.23116&emsp;<\/td><\/tr><tr><td>5<\/td><th>Date of sampling&emsp;<\/th><td>June 17, 2024&emsp;<\/td><\/tr><tr><td>6<\/td><th>Approximate time of sampling&emsp;<\/th><td>1100&emsp;<\/td><\/tr><tr><td>7<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>","<div class='scrollableContainer'><table class=mapview-popup id='popup'><tr class='coord'><td><\/td><th><b>Feature ID&emsp;<\/b><\/th><td>3&emsp;<\/td><\/tr><tr><td>1<\/td><th>Sample site&emsp;<\/th><td>Savojärvi&emsp;<\/td><\/tr><tr><td>2<\/td><th>Temperature (C)&emsp;<\/th><td>15.7&emsp;<\/td><\/tr><tr><td>3<\/td><th>Latitude&emsp;<\/th><td>60.74221&emsp;<\/td><\/tr><tr><td>4<\/td><th>Longitude&emsp;<\/th><td>22.41559&emsp;<\/td><\/tr><tr><td>5<\/td><th>Date of sampling&emsp;<\/th><td>July 27, 2024&emsp;<\/td><\/tr><tr><td>6<\/td><th>Approximate time of sampling&emsp;<\/th><td>1200&emsp;<\/td><\/tr><tr><td>7<\/td><th>geometry&emsp;<\/th><td>sfc_POINT&emsp;<\/td><\/tr><\/table><\/div>"],{"maxWidth":800,"minWidth":50,"autoPan":true,"keepInView":false,"closeButton":true,"closeOnClick":true,"className":""},["1","2","3"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addScaleBar","args":[{"maxWidth":100,"metric":true,"imperial":true,"updateWhenIdle":true,"position":"bottomleft"}]},{"method":"addHomeButton","args":[22.20311,60.435369,22.415589,60.742212,true,".","Zoom to .","<strong> . <\/strong>","bottomright"]},{"method":"addLayersControl","args":[["OpenStreetMap","Esri.WorldImagery"],".",{"collapsed":true,"autoZIndex":true,"position":"topleft"}]},{"method":"addLegend","args":[{"colors":["#FF0000"],"labels":["."],"na_color":null,"na_label":"NA","opacity":1,"position":"topright","type":"factor","title":"","extra":null,"layerId":null,"className":"info legend","group":"."}]}],"limits":{"lat":[60.435369,60.742212],"lng":[22.20311,22.415589]},"fitBounds":[60.435369,22.20311,60.742212,22.415589,[]]},"evals":[],"jsHooks":{"render":[{"code":"function(el, x, data) {\n  return (\n      function(el, x, data) {\n      // get the leaflet map\n      var map = this; //HTMLWidgets.find('#' + el.id);\n      // we need a new div element because we have to handle\n      // the mouseover output separately\n      // debugger;\n      function addElement () {\n      // generate new div Element\n      var newDiv = $(document.createElement('div'));\n      // append at end of leaflet htmlwidget container\n      $(el).append(newDiv);\n      //provide ID and style\n      newDiv.addClass('lnlt');\n      newDiv.css({\"position\":\"relative\",\"bottomleft\":\"0px\",\"background-color\":\"rgba(255, 255, 255, 0.7)\",\"box-shadow\":\"0 0 2px #bbb\",\"background-clip\":\"padding-box\",\"margin\":\"0\",\"padding-left\":\"5px\",\"padding-right\":\"5px\",\"color\":\"#333\",\"font-size\":\"9px\",\"font-family\":\"\\\"Helvetica Neue\\\", Arial, Helvetica, sans-serif\",\"text-align\":\"left\",\"z-index\":\"700\"});\n      return newDiv;\n      }\n\n\n      // check for already existing lnlt class to not duplicate\n      var lnlt = $(el).find('.lnlt');\n\n      if(!lnlt.length) {\n      lnlt = addElement();\n\n      // grab the special div we generated in the beginning\n      // and put the mousmove output there\n\n      map.on('mousemove', function (e) {\n      if (e.originalEvent.ctrlKey) {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                           ' lon: ' + (e.latlng.lng).toFixed(5) +\n                           ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                           ' | zoom: ' + map.getZoom() +\n                           ' | x: ' + L.CRS.EPSG3857.project(e.latlng).x.toFixed(0) +\n                           ' | y: ' + L.CRS.EPSG3857.project(e.latlng).y.toFixed(0) +\n                           ' | epsg: 3857 ' +\n                           ' | proj4: +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs ');\n      } else {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                      ' lon: ' + (e.latlng.lng).toFixed(5) +\n                      ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                      ' | zoom: ' + map.getZoom() + ' ');\n      }\n      });\n\n      // remove the lnlt div when mouse leaves map\n      map.on('mouseout', function (e) {\n      var strip = document.querySelector('.lnlt');\n      if( strip !==null) strip.remove();\n      });\n\n      };\n\n      //$(el).keypress(67, function(e) {\n      map.on('preclick', function(e) {\n      if (e.originalEvent.ctrlKey) {\n      if (document.querySelector('.lnlt') === null) lnlt = addElement();\n      lnlt.text(\n                      ' lon: ' + (e.latlng.lng).toFixed(5) +\n                      ' | lat: ' + (e.latlng.lat).toFixed(5) +\n                      ' | zoom: ' + map.getZoom() + ' ');\n      var txt = document.querySelector('.lnlt').textContent;\n      console.log(txt);\n      //txt.innerText.focus();\n      //txt.select();\n      setClipboardText('\"' + txt + '\"');\n      }\n      });\n\n      }\n      ).call(this.getMap(), el, x, data);\n}","data":null},{"code":"function(el, x, data) {\n  return (function(el,x,data){\n           var map = this;\n\n           map.on('keypress', function(e) {\n               console.log(e.originalEvent.code);\n               var key = e.originalEvent.code;\n               if (key === 'KeyE') {\n                   var bb = this.getBounds();\n                   var txt = JSON.stringify(bb);\n                   console.log(txt);\n\n                   setClipboardText('\\'' + txt + '\\'');\n               }\n           })\n        }).call(this.getMap(), el, x, data);\n}","data":null}]}}</script>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Map of duckweed (<em>Lemna minor</em>) sampling locations (red points) in Southwest Finland during summer of 2024. Click on the red points to open a pop-up with additional sampling information. Satellite imagery can be overlaid on the map by clicking the “Esri.worldimagery” option in the layers.
+</figcaption>
+</figure>
+</div>
+<p>The sampling locations approximate an urban to rural gradient (euptrophic to oligotrophic) starting from the urban location of <a href="https://fi.wikipedia.org/wiki/Turun_linna">Turun Linna</a> (Turku Castle, city center - Turku, Finland), moving to the more suburban artificial reservoir <a href="https://fi.wikipedia.org/wiki/Haunisten_allas">Haunisten allas</a> (Raisio, Finland), and finally near to <a href="https://fi.wikipedia.org/wiki/Savoj%C3%A4rvi">lake Savojärvi</a> in Kurjenrahkan kansallispuisto (Kurjenrahka National Park - Pöytyä, Finland). Savojärvi is a <a href="https://en.wikipedia.org/wiki/Dystrophic_lake">dystrophic lake</a> with high concentrations of humic substances and low pH ranging from 4.5 in spring to 6 in the fall. The duckweed was collected from a <a href="https://en.wikipedia.org/wiki/Bog">bog</a> on the east side of the lake.</p>
 </section>
-<section id="analysis-overview" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="analysis-overview"><span class="header-section-number">4</span> Analysis overview</h2>
-<p>This is how we did our data analysis…</p>
+<section id="laboratory-processing-of-plants-and-bacteria" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="laboratory-processing-of-plants-and-bacteria"><span class="header-section-number">4</span> Laboratory processing of plants and bacteria</h2>
+<p>Once samples were returned to the laboratory, we subset plants into three subgroups from each location:</p>
+<ol type="1">
+<li>At least 5-10 individual plants were rinsed in sterile water then frozen at -80C for later microbial DNA extraction and sequencing.</li>
+<li>At least 5-10 individual plants were were rinsed in sterile water then transferred to sterile growth medium for plant maintenance.</li>
+<li>At least 5-10 individual plants were rinsed in sterile water then homogenized using sterile tissue grinders. The homogenate was then plated on nutrient agar to isolate bacteria.</li>
+</ol>
+<section id="plant-maintanence-and-generation-of-isogenic-lemna-minor-lines" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="plant-maintanence-and-generation-of-isogenic-lemna-minor-lines"><span class="header-section-number">4.1</span> Plant maintanence and generation of isogenic <em>Lemna minor</em> lines</h3>
+<p>Immediately after returning to the university laboratory, approximately six individual plants per well were cultured in 6 well plates containing 4 mL of 1x <a href="https://www.sigmaaldrich.com/FI/en/product/sigma/h2395">Hoagland’s media No.&nbsp;2.</a>. These were grown in an environmental chamber set at a cycle of light (16h) / dark (8h) cycle at 24°C. After approximately one week the plants looked decidedly less healthy. To optimize conditions for improved growth 0.5x and 0.2x concentration Hoagland’s medium was tested as well as light levels ranging from approximately 50 to 100 μmol m-2 s-1. However, growth did not improve over approximately one month of weekly transfers under factorial combinations of these conditions. After some additional time of deteriorating growth, duckweed plants collected from Turun linna (TL) were lost, while plants from Haunisten allas (HA) and Savojärvi (SJ) continued to deteriorate.</p>
+<p>At this point of deteriorating <em>Lemna minor</em> growth we noticed extensive algal growth as well as cloudy media which may have been fungal growth. We suspected that some pathogenic microbes were parasitizing the plants while algae may have been competing with the plants for growth. We followed a miniaturized version of <a href="https://dx.doi.org/10.17504/protocols.io.9gdh3s6">this protocol</a> for sterilizing duckweed plants in bleach solution. Briefly, approximately 20 plants are combined with sterile water and Phosphate Buffered Saline (PBS) solution and vortexed for 5 minutes to dislodge attached microbes. Next, individual plants were transfered to 1.5 ml tubes containing 1% bleach solution and gently inverted for 1 minute. Plants were serially rinsed and transferred three times through sterile 0.5x <a href="https://www.sigmaaldrich.com/FI/en/product/sigma/s6765">Schenk and Hildebrandt (SH)</a> growth medium with the first rinse lasting 1 minute, and subsequent rinses lasting 5-10 minutes. After the final rinse, plants were added to 0.5x SH growth medium with 1% w/vol sucrose for rapid plant growth. After five days, plants were checked for growth. Plants with cloudy wells (indicating contamination) were discarded. Plants growing in clear wells were further checked for sterility by transferring them to SH medium with 1% w/vol sucrose and 0.1% w/vol yeast extract. The added carbon sources were intended to facilitate rapid heterotrophic microbial growth if microbes were present. After 6 further days of growth, single healthy plants were collected from wells lacking turbidity and used to start isogenic maintanence lines.</p>
+<p>Plants that were cured of associated microbes had significantly improved growth in an environmental test chamber set at 23°C with a 16/8 hour light/dark cycle. Light conditions are between 125-128 μmol m-2 s-1 and are generated using 6500 K LED bulbs (1800 lumens). Specifically we use the <a href="https://www.k-rauta.fi/tuote/led-valoputki-osram-substitube-t8-em-1200mm-1800lm-6500k-g13/4099854039188">OSRAM SubstiTUBE T8 EM 1200mm 1800lm 6500K G13</a>, which is designed to be dropped in place for fluorescent tubes (using the specially provided starter plug included). Every 6 months plants are tested for heterotrophic microbial contamination by transferring plants to 1% w/vol sucrose and 0.1% w/vol yeast extract in SH medium to encourage microbial growth. Additionally, plants are homogenized in a tissue grinder and plated on nutrient agar. No contaminating bacteria have been detected since sterilizing the plants in September 2024.</p>
 </section>
-<section id="availability" class="level2" data-number="5">
-<h2 data-number="5" class="anchored" data-anchor-id="availability"><span class="header-section-number">5</span> Availability</h2>
-<p>Data and code in this GitHub repository (<a href="https://github.com/GHUSERNAME/REPOSITORYNAME" class="uri">https://github.com/GHUSERNAME/REPOSITORYNAME</a>) are provided under <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL3</a>. The rendered project site is available at <a href="https://GHUSERNAME.github.io/REPOSITORYNAME/" class="uri">https://GHUSERNAME.github.io/REPOSITORYNAME/</a>, which has been produced using <a href="https://quarto.org/">Quarto notebooks</a>. The content on the rendered site is released under the <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0.</a> This repository hosts all code and data for this project, including the code necessary to fully recreate the rendered webpage.</p>
+<section id="isolation-of-plant-associated-heterotrophic-bacteria" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="isolation-of-plant-associated-heterotrophic-bacteria"><span class="header-section-number">4.2</span> Isolation of plant-associated heterotrophic bacteria</h3>
+<p>After returning plants to the lab, we washed plants with sterile water, PBS, and 0.1% triton x-100 to remove loosely associated bacteria. Then plants were next homogenized using the <a href="https://www.dwk.com/kimble-biomasher-ii-closed-system-tissue-grinder">KIMBLE Biomasher II Tissue homogenizer</a> and the homogenate was diluted by factors of 10 to 1/1000 dilution. These dilutions from each plant were plated on different agar petri dishes containing 100 mg L-1 cycloheximide to prevent fungal growth and different growth media:</p>
+<ol type="1">
+<li>0.01x Reasoner’s 2A (R2A) agar and 1% v/v methanol</li>
+<li>0.01x tryptic soy agar (RSA) and 1% v/v methanol</li>
+<li>0.01x Yeast Mannitol Agar (YSA) and 1% v/v methanol</li>
+</ol>
+<p>The plates were incubated at 30°C until visible colonies formed. After visible colonies were formed, 192 different colonies were picked and transfered to the liquid media they were isolated from in a 96 well plate. Colonies were selected so as to maximize morphological diversity (e.g., color, size, shape) of the isolates. The 96 well plates of putative single species isolates were grown overnight at 30C with shaking. After approximately 24 hours, glycerol was added to the plates (final concne 35% glycerol) and the plates were frozen at -80C for later use.</p>
+</section>
+</section>
+<section id="experimental-measurements-and-data-analysis" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="experimental-measurements-and-data-analysis"><span class="header-section-number">5</span> Experimental measurements and data analysis</h2>
+<section id="taxonomic-characterization-of-plant-associated-heterotrophic-bacteria" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="taxonomic-characterization-of-plant-associated-heterotrophic-bacteria"><span class="header-section-number">5.1</span> Taxonomic characterization of plant-associated heterotrophic bacteria</h3>
+<p>The frozen, archived 96 well plates were thawed and grown overnight. Next 2 ul of sample was processed using the <a href="https://microzone.co.uk/shop/kits/cell-2-seq/">Cell2seq - 16S rRNA Microbial Identification Kit</a> with universal primers (1492R + 27F) to amplify the 16S rRNA gene. PCR products were Sanger sequenced at Novogene, Inc resulting in a total of 171 reactions sequenced. To verify bacterial cultures were monoisolate, we inspected the Sanger chromatograms for mixed peaks and other disruptions and we imaged agar platings of each species to look for clearly different colony morphologies. In the vast majority of cases, each isolate was derived from a single strain.</p>
+<p>Sanger sequencing chromatograms were processed using the <code>sangeranalyseR</code> package in R v4.5.1 following default parameters (<a href="./R/bac_taxonomy_sanger_16S/01_read_format_sanger.html">code</a>) resulting in 118 high quality 16S rRNA gene sequences. Genus level identification for these 118 sequences was performed using the <a href="https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-018-0521-5">IDTAXA algorithm</a> from the <a href="https://journal.r-project.org/articles/RJ-2024-022/RJ-2024-022.pdf"><code>DECIPHER</code> v3.4.0</a> R package. Putative species level assignments were made from best blastn hits to the NCBI 16S rRNA (Bacteria/Archaea) database. Clustering of the sequences at 99% sequence identity was performed using the <a href="http://doi.org/10.1038/s41467-024-47371-9"><code>Clusterize</code> algorithm</a> from DECIPHER. Sequences were then aligned using <a href="https://rnajournal.cshlp.org/content/26/5/531.long"><code>DECIPHER::AlignSeqs</code></a> in RNA space and maximum likelihood phylogeny was inferred using <code>DECIPER::Treeline.</code></p>
+</section>
+</section>
+<section id="availability" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="availability"><span class="header-section-number">6</span> Availability</h2>
+<p>Data and code in this GitHub repository (<a href="https://github.com/slhogle/duckweedSynCom" class="uri">https://github.com/slhogle/duckweedSynCom</a>) are provided under <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL3</a>. The rendered project site is available at <a href="https://slhogle.github.io/duckweedSynCom/" class="uri">https://slhogle.github.io/duckweedSynCom/</a>, which has been produced using <a href="https://quarto.org/">Quarto notebooks</a>. The content on the rendered site is released under the <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0.</a> This repository hosts all code and data for this project, including the code necessary to fully recreate the rendered webpage.</p>
 <p>An archived release of the code is available from Zenodo: <a href="https://zenodo.org/records/EVENTUAL_ZENODO_RECORD" class="uri">https://zenodo.org/records/EVENTUAL_ZENODO_RECORD</a></p>
 <p>Raw sequencing data used in the project is available from NCBI Bioproject [PRJNA00000000](https://www.ncbi.nlm.nih</p>
 </section>
-<section id="reproducibility" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="reproducibility"><span class="header-section-number">6</span> Reproducibility</h2>
+<section id="reproducibility" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="reproducibility"><span class="header-section-number">7</span> Reproducibility</h2>
 <p>The project uses <a href="https://rstudio.github.io/renv/index.html"><code>renv</code></a> to create a reproducible environment to execute the code in this project. <a href="https://rstudio.github.io/renv/articles/renv.html#collaboration">See here</a> for a brief overview on collaboration and reproduction of the entire project. To get up and running from an established repository, you could do:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">install.packages</span>(<span class="st">"renv"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2"></a>renv<span class="sc">::</span><span class="fu">restore</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -770,117 +858,185 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb3-9"><a href="#cb3-9"></a><span class="co">        city: Turku</span></span>
 <span id="cb3-10"><a href="#cb3-10"></a><span class="co">        state: Finland</span></span>
 <span id="cb3-11"><a href="#cb3-11"></a><span class="co">        url: https://www.utu.fi/en</span></span>
-<span id="cb3-12"><a href="#cb3-12"></a><span class="co">#abstract: &gt; </span></span>
-<span id="cb3-13"><a href="#cb3-13"></a><span class="co">#  The abstract text can go here </span></span>
-<span id="cb3-14"><a href="#cb3-14"></a><span class="co">#  and also here ...</span></span>
-<span id="cb3-15"><a href="#cb3-15"></a><span class="an">keywords:</span></span>
-<span id="cb3-16"><a href="#cb3-16"></a><span class="co">  - Microbiology</span></span>
-<span id="cb3-17"><a href="#cb3-17"></a><span class="co">  - Ecology</span></span>
-<span id="cb3-18"><a href="#cb3-18"></a><span class="co">  - Evolution</span></span>
-<span id="cb3-19"><a href="#cb3-19"></a><span class="co">  - Antimicrobial resistance (AMR)</span></span>
-<span id="cb3-20"><a href="#cb3-20"></a><span class="an">license:</span><span class="co"> "CC BY"</span></span>
-<span id="cb3-21"><a href="#cb3-21"></a><span class="an">copyright:</span><span class="co"> </span></span>
-<span id="cb3-22"><a href="#cb3-22"></a><span class="co">  holder: Shane L Hogle</span></span>
-<span id="cb3-23"><a href="#cb3-23"></a><span class="co">  year: 2025</span></span>
-<span id="cb3-24"><a href="#cb3-24"></a><span class="co"># citation: </span></span>
-<span id="cb3-25"><a href="#cb3-25"></a><span class="co">#   container-title: BioRxiv</span></span>
-<span id="cb3-26"><a href="#cb3-26"></a><span class="co">#   volume: </span></span>
-<span id="cb3-27"><a href="#cb3-27"></a><span class="co">#   issue: </span></span>
-<span id="cb3-28"><a href="#cb3-28"></a><span class="co">#   doi: </span></span>
-<span id="cb3-29"><a href="#cb3-29"></a><span class="an">funding:</span><span class="co"> "The author received no specific funding for this work."</span></span>
-<span id="cb3-30"><a href="#cb3-30"></a><span class="co">#bibliography: references.bib</span></span>
-<span id="cb3-31"><a href="#cb3-31"></a><span class="co">---</span></span>
-<span id="cb3-32"><a href="#cb3-32"></a></span>
-<span id="cb3-33"><a href="#cb3-33"></a><span class="fu">## Manuscript:</span></span>
-<span id="cb3-34"><a href="#cb3-34"></a></span>
-<span id="cb3-35"><a href="#cb3-35"></a><span class="fu">### Published record</span></span>
-<span id="cb3-36"><a href="#cb3-36"></a></span>
-<span id="cb3-37"><a href="#cb3-37"></a>TBD</span>
-<span id="cb3-38"><a href="#cb3-38"></a></span>
-<span id="cb3-39"><a href="#cb3-39"></a><span class="fu">### Preprint</span></span>
-<span id="cb3-40"><a href="#cb3-40"></a></span>
-<span id="cb3-41"><a href="#cb3-41"></a>TBD</span>
-<span id="cb3-42"><a href="#cb3-42"></a></span>
-<span id="cb3-43"><a href="#cb3-43"></a><span class="fu">## Introduction</span></span>
-<span id="cb3-44"><a href="#cb3-44"></a></span>
-<span id="cb3-45"><a href="#cb3-45"></a>The goal of this project is construct and characterize a synthetic bacterial community (SynCom) associated with duckweed (Lemna minor). The plants and bacteria have all been isolated form Southwest Finland.</span>
-<span id="cb3-46"><a href="#cb3-46"></a></span>
-<span id="cb3-47"><a href="#cb3-47"></a><span class="fu">## Experiment overview</span></span>
-<span id="cb3-48"><a href="#cb3-48"></a></span>
-<span id="cb3-49"><a href="#cb3-49"></a>This is how we did our experiment...</span>
-<span id="cb3-50"><a href="#cb3-50"></a></span>
-<span id="cb3-51"><a href="#cb3-51"></a><span class="fu">## Analysis overview</span></span>
-<span id="cb3-52"><a href="#cb3-52"></a></span>
-<span id="cb3-53"><a href="#cb3-53"></a>This is how we did our data analysis...</span>
-<span id="cb3-54"><a href="#cb3-54"></a></span>
-<span id="cb3-55"><a href="#cb3-55"></a><span class="fu">## Availability</span></span>
-<span id="cb3-56"><a href="#cb3-56"></a></span>
-<span id="cb3-57"><a href="#cb3-57"></a>Data and code in this GitHub repository (<span class="ot">&lt;https://github.com/GHUSERNAME/REPOSITORYNAME&gt;</span>) are provided under <span class="co">[</span><span class="ot">GNU AGPL3</span><span class="co">](https://www.gnu.org/licenses/agpl-3.0.html)</span>.</span>
-<span id="cb3-58"><a href="#cb3-58"></a>The rendered project site is available at <span class="ot">&lt;https://GHUSERNAME.github.io/REPOSITORYNAME/&gt;</span>, which has been produced using <span class="co">[</span><span class="ot">Quarto notebooks</span><span class="co">](https://quarto.org/)</span>. </span>
-<span id="cb3-59"><a href="#cb3-59"></a>The content on the rendered site is released under the <span class="co">[</span><span class="ot">CC BY 4.0.</span><span class="co">](https://creativecommons.org/licenses/by/4.0/)</span></span>
-<span id="cb3-60"><a href="#cb3-60"></a>This repository hosts all code and data for this project, including the code necessary to fully recreate the rendered webpage.</span>
-<span id="cb3-61"><a href="#cb3-61"></a></span>
-<span id="cb3-62"><a href="#cb3-62"></a>An archived release of the code is available from Zenodo: <span class="ot">&lt;https://zenodo.org/records/EVENTUAL_ZENODO_RECORD&gt;</span></span>
-<span id="cb3-63"><a href="#cb3-63"></a></span>
-<span id="cb3-64"><a href="#cb3-64"></a>Raw sequencing data used in the project is available from NCBI Bioproject <span class="co">[</span><span class="ot">PRJNA00000000</span><span class="co">]</span>(https://www.ncbi.nlm.nih</span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="co">  - name: Milla Similä</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="co">    affiliation: </span></span>
+<span id="cb3-14"><a href="#cb3-14"></a><span class="co">      - name: University of Turku</span></span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="co">        city: Turku</span></span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="co">        state: Finland</span></span>
+<span id="cb3-17"><a href="#cb3-17"></a><span class="co">        url: https://www.utu.fi/en</span></span>
+<span id="cb3-18"><a href="#cb3-18"></a><span class="co">#abstract: &gt; </span></span>
+<span id="cb3-19"><a href="#cb3-19"></a><span class="co">#  The abstract text can go here </span></span>
+<span id="cb3-20"><a href="#cb3-20"></a><span class="co">#  and also here ...</span></span>
+<span id="cb3-21"><a href="#cb3-21"></a><span class="an">keywords:</span></span>
+<span id="cb3-22"><a href="#cb3-22"></a><span class="co">  - Microbiology</span></span>
+<span id="cb3-23"><a href="#cb3-23"></a><span class="co">  - Ecology</span></span>
+<span id="cb3-24"><a href="#cb3-24"></a><span class="co">  - Evolution</span></span>
+<span id="cb3-25"><a href="#cb3-25"></a><span class="an">license:</span><span class="co"> "CC BY"</span></span>
+<span id="cb3-26"><a href="#cb3-26"></a><span class="an">copyright:</span><span class="co"> </span></span>
+<span id="cb3-27"><a href="#cb3-27"></a><span class="co">  holder: Shane L Hogle</span></span>
+<span id="cb3-28"><a href="#cb3-28"></a><span class="co">  year: 2025</span></span>
+<span id="cb3-29"><a href="#cb3-29"></a><span class="co"># citation: </span></span>
+<span id="cb3-30"><a href="#cb3-30"></a><span class="co">#   container-title: BioRxiv</span></span>
+<span id="cb3-31"><a href="#cb3-31"></a><span class="co">#   volume: </span></span>
+<span id="cb3-32"><a href="#cb3-32"></a><span class="co">#   issue: </span></span>
+<span id="cb3-33"><a href="#cb3-33"></a><span class="co">#   doi: </span></span>
+<span id="cb3-34"><a href="#cb3-34"></a><span class="an">funding:</span><span class="co"> "[Research Council of Finland Award 356133](https://research.fi/en/results/funding/77810)"</span></span>
+<span id="cb3-35"><a href="#cb3-35"></a><span class="co">#bibliography: references.bib</span></span>
+<span id="cb3-36"><a href="#cb3-36"></a><span class="co">---</span></span>
+<span id="cb3-37"><a href="#cb3-37"></a></span>
+<span id="cb3-38"><a href="#cb3-38"></a><span class="fu">## Manuscript:</span></span>
+<span id="cb3-39"><a href="#cb3-39"></a></span>
+<span id="cb3-40"><a href="#cb3-40"></a><span class="fu">### Published record</span></span>
+<span id="cb3-41"><a href="#cb3-41"></a></span>
+<span id="cb3-42"><a href="#cb3-42"></a>TBD</span>
+<span id="cb3-43"><a href="#cb3-43"></a></span>
+<span id="cb3-44"><a href="#cb3-44"></a><span class="fu">### Preprint</span></span>
+<span id="cb3-45"><a href="#cb3-45"></a></span>
+<span id="cb3-46"><a href="#cb3-46"></a>TBD</span>
+<span id="cb3-47"><a href="#cb3-47"></a></span>
+<span id="cb3-48"><a href="#cb3-48"></a><span class="fu">## Introduction</span></span>
+<span id="cb3-49"><a href="#cb3-49"></a></span>
+<span id="cb3-50"><a href="#cb3-50"></a>The goal of this project is construct and characterize a synthetic bacterial community (SynCom) associated with duckweed (*Lemna minor*). The plants and bacteria have all been isolated form Southwest Finland. The plant and bacteria isolate system will be used to explored fundamental questions in host-microbiome ecology and evolution.</span>
+<span id="cb3-51"><a href="#cb3-51"></a></span>
+<span id="cb3-52"><a href="#cb3-52"></a><span class="fu">## Sampling plants and bacteria</span></span>
+<span id="cb3-53"><a href="#cb3-53"></a></span>
+<span id="cb3-54"><a href="#cb3-54"></a>Between June-August 2024 Milla and Shane collected duckweed plants (*Lemna minor*) from various aquatic habitats in Southwest Finland. The general collection approach was to collect approximately 50 individual plants using sterile tweezers and place these plants in 50 mL Falcon tubes containing water from the sampling location. Once collected plants and water were placed in a cooler and rapidly taken to a laboratory for processing. We collected plants from three locations in Finland (see map in @fig-01 below). The culturable fraction of the bacterial communities associated with each plant were cultured and isolated on nutrient agar back in the laboratory.</span>
+<span id="cb3-55"><a href="#cb3-55"></a></span>
+<span id="cb3-58"><a href="#cb3-58"></a><span class="in">```{r}</span></span>
+<span id="cb3-59"><a href="#cb3-59"></a><span class="co">#| warning: false</span></span>
+<span id="cb3-60"><a href="#cb3-60"></a><span class="co">#| echo: false</span></span>
+<span id="cb3-61"><a href="#cb3-61"></a><span class="co">#| output: false</span></span>
+<span id="cb3-62"><a href="#cb3-62"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb3-63"><a href="#cb3-63"></a><span class="fu">library</span>(mapview)</span>
+<span id="cb3-64"><a href="#cb3-64"></a><span class="in">```</span></span>
 <span id="cb3-65"><a href="#cb3-65"></a></span>
-<span id="cb3-66"><a href="#cb3-66"></a><span class="fu">## Reproducibility</span></span>
-<span id="cb3-67"><a href="#cb3-67"></a></span>
-<span id="cb3-68"><a href="#cb3-68"></a>The project uses <span class="co">[</span><span class="ot">`renv`</span><span class="co">](https://rstudio.github.io/renv/index.html)</span> to create a reproducible environment to execute the code in this project. <span class="co">[</span><span class="ot">See here</span><span class="co">](https://rstudio.github.io/renv/articles/renv.html#collaboration)</span> for a brief overview on collaboration and reproduction of the entire project. </span>
-<span id="cb3-69"><a href="#cb3-69"></a>To get up and running from an established repository, you could do:</span>
-<span id="cb3-70"><a href="#cb3-70"></a></span>
-<span id="cb3-71"><a href="#cb3-71"></a><span class="in">``` r</span></span>
-<span id="cb3-72"><a href="#cb3-72"></a><span class="fu">install.packages</span>(<span class="st">"renv"</span>)</span>
-<span id="cb3-73"><a href="#cb3-73"></a>renv<span class="sc">::</span><span class="fu">restore</span>()</span>
-<span id="cb3-74"><a href="#cb3-74"></a><span class="in">```</span></span>
-<span id="cb3-75"><a href="#cb3-75"></a></span>
-<span id="cb3-76"><a href="#cb3-76"></a>To initiate <span class="in">`renv`</span> for a new project:</span>
-<span id="cb3-77"><a href="#cb3-77"></a></span>
-<span id="cb3-78"><a href="#cb3-78"></a><span class="in">``` r</span></span>
-<span id="cb3-79"><a href="#cb3-79"></a><span class="co"># if on linux set cran here to download binaries</span></span>
-<span id="cb3-80"><a href="#cb3-80"></a><span class="fu">options</span>(<span class="at">repos =</span> <span class="fu">c</span>(<span class="at">CRAN =</span> <span class="st">"https://packagemanager.posit.co/cran/__linux__/jammy/latest"</span>))</span>
-<span id="cb3-81"><a href="#cb3-81"></a><span class="fu">install.packages</span>(<span class="st">"renv"</span>)</span>
-<span id="cb3-82"><a href="#cb3-82"></a><span class="co"># initialize</span></span>
-<span id="cb3-83"><a href="#cb3-83"></a>renv<span class="sc">::</span><span class="fu">init</span>(<span class="at">bioconductor =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-84"><a href="#cb3-84"></a><span class="co"># install some new packages</span></span>
-<span id="cb3-85"><a href="#cb3-85"></a>renv<span class="sc">::</span><span class="fu">install</span>(<span class="st">"tidyverse"</span>, <span class="st">"here"</span>, <span class="st">"fs"</span>, <span class="st">"sangeranalyseR"</span>, <span class="st">"DECIPHER"</span>)</span>
-<span id="cb3-86"><a href="#cb3-86"></a><span class="co"># record those packages in the lockfile</span></span>
-<span id="cb3-87"><a href="#cb3-87"></a>renv<span class="sc">::</span><span class="fu">snapshot</span>()</span>
-<span id="cb3-88"><a href="#cb3-88"></a><span class="in">```</span></span>
-<span id="cb3-89"><a href="#cb3-89"></a></span>
-<span id="cb3-92"><a href="#cb3-92"></a><span class="in">```{r}</span></span>
-<span id="cb3-93"><a href="#cb3-93"></a><span class="co">#| eval: false</span></span>
-<span id="cb3-94"><a href="#cb3-94"></a><span class="co">#| echo: false</span></span>
-<span id="cb3-95"><a href="#cb3-95"></a><span class="co">#| output: false</span></span>
-<span id="cb3-96"><a href="#cb3-96"></a><span class="co">#| error: false</span></span>
-<span id="cb3-97"><a href="#cb3-97"></a><span class="co">#| warning: false</span></span>
-<span id="cb3-98"><a href="#cb3-98"></a><span class="co"># If you want to automoate setting up some general directory structure you can do that here in a quarto chunk</span></span>
-<span id="cb3-99"><a href="#cb3-99"></a><span class="co"># that does not get output to the final HTML. </span></span>
+<span id="cb3-66"><a href="#cb3-66"></a>::: {#fig-01}</span>
+<span id="cb3-69"><a href="#cb3-69"></a><span class="in">```{r}</span></span>
+<span id="cb3-70"><a href="#cb3-70"></a><span class="co">#| warning: false</span></span>
+<span id="cb3-71"><a href="#cb3-71"></a><span class="co">#| echo: false</span></span>
+<span id="cb3-72"><a href="#cb3-72"></a><span class="co">#| output: true</span></span>
+<span id="cb3-73"><a href="#cb3-73"></a><span class="fu">tibble</span>(<span class="st">`</span><span class="at">Sample site</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"Haunisten allas"</span>, <span class="st">"Turun Linna"</span>, <span class="st">"Savojärvi"</span>),</span>
+<span id="cb3-74"><a href="#cb3-74"></a>       <span class="at">lat =</span> <span class="fu">c</span>(<span class="fl">60.50386</span>, <span class="fl">60.435369</span>, <span class="fl">60.742212</span>),</span>
+<span id="cb3-75"><a href="#cb3-75"></a>       <span class="at">lon =</span> <span class="fu">c</span>(<span class="fl">22.20311</span>, <span class="fl">22.231160</span>, <span class="fl">22.415589</span>),</span>
+<span id="cb3-76"><a href="#cb3-76"></a>       <span class="st">`</span><span class="at">Temperature (C)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">21.5</span>, <span class="fl">16.0</span>, <span class="fl">15.7</span>),</span>
+<span id="cb3-77"><a href="#cb3-77"></a>       <span class="st">`</span><span class="at">Latitude</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">60.50386</span>, <span class="fl">60.435369</span>, <span class="fl">60.742212</span>),</span>
+<span id="cb3-78"><a href="#cb3-78"></a>       <span class="st">`</span><span class="at">Longitude</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">22.20311</span>, <span class="fl">22.231160</span>, <span class="fl">22.415589</span>),</span>
+<span id="cb3-79"><a href="#cb3-79"></a>       <span class="st">`</span><span class="at">Date of sampling</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"June 17, 2024"</span>, <span class="st">"June 17, 2024"</span>, <span class="st">"July 27, 2024"</span>),</span>
+<span id="cb3-80"><a href="#cb3-80"></a>       <span class="st">`</span><span class="at">Approximate time of sampling</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"0900"</span>, <span class="st">"1100"</span>, <span class="st">"1200"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-81"><a href="#cb3-81"></a>  sf<span class="sc">::</span><span class="fu">st_as_sf</span>(</span>
+<span id="cb3-82"><a href="#cb3-82"></a>    <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"lon"</span>, <span class="st">"lat"</span>),</span>
+<span id="cb3-83"><a href="#cb3-83"></a>    <span class="co"># lat/long coordinate reference system</span></span>
+<span id="cb3-84"><a href="#cb3-84"></a>    <span class="at">crs =</span> <span class="dv">4326</span></span>
+<span id="cb3-85"><a href="#cb3-85"></a>) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-86"><a href="#cb3-86"></a>  mapview<span class="sc">::</span><span class="fu">mapview</span>(<span class="at">map.types =</span> <span class="fu">c</span>(<span class="st">"OpenStreetMap"</span>, <span class="st">"Esri.WorldImagery"</span>), <span class="at">col.regions =</span> <span class="st">"red"</span>)</span>
+<span id="cb3-87"><a href="#cb3-87"></a><span class="in">```</span></span>
+<span id="cb3-88"><a href="#cb3-88"></a>Map of duckweed (*Lemna minor*) sampling locations (red points) in Southwest Finland during summer of 2024. Click on the red points to open a pop-up with additional sampling information. Satellite imagery can be overlaid on the map by clicking the "Esri.worldimagery" option in the layers.</span>
+<span id="cb3-89"><a href="#cb3-89"></a>:::</span>
+<span id="cb3-90"><a href="#cb3-90"></a></span>
+<span id="cb3-91"><a href="#cb3-91"></a>The sampling locations approximate an urban to rural gradient (euptrophic to oligotrophic) starting from the urban location of <span class="co">[</span><span class="ot">Turun Linna</span><span class="co">](https://fi.wikipedia.org/wiki/Turun_linna)</span> (Turku Castle, city center - Turku, Finland), moving to the more suburban artificial reservoir <span class="co">[</span><span class="ot">Haunisten allas</span><span class="co">](https://fi.wikipedia.org/wiki/Haunisten_allas)</span> (Raisio, Finland), and finally near to <span class="co">[</span><span class="ot">lake Savojärvi</span><span class="co">](https://fi.wikipedia.org/wiki/Savoj%C3%A4rvi)</span> in Kurjenrahkan kansallispuisto (Kurjenrahka National Park - Pöytyä, Finland). Savojärvi is a <span class="co">[</span><span class="ot">dystrophic lake</span><span class="co">](https://en.wikipedia.org/wiki/Dystrophic_lake)</span> with high concentrations of humic substances and low pH ranging from 4.5 in spring to 6 in the fall. The duckweed was collected from a <span class="co">[</span><span class="ot">bog</span><span class="co">](https://en.wikipedia.org/wiki/Bog)</span> on the east side of the lake. </span>
+<span id="cb3-92"><a href="#cb3-92"></a></span>
+<span id="cb3-93"><a href="#cb3-93"></a><span class="fu">## Laboratory processing of plants and bacteria</span></span>
+<span id="cb3-94"><a href="#cb3-94"></a></span>
+<span id="cb3-95"><a href="#cb3-95"></a>Once samples were returned to the laboratory, we subset plants into three subgroups from each location:</span>
+<span id="cb3-96"><a href="#cb3-96"></a></span>
+<span id="cb3-97"><a href="#cb3-97"></a><span class="ss">1. </span>At least 5-10 individual plants were rinsed in sterile water then frozen at -80C for later microbial DNA extraction and sequencing.</span>
+<span id="cb3-98"><a href="#cb3-98"></a><span class="ss">2. </span>At least 5-10 individual plants were were rinsed in sterile water then transferred to sterile growth medium for plant maintenance.</span>
+<span id="cb3-99"><a href="#cb3-99"></a><span class="ss">3. </span>At least 5-10 individual plants were rinsed in sterile water then homogenized using sterile tissue grinders. The homogenate was then plated on nutrient agar to isolate bacteria.</span>
 <span id="cb3-100"><a href="#cb3-100"></a></span>
-<span id="cb3-101"><a href="#cb3-101"></a><span class="co"># Setup project structure</span></span>
-<span id="cb3-102"><a href="#cb3-102"></a><span class="fu">library</span>(here)</span>
-<span id="cb3-103"><a href="#cb3-103"></a><span class="fu">library</span>(fs)</span>
+<span id="cb3-101"><a href="#cb3-101"></a><span class="fu">### Plant maintanence and generation of isogenic *Lemna minor* lines</span></span>
+<span id="cb3-102"><a href="#cb3-102"></a></span>
+<span id="cb3-103"><a href="#cb3-103"></a>Immediately after returning to the university laboratory, approximately six individual plants per well were cultured in 6 well plates containing 4 mL of 1x <span class="co">[</span><span class="ot">Hoagland's media No. 2.</span><span class="co">](https://www.sigmaaldrich.com/FI/en/product/sigma/h2395)</span>. These were grown in an environmental chamber set at a cycle of light (16h) / dark (8h) cycle at 24°C. After approximately one week the plants looked decidedly less healthy. To optimize conditions for improved growth 0.5x and 0.2x concentration Hoagland's medium was tested as well as light levels ranging from approximately 50 to 100 μmol m-2 s-1. However, growth did not improve over approximately one month of weekly transfers under factorial combinations of these conditions. After some additional time of deteriorating growth, duckweed plants collected from Turun linna (TL) were lost, while plants from Haunisten allas (HA) and Savojärvi (SJ) continued to deteriorate.</span>
 <span id="cb3-104"><a href="#cb3-104"></a></span>
-<span id="cb3-105"><a href="#cb3-105"></a><span class="co"># define directory paths and overall structure</span></span>
-<span id="cb3-106"><a href="#cb3-106"></a><span class="co"># the _data_raw directory is never touched or modified! </span></span>
-<span id="cb3-107"><a href="#cb3-107"></a><span class="co"># All downstream work and intermediate results should be put in the data directory</span></span>
+<span id="cb3-105"><a href="#cb3-105"></a>At this point of deteriorating *Lemna minor* growth we noticed extensive algal growth as well as cloudy media which may have been fungal growth. We suspected that some pathogenic microbes were parasitizing the plants while algae may have been competing with the plants for growth. We followed a miniaturized version of <span class="co">[</span><span class="ot">this protocol</span><span class="co">](https://dx.doi.org/10.17504/protocols.io.9gdh3s6)</span> for sterilizing duckweed plants in bleach solution. Briefly, approximately 20 plants are combined with sterile water and Phosphate Buffered Saline (PBS) solution and vortexed for 5 minutes to dislodge attached microbes. Next, individual plants were transfered to 1.5 ml tubes containing 1% bleach solution and gently inverted for 1 minute. Plants were serially rinsed and transferred three times through sterile 0.5x <span class="co">[</span><span class="ot">Schenk and Hildebrandt (SH)</span><span class="co">](https://www.sigmaaldrich.com/FI/en/product/sigma/s6765)</span> growth medium with the first rinse lasting 1 minute, and subsequent rinses lasting 5-10 minutes. After the final rinse, plants were added to 0.5x SH growth medium with 1% w/vol sucrose for rapid plant growth. After five days, plants were checked for growth. Plants with cloudy wells (indicating contamination) were discarded. Plants growing in clear wells were further checked for sterility by transferring them to SH medium with 1% w/vol sucrose and 0.1% w/vol yeast extract. The added carbon sources were intended to facilitate rapid heterotrophic microbial growth if microbes were present. After 6 further days of growth, single healthy plants were collected from wells lacking turbidity and used to start isogenic maintanence lines. </span>
+<span id="cb3-106"><a href="#cb3-106"></a></span>
+<span id="cb3-107"><a href="#cb3-107"></a>Plants that were cured of associated microbes had significantly improved growth in an environmental test chamber set at 23°C with a 16/8 hour light/dark cycle. Light conditions are between 125-128 μmol m-2 s-1 and are generated using 6500 K LED bulbs (1800 lumens). Specifically we use the <span class="co">[</span><span class="ot">OSRAM SubstiTUBE T8 EM 1200mm 1800lm 6500K G13</span><span class="co">](https://www.k-rauta.fi/tuote/led-valoputki-osram-substitube-t8-em-1200mm-1800lm-6500k-g13/4099854039188)</span>, which is designed to be dropped in place for fluorescent tubes (using the specially provided starter plug included). Every 6 months plants are tested for heterotrophic microbial contamination by transferring plants to 1% w/vol sucrose and 0.1% w/vol yeast extract in SH medium to encourage microbial growth. Additionally, plants are homogenized in a tissue grinder and plated on nutrient agar. No contaminating bacteria have been detected since sterilizing the plants in September 2024. </span>
 <span id="cb3-108"><a href="#cb3-108"></a></span>
-<span id="cb3-109"><a href="#cb3-109"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"X"</span>, <span class="st">"Y01"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-110"><a href="#cb3-110"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"X"</span>, <span class="st">"Y02"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-111"><a href="#cb3-111"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"X"</span>, <span class="st">"Y03"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-112"><a href="#cb3-112"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"X"</span>, <span class="st">"Y04"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-113"><a href="#cb3-113"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"A"</span>, <span class="st">"B01"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-114"><a href="#cb3-114"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"A"</span>, <span class="st">"B02"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-115"><a href="#cb3-115"></a></span>
-<span id="cb3-116"><a href="#cb3-116"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"R"</span>, <span class="st">"X"</span>, <span class="st">"Y01"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-117"><a href="#cb3-117"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"R"</span>, <span class="st">"X"</span>, <span class="st">"Y02"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-118"><a href="#cb3-118"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"R"</span>, <span class="st">"X"</span>, <span class="st">"Y03"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-119"><a href="#cb3-119"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"R"</span>, <span class="st">"X"</span>, <span class="st">"Y04"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-120"><a href="#cb3-120"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"R"</span>, <span class="st">"A"</span>, <span class="st">"B01"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-121"><a href="#cb3-121"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"R"</span>, <span class="st">"A"</span>, <span class="st">"B02"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-109"><a href="#cb3-109"></a><span class="fu">### Isolation of plant-associated heterotrophic bacteria</span></span>
+<span id="cb3-110"><a href="#cb3-110"></a></span>
+<span id="cb3-111"><a href="#cb3-111"></a>After returning plants to the lab, we washed plants with sterile water, PBS, and 0.1% triton x-100 to remove loosely associated bacteria. Then plants were next homogenized using the <span class="co">[</span><span class="ot">KIMBLE Biomasher II Tissue homogenizer</span><span class="co">](https://www.dwk.com/kimble-biomasher-ii-closed-system-tissue-grinder)</span> and the homogenate was diluted by factors of 10 to 1/1000 dilution. These dilutions from each plant were plated on different agar petri dishes containing 100 mg L-1 cycloheximide to prevent fungal growth and different growth media:</span>
+<span id="cb3-112"><a href="#cb3-112"></a></span>
+<span id="cb3-113"><a href="#cb3-113"></a><span class="ss">1. </span>0.01x Reasoner's 2A (R2A) agar and 1% v/v methanol</span>
+<span id="cb3-114"><a href="#cb3-114"></a><span class="ss">2. </span>0.01x tryptic soy agar (RSA) and 1% v/v methanol</span>
+<span id="cb3-115"><a href="#cb3-115"></a><span class="ss">3. </span>0.01x Yeast Mannitol Agar (YSA) and 1% v/v methanol</span>
+<span id="cb3-116"><a href="#cb3-116"></a></span>
+<span id="cb3-117"><a href="#cb3-117"></a>The plates were incubated at 30°C until visible colonies formed. After visible colonies were formed, 192 different colonies were picked and transfered to the liquid media they were isolated from in a 96 well plate. Colonies were selected so as to maximize morphological diversity (e.g., color, size, shape) of the isolates. The 96 well plates of putative single species isolates were grown overnight at 30C with shaking. After approximately 24 hours, glycerol was added to the plates (final concne 35% glycerol) and the plates were frozen at -80C for later use. </span>
+<span id="cb3-118"><a href="#cb3-118"></a></span>
+<span id="cb3-119"><a href="#cb3-119"></a><span class="fu">## Experimental measurements and data analysis</span></span>
+<span id="cb3-120"><a href="#cb3-120"></a></span>
+<span id="cb3-121"><a href="#cb3-121"></a><span class="fu">### Taxonomic characterization of plant-associated heterotrophic bacteria</span></span>
 <span id="cb3-122"><a href="#cb3-122"></a></span>
-<span id="cb3-123"><a href="#cb3-123"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"figs"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-124"><a href="#cb3-124"></a><span class="in">```</span></span>
+<span id="cb3-123"><a href="#cb3-123"></a>The frozen, archived 96 well plates were thawed and grown overnight. Next 2 ul of sample was processed using the <span class="co">[</span><span class="ot">Cell2seq - 16S rRNA Microbial Identification Kit</span><span class="co">](https://microzone.co.uk/shop/kits/cell-2-seq/)</span> with universal primers (1492R + 27F) to amplify the 16S rRNA gene. PCR products were Sanger sequenced at Novogene, Inc resulting in a total of 171 reactions sequenced. To verify bacterial cultures were monoisolate, we inspected the Sanger chromatograms for mixed peaks and other disruptions and we imaged agar platings of each species to look for clearly different colony morphologies. In the vast majority of cases, each isolate was derived from a single strain.</span>
+<span id="cb3-124"><a href="#cb3-124"></a></span>
+<span id="cb3-125"><a href="#cb3-125"></a>Sanger sequencing chromatograms were processed using the <span class="in">`sangeranalyseR`</span> package in R v4.5.1 following default parameters (<span class="co">[</span><span class="ot">code</span><span class="co">](R/bac_taxonomy_sanger_16S/01_read_format_sanger.qmd)</span>) resulting in 118 high quality 16S rRNA gene sequences. Genus level identification for these 118 sequences was performed using the <span class="co">[</span><span class="ot">IDTAXA algorithm</span><span class="co">](https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-018-0521-5)</span> from the <span class="co">[</span><span class="ot">`DECIPHER` v3.4.0</span><span class="co">](https://journal.r-project.org/articles/RJ-2024-022/RJ-2024-022.pdf)</span> R package. Putative species level assignments were made from best blastn hits to the NCBI 16S rRNA (Bacteria/Archaea) database. Clustering of the sequences at 99% sequence identity was performed using the <span class="co">[</span><span class="ot">`Clusterize` algorithm</span><span class="co">](http://doi.org/10.1038/s41467-024-47371-9)</span> from DECIPHER. Sequences were then aligned using <span class="co">[</span><span class="ot">`DECIPHER::AlignSeqs`</span><span class="co">](https://rnajournal.cshlp.org/content/26/5/531.long)</span> in  RNA space and maximum likelihood phylogeny was inferred using <span class="in">`DECIPER::Treeline.`</span></span>
+<span id="cb3-126"><a href="#cb3-126"></a></span>
+<span id="cb3-127"><a href="#cb3-127"></a><span class="fu">## Availability</span></span>
+<span id="cb3-128"><a href="#cb3-128"></a></span>
+<span id="cb3-129"><a href="#cb3-129"></a>Data and code in this GitHub repository (<span class="ot">&lt;https://github.com/slhogle/duckweedSynCom&gt;</span>) are provided under <span class="co">[</span><span class="ot">GNU AGPL3</span><span class="co">](https://www.gnu.org/licenses/agpl-3.0.html)</span>.</span>
+<span id="cb3-130"><a href="#cb3-130"></a>The rendered project site is available at <span class="ot">&lt;https://slhogle.github.io/duckweedSynCom/&gt;</span>, which has been produced using <span class="co">[</span><span class="ot">Quarto notebooks</span><span class="co">](https://quarto.org/)</span>. </span>
+<span id="cb3-131"><a href="#cb3-131"></a>The content on the rendered site is released under the <span class="co">[</span><span class="ot">CC BY 4.0.</span><span class="co">](https://creativecommons.org/licenses/by/4.0/)</span></span>
+<span id="cb3-132"><a href="#cb3-132"></a>This repository hosts all code and data for this project, including the code necessary to fully recreate the rendered webpage.</span>
+<span id="cb3-133"><a href="#cb3-133"></a></span>
+<span id="cb3-134"><a href="#cb3-134"></a>An archived release of the code is available from Zenodo: <span class="ot">&lt;https://zenodo.org/records/EVENTUAL_ZENODO_RECORD&gt;</span></span>
+<span id="cb3-135"><a href="#cb3-135"></a></span>
+<span id="cb3-136"><a href="#cb3-136"></a>Raw sequencing data used in the project is available from NCBI Bioproject <span class="co">[</span><span class="ot">PRJNA00000000</span><span class="co">]</span>(https://www.ncbi.nlm.nih</span>
+<span id="cb3-137"><a href="#cb3-137"></a></span>
+<span id="cb3-138"><a href="#cb3-138"></a><span class="fu">## Reproducibility</span></span>
+<span id="cb3-139"><a href="#cb3-139"></a></span>
+<span id="cb3-140"><a href="#cb3-140"></a>The project uses <span class="co">[</span><span class="ot">`renv`</span><span class="co">](https://rstudio.github.io/renv/index.html)</span> to create a reproducible environment to execute the code in this project. <span class="co">[</span><span class="ot">See here</span><span class="co">](https://rstudio.github.io/renv/articles/renv.html#collaboration)</span> for a brief overview on collaboration and reproduction of the entire project. </span>
+<span id="cb3-141"><a href="#cb3-141"></a>To get up and running from an established repository, you could do:</span>
+<span id="cb3-142"><a href="#cb3-142"></a></span>
+<span id="cb3-143"><a href="#cb3-143"></a><span class="in">``` r</span></span>
+<span id="cb3-144"><a href="#cb3-144"></a><span class="fu">install.packages</span>(<span class="st">"renv"</span>)</span>
+<span id="cb3-145"><a href="#cb3-145"></a>renv<span class="sc">::</span><span class="fu">restore</span>()</span>
+<span id="cb3-146"><a href="#cb3-146"></a><span class="in">```</span></span>
+<span id="cb3-147"><a href="#cb3-147"></a></span>
+<span id="cb3-148"><a href="#cb3-148"></a>To initiate <span class="in">`renv`</span> for a new project:</span>
+<span id="cb3-149"><a href="#cb3-149"></a></span>
+<span id="cb3-150"><a href="#cb3-150"></a><span class="in">``` r</span></span>
+<span id="cb3-151"><a href="#cb3-151"></a><span class="co"># if on linux set cran here to download binaries</span></span>
+<span id="cb3-152"><a href="#cb3-152"></a><span class="fu">options</span>(<span class="at">repos =</span> <span class="fu">c</span>(<span class="at">CRAN =</span> <span class="st">"https://packagemanager.posit.co/cran/__linux__/jammy/latest"</span>))</span>
+<span id="cb3-153"><a href="#cb3-153"></a><span class="fu">install.packages</span>(<span class="st">"renv"</span>)</span>
+<span id="cb3-154"><a href="#cb3-154"></a><span class="co"># initialize</span></span>
+<span id="cb3-155"><a href="#cb3-155"></a>renv<span class="sc">::</span><span class="fu">init</span>(<span class="at">bioconductor =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-156"><a href="#cb3-156"></a><span class="co"># install some new packages</span></span>
+<span id="cb3-157"><a href="#cb3-157"></a>renv<span class="sc">::</span><span class="fu">install</span>(<span class="st">"tidyverse"</span>, <span class="st">"here"</span>, <span class="st">"fs"</span>, <span class="st">"sangeranalyseR"</span>, <span class="st">"DECIPHER"</span>)</span>
+<span id="cb3-158"><a href="#cb3-158"></a><span class="co"># record those packages in the lockfile</span></span>
+<span id="cb3-159"><a href="#cb3-159"></a>renv<span class="sc">::</span><span class="fu">snapshot</span>()</span>
+<span id="cb3-160"><a href="#cb3-160"></a><span class="in">```</span></span>
+<span id="cb3-161"><a href="#cb3-161"></a></span>
+<span id="cb3-164"><a href="#cb3-164"></a><span class="in">```{r}</span></span>
+<span id="cb3-165"><a href="#cb3-165"></a><span class="co">#| eval: false</span></span>
+<span id="cb3-166"><a href="#cb3-166"></a><span class="co">#| echo: false</span></span>
+<span id="cb3-167"><a href="#cb3-167"></a><span class="co">#| output: false</span></span>
+<span id="cb3-168"><a href="#cb3-168"></a><span class="co">#| error: false</span></span>
+<span id="cb3-169"><a href="#cb3-169"></a><span class="co">#| warning: false</span></span>
+<span id="cb3-170"><a href="#cb3-170"></a><span class="co"># If you want to automoate setting up some general directory structure you can do that here in a quarto chunk</span></span>
+<span id="cb3-171"><a href="#cb3-171"></a><span class="co"># that does not get output to the final HTML. </span></span>
+<span id="cb3-172"><a href="#cb3-172"></a></span>
+<span id="cb3-173"><a href="#cb3-173"></a><span class="co"># Setup project structure</span></span>
+<span id="cb3-174"><a href="#cb3-174"></a><span class="fu">library</span>(here)</span>
+<span id="cb3-175"><a href="#cb3-175"></a><span class="fu">library</span>(fs)</span>
+<span id="cb3-176"><a href="#cb3-176"></a></span>
+<span id="cb3-177"><a href="#cb3-177"></a><span class="co"># define directory paths and overall structure</span></span>
+<span id="cb3-178"><a href="#cb3-178"></a><span class="co"># the _data_raw directory is never touched or modified! </span></span>
+<span id="cb3-179"><a href="#cb3-179"></a><span class="co"># All downstream work and intermediate results should be put in the data directory</span></span>
+<span id="cb3-180"><a href="#cb3-180"></a></span>
+<span id="cb3-181"><a href="#cb3-181"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"X"</span>, <span class="st">"Y01"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-182"><a href="#cb3-182"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"X"</span>, <span class="st">"Y02"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-183"><a href="#cb3-183"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"X"</span>, <span class="st">"Y03"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-184"><a href="#cb3-184"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"X"</span>, <span class="st">"Y04"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-185"><a href="#cb3-185"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"A"</span>, <span class="st">"B01"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-186"><a href="#cb3-186"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"A"</span>, <span class="st">"B02"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-187"><a href="#cb3-187"></a></span>
+<span id="cb3-188"><a href="#cb3-188"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"R"</span>, <span class="st">"X"</span>, <span class="st">"Y01"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-189"><a href="#cb3-189"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"R"</span>, <span class="st">"X"</span>, <span class="st">"Y02"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-190"><a href="#cb3-190"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"R"</span>, <span class="st">"X"</span>, <span class="st">"Y03"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-191"><a href="#cb3-191"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"R"</span>, <span class="st">"X"</span>, <span class="st">"Y04"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-192"><a href="#cb3-192"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"R"</span>, <span class="st">"A"</span>, <span class="st">"B01"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-193"><a href="#cb3-193"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"R"</span>, <span class="st">"A"</span>, <span class="st">"B02"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-194"><a href="#cb3-194"></a></span>
+<span id="cb3-195"><a href="#cb3-195"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"figs"</span>), <span class="at">recurse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-196"><a href="#cb3-196"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

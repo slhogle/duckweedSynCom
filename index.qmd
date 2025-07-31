@@ -9,6 +9,12 @@ author:
         city: Turku
         state: Finland
         url: https://www.utu.fi/en
+  - name: Milla Similä
+    affiliation: 
+      - name: University of Turku
+        city: Turku
+        state: Finland
+        url: https://www.utu.fi/en
 #abstract: > 
 #  The abstract text can go here 
 #  and also here ...
@@ -16,7 +22,6 @@ keywords:
   - Microbiology
   - Ecology
   - Evolution
-  - Antimicrobial resistance (AMR)
 license: "CC BY"
 copyright: 
   holder: Shane L Hogle
@@ -26,7 +31,7 @@ copyright:
 #   volume: 
 #   issue: 
 #   doi: 
-funding: "The author received no specific funding for this work."
+funding: "[Research Council of Finland Award 356133](https://research.fi/en/results/funding/77810)"
 #bibliography: references.bib
 ---
 
@@ -42,20 +47,83 @@ TBD
 
 ## Introduction
 
-The goal of this project is construct and characterize a synthetic bacterial community (SynCom) associated with duckweed (Lemna minor). The plants and bacteria have all been isolated form Southwest Finland.
+The goal of this project is construct and characterize a synthetic bacterial community (SynCom) associated with duckweed (*Lemna minor*). The plants and bacteria have all been isolated form Southwest Finland. The plant and bacteria isolate system will be used to explored fundamental questions in host-microbiome ecology and evolution.
 
-## Experiment overview
+## Sampling plants and bacteria
 
-This is how we did our experiment...
+Between June-August 2024 Milla and Shane collected duckweed plants (*Lemna minor*) from various aquatic habitats in Southwest Finland. The general collection approach was to collect approximately 50 individual plants using sterile tweezers and place these plants in 50 mL Falcon tubes containing water from the sampling location. Once collected plants and water were placed in a cooler and rapidly taken to a laboratory for processing. We collected plants from three locations in Finland (see map in @fig-01 below). The culturable fraction of the bacterial communities associated with each plant were cultured and isolated on nutrient agar back in the laboratory.
 
-## Analysis overview
+```{r}
+#| warning: false
+#| echo: false
+#| output: false
+library(tidyverse)
+library(mapview)
+```
 
-This is how we did our data analysis...
+::: {#fig-01}
+```{r}
+#| warning: false
+#| echo: false
+#| output: true
+tibble(`Sample site` = c("Haunisten allas", "Turun Linna", "Savojärvi"),
+       lat = c(60.50386, 60.435369, 60.742212),
+       lon = c(22.20311, 22.231160, 22.415589),
+       `Temperature (C)` = c(21.5, 16.0, 15.7),
+       `Latitude` = c(60.50386, 60.435369, 60.742212),
+       `Longitude` = c(22.20311, 22.231160, 22.415589),
+       `Date of sampling` = c("June 17, 2024", "June 17, 2024", "July 27, 2024"),
+       `Approximate time of sampling` = c("0900", "1100", "1200")) %>% 
+  sf::st_as_sf(
+    coords = c("lon", "lat"),
+    # lat/long coordinate reference system
+    crs = 4326
+) %>% 
+  mapview::mapview(map.types = c("OpenStreetMap", "Esri.WorldImagery"), col.regions = "red")
+```
+Map of duckweed (*Lemna minor*) sampling locations (red points) in Southwest Finland during summer of 2024. Click on the red points to open a pop-up with additional sampling information. Satellite imagery can be overlaid on the map by clicking the "Esri.worldimagery" option in the layers.
+:::
+
+The sampling locations approximate an urban to rural gradient (euptrophic to oligotrophic) starting from the urban location of [Turun Linna](https://fi.wikipedia.org/wiki/Turun_linna) (Turku Castle, city center - Turku, Finland), moving to the more suburban artificial reservoir [Haunisten allas](https://fi.wikipedia.org/wiki/Haunisten_allas) (Raisio, Finland), and finally near to [lake Savojärvi](https://fi.wikipedia.org/wiki/Savoj%C3%A4rvi) in Kurjenrahkan kansallispuisto (Kurjenrahka National Park - Pöytyä, Finland). Savojärvi is a [dystrophic lake](https://en.wikipedia.org/wiki/Dystrophic_lake) with high concentrations of humic substances and low pH ranging from 4.5 in spring to 6 in the fall. The duckweed was collected from a [bog](https://en.wikipedia.org/wiki/Bog) on the east side of the lake. 
+
+## Laboratory processing of plants and bacteria
+
+Once samples were returned to the laboratory, we subset plants into three subgroups from each location:
+
+1. At least 5-10 individual plants were rinsed in sterile water then frozen at -80C for later microbial DNA extraction and sequencing.
+2. At least 5-10 individual plants were were rinsed in sterile water then transferred to sterile growth medium for plant maintenance.
+3. At least 5-10 individual plants were rinsed in sterile water then homogenized using sterile tissue grinders. The homogenate was then plated on nutrient agar to isolate bacteria.
+
+### Plant maintanence and generation of isogenic *Lemna minor* lines
+
+Immediately after returning to the university laboratory, approximately six individual plants per well were cultured in 6 well plates containing 4 mL of 1x [Hoagland's media No. 2.](https://www.sigmaaldrich.com/FI/en/product/sigma/h2395). These were grown in an environmental chamber set at a cycle of light (16h) / dark (8h) cycle at 24°C. After approximately one week the plants looked decidedly less healthy. To optimize conditions for improved growth 0.5x and 0.2x concentration Hoagland's medium was tested as well as light levels ranging from approximately 50 to 100 μmol m-2 s-1. However, growth did not improve over approximately one month of weekly transfers under factorial combinations of these conditions. After some additional time of deteriorating growth, duckweed plants collected from Turun linna (TL) were lost, while plants from Haunisten allas (HA) and Savojärvi (SJ) continued to deteriorate.
+
+At this point of deteriorating *Lemna minor* growth we noticed extensive algal growth as well as cloudy media which may have been fungal growth. We suspected that some pathogenic microbes were parasitizing the plants while algae may have been competing with the plants for growth. We followed a miniaturized version of [this protocol](https://dx.doi.org/10.17504/protocols.io.9gdh3s6) for sterilizing duckweed plants in bleach solution. Briefly, approximately 20 plants are combined with sterile water and Phosphate Buffered Saline (PBS) solution and vortexed for 5 minutes to dislodge attached microbes. Next, individual plants were transfered to 1.5 ml tubes containing 1% bleach solution and gently inverted for 1 minute. Plants were serially rinsed and transferred three times through sterile 0.5x [Schenk and Hildebrandt (SH)](https://www.sigmaaldrich.com/FI/en/product/sigma/s6765) growth medium with the first rinse lasting 1 minute, and subsequent rinses lasting 5-10 minutes. After the final rinse, plants were added to 0.5x SH growth medium with 1% w/vol sucrose for rapid plant growth. After five days, plants were checked for growth. Plants with cloudy wells (indicating contamination) were discarded. Plants growing in clear wells were further checked for sterility by transferring them to SH medium with 1% w/vol sucrose and 0.1% w/vol yeast extract. The added carbon sources were intended to facilitate rapid heterotrophic microbial growth if microbes were present. After 6 further days of growth, single healthy plants were collected from wells lacking turbidity and used to start isogenic maintanence lines. 
+
+Plants that were cured of associated microbes had significantly improved growth in an environmental test chamber set at 23°C with a 16/8 hour light/dark cycle. Light conditions are between 125-128 μmol m-2 s-1 and are generated using 6500 K LED bulbs (1800 lumens). Specifically we use the [OSRAM SubstiTUBE T8 EM 1200mm 1800lm 6500K G13](https://www.k-rauta.fi/tuote/led-valoputki-osram-substitube-t8-em-1200mm-1800lm-6500k-g13/4099854039188), which is designed to be dropped in place for fluorescent tubes (using the specially provided starter plug included). Every 6 months plants are tested for heterotrophic microbial contamination by transferring plants to 1% w/vol sucrose and 0.1% w/vol yeast extract in SH medium to encourage microbial growth. Additionally, plants are homogenized in a tissue grinder and plated on nutrient agar. No contaminating bacteria have been detected since sterilizing the plants in September 2024. 
+
+### Isolation of plant-associated heterotrophic bacteria
+
+After returning plants to the lab, we washed plants with sterile water, PBS, and 0.1% triton x-100 to remove loosely associated bacteria. Then plants were next homogenized using the [KIMBLE Biomasher II Tissue homogenizer](https://www.dwk.com/kimble-biomasher-ii-closed-system-tissue-grinder) and the homogenate was diluted by factors of 10 to 1/1000 dilution. These dilutions from each plant were plated on different agar petri dishes containing 100 mg L-1 cycloheximide to prevent fungal growth and different growth media:
+
+1. 0.01x Reasoner's 2A (R2A) agar and 1% v/v methanol
+2. 0.01x tryptic soy agar (RSA) and 1% v/v methanol
+3. 0.01x Yeast Mannitol Agar (YSA) and 1% v/v methanol
+
+The plates were incubated at 30°C until visible colonies formed. After visible colonies were formed, 192 different colonies were picked and transfered to the liquid media they were isolated from in a 96 well plate. Colonies were selected so as to maximize morphological diversity (e.g., color, size, shape) of the isolates. The 96 well plates of putative single species isolates were grown overnight at 30C with shaking. After approximately 24 hours, glycerol was added to the plates (final concne 35% glycerol) and the plates were frozen at -80C for later use. 
+
+## Experimental measurements and data analysis
+
+### Taxonomic characterization of plant-associated heterotrophic bacteria
+
+The frozen, archived 96 well plates were thawed and grown overnight. Next 2 ul of sample was processed using the [Cell2seq - 16S rRNA Microbial Identification Kit](https://microzone.co.uk/shop/kits/cell-2-seq/) with universal primers (1492R + 27F) to amplify the 16S rRNA gene. PCR products were Sanger sequenced at Novogene, Inc resulting in a total of 171 reactions sequenced. To verify bacterial cultures were monoisolate, we inspected the Sanger chromatograms for mixed peaks and other disruptions and we imaged agar platings of each species to look for clearly different colony morphologies. In the vast majority of cases, each isolate was derived from a single strain.
+
+Sanger sequencing chromatograms were processed using the `sangeranalyseR` package in R v4.5.1 following default parameters ([code](R/bac_taxonomy_sanger_16S/01_read_format_sanger.qmd)) resulting in 118 high quality 16S rRNA gene sequences. Genus level identification for these 118 sequences was performed using the [IDTAXA algorithm](https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-018-0521-5) from the [`DECIPHER` v3.4.0](https://journal.r-project.org/articles/RJ-2024-022/RJ-2024-022.pdf) R package. Putative species level assignments were made from best blastn hits to the NCBI 16S rRNA (Bacteria/Archaea) database. Clustering of the sequences at 99% sequence identity was performed using the [`Clusterize` algorithm](http://doi.org/10.1038/s41467-024-47371-9) from DECIPHER. Sequences were then aligned using [`DECIPHER::AlignSeqs`](https://rnajournal.cshlp.org/content/26/5/531.long) in  RNA space and maximum likelihood phylogeny was inferred using `DECIPER::Treeline.`
 
 ## Availability
 
-Data and code in this GitHub repository (<https://github.com/GHUSERNAME/REPOSITORYNAME>) are provided under [GNU AGPL3](https://www.gnu.org/licenses/agpl-3.0.html).
-The rendered project site is available at <https://GHUSERNAME.github.io/REPOSITORYNAME/>, which has been produced using [Quarto notebooks](https://quarto.org/). 
+Data and code in this GitHub repository (<https://github.com/slhogle/duckweedSynCom>) are provided under [GNU AGPL3](https://www.gnu.org/licenses/agpl-3.0.html).
+The rendered project site is available at <https://slhogle.github.io/duckweedSynCom/>, which has been produced using [Quarto notebooks](https://quarto.org/). 
 The content on the rendered site is released under the [CC BY 4.0.](https://creativecommons.org/licenses/by/4.0/)
 This repository hosts all code and data for this project, including the code necessary to fully recreate the rendered webpage.
 

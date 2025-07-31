@@ -1,0 +1,178 @@
+---
+title: "Plotting the phylogenetic tree and associated taxonmic information"
+subtitle: ""
+author: "Shane Hogle"
+date: today
+abstract: "Display information from the previous steps in a nice format"
+---
+
+# Setup
+
+Loads required libraries
+
+```{r}
+#| output: false
+options(repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/jammy/latest"))
+library(tidyverse)
+library(here)
+library(fs)
+library(ggtree)
+library(treeio)
+library(DT)
+```
+
+# Read and format
+
+Read phylogenetic tree and associated data table from the previous step
+
+```{r}
+#| echo: true
+#| output: false
+syncom16s_seqs_mltree_nwk <- treeio::read.newick(here::here("data", "sanger_seq", "syncom16s_seqs_mltree.nwk"),
+                            node.label="support")
+
+final_table <- read_tsv(here::here("data", "strain_table_info.tsv"))
+```
+
+# Summary table
+
+Below is a compiled table with taxonomic info, isolation source, and mapping of new strainID to the original `google_drive_id.` Taxa cluster refers to the 99% sequence identity cluster that each strain is a member of. Table is sorted by `taxa_cluster.` Columns `domain` through `genus` are the taxonomic output from the IDTAXA algorithm using the [Genome Taxonomy Database (GTDB)](https://gtdb.ecogenomic.org/) 16S rRNA reference training set. The percentage following the assigned taxa classification represents the classification confidence/probability.
+
+```{r}
+#| echo: false
+#| output: true
+DT::datatable(
+  final_table,
+  class = 'cell-border stripe',
+  rownames = FALSE,
+  extensions = 'FixedColumns',
+  options = list(
+    dom = "ft",
+    pageLength = -1,
+    scrollX = TRUE,
+    #scrollY = TRUE,
+    fixedColumns = TRUE
+  )
+)
+```
+
+
+# Phylogenetic tree plotting
+
+Goal is to produce a tree that has for tip labels the Genus assigned by IDTAXA + the strain identifier, with different internal nodes labeled by coarser taxonomic grouping. The clusters assigned by `clusterizer` will be represented by different colors at the tips.
+
+First lets look at the tree with just the identifiers on the leaves
+
+::: {#fig-01}
+```{r}
+#| fig-width: 7
+#| fig-height: 12
+ggtree(syncom16s_seqs_mltree_nwk, layout="rectangular") + 
+  geom_tiplab(size=3, hjust = -0.10) +
+  xlim(NA, 2) +
+  geom_treescale(offset=1)
+```
+Maximum likelihood phylogenetic tree inferred from an alignment of the 16S rRNA gene amplified by Sanger sequencing from the duckweed SynCom. Scale bar at bottom represents 0.1 substitutions per site.
+:::
+
+We can also look at the internal node numbering by rendering the tree as a dataframe
+
+```{r}
+# the second tibble call is so quarto renders it properly
+syncom16s_seqs_mltree_nwk %>% treeio::as_tibble() %>% tibble()
+```
+First we need to get our naming scheme set up
+
+```{r}
+newtipnames <- final_table %>% 
+  mutate(genus = stringr::str_extract(genus, "(^[:alpha:]*).*", group = 1)) %>% 
+  mutate(genus = case_when(is.na(genus) | genus == "unclassified" ~ stringr::str_extract(ncbi_best_species, "^[:alpha:]*"),
+                           TRUE ~ genus)) %>% 
+  mutate(newname = paste(genus, strainID)) %>% 
+  mutate(taxa_cluster = paste0("c", taxa_cluster)) %>% 
+  dplyr::select(id=strainID, newname, taxa_cluster, genus, order, family)
+```
+
+First we need to generate a color palette that lets us distinguish the different colors
+
+```{r}
+library(Polychrome)
+set.seed(341234)
+mypal <- unname(createPalette(max(final_table$taxa_cluster), c("#F3874AFF", "#FCD125FF"), M=5000))
+rm(.Random.seed, envir=globalenv())
+```
+
+Now we need to identify the internal nodes that we want to highlight. We can do this using the `MRCA` function from ggtree
+
+```{r}
+MRCA(syncom16s_seqs_mltree_nwk, "TL22", "TL23")
+```
+
+Code to plot the tree
+
+```{r}
+offset <- 0.1
+p1 <- ggtree(syncom16s_seqs_mltree_nwk, layout="rectangular")
+
+p2 <- p1 %<+% newtipnames + 
+  geom_tiplab(aes(label = newname), size=3, hjust = -0.10) +
+  geom_tippoint(aes(color = taxa_cluster), size = 2) +
+  scale_color_manual(values = mypal, guide="none") +
+  # Pseudomonadaceae 
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "TL22", "TL23"), 
+                label="(γ) Pseudomonadaceae", align=TRUE, 
+                geom='text', offset=offset) +
+  # Aeromonadaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "HA41", "HA04"), 
+                label="(γ) Aeromonadaceae", align=TRUE, 
+                geom='text', offset=offset) +
+  # Enterobacteriaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "HA14", "HA44"), 
+                label="(γ) Enterobacteriaceae", align=TRUE, 
+                geom='text', offset=offset) +
+  # Moraxellaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "TL64", "HA82"), 
+                label="(γ) Moraxellaceae", align=TRUE, 
+                geom='text', offset=offset) +
+  # Chromobacteriaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "HA47", "HA65"), 
+                label="(γ) Chromobacteriaceae", align=TRUE, 
+                geom='text', offset=offset) +
+  # Burkholderiaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "HA52", "HA18"), 
+                label="(γ) Burkholderiaceae", align=TRUE, 
+                geom='text', offset=offset) +
+  # Sphingomonadaceae
+  geom_cladelab(node=23, 
+                label="(α) Sphingomonadaceae", align=TRUE, 
+                geom='text', offset=offset) +
+  # Streptococcaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "TL12", "TL39"), 
+                label="(Bacilli) Streptococcaceae", align=TRUE, 
+                geom='text', offset=offset) +
+  # Exiguobacteriaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "HA63", "HA25"), 
+                label="(Bacilli) Exiguobacteriaceae", align=TRUE, 
+                  geom='text', offset=offset) +
+  # Deinococcaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "HA42", "HA29"), 
+                label="(Deinococci) Deinococcaceae", align=TRUE, 
+                  geom='text', offset=offset+0.2) +
+  # Weeksellaceae
+  geom_cladelab(node=MRCA(syncom16s_seqs_mltree_nwk, "HA56", "HA57"), 
+                label="(Bacteroidia) Weeksellaceae", align=TRUE, 
+                  geom='text', offset=offset+0.4) +
+  xlim(NA, 2)
+```
+
+::: {#fig-02}
+```{r}
+#| fig-width: 7
+#| fig-height: 15
+#| eval: true
+#| echo: false
+p2
+```
+As in @fig-01, but isolates have been labeled with their inferred genus (text) as well as their broader taxonomic class (right, vertical lines). Colors represent sequences clusters based on a 99% identity threshold (i.e., nodes of the same color have 16S rRNA gene sequences that are > 99% similar)
+:::
+

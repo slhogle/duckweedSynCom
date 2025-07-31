@@ -27,6 +27,8 @@ This code follows the [instructions here](https://sangeranalyser.readthedocs.io/
 ## Metadata
 
 ```{r}
+#| echo: true
+#| output: false
 sanger_batch_info <- readr::read_tsv(here::here("_data_raw", "sanger_seq", "sanger_batch_info.tsv"))
 ```
 

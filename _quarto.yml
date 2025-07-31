@@ -13,12 +13,14 @@ website:
     background: light
     search: true
     contents:
-      - section: "1. 16S rRNA gene Sanger sequencing"
+      - section: "1. Taxonomic characterization of\nplant-associated heterotrophic bacteria"
         contents:
-          - text: "i) Process ab1files to fasta"
-            file: R/01_read_format_sanger.qmd
+          - text: "i) 16S rRNA gene Sanger sequencing:\nProcess ab1files to fasta"
+            file: R/bac_taxonomy_sanger_16S/01_read_format_sanger.qmd
           - text: "ii) Clustering and phylogeny of 16S gene"
-            file: R/02_seq_cluster_phylo.qmd
+            file: R/bac_taxonomy_sanger_16S/02_seq_cluster_phylo.qmd
+          - text: "iii) Taxonomy summary"
+            file: R/bac_taxonomy_sanger_16S/03_tree_summary_table.qmd
     
 format:
   html:
