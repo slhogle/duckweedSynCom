@@ -118,7 +118,7 @@ The plates were incubated at 30°C until visible colonies formed. After visible 
 
 The frozen, archived 96 well plates were thawed and grown overnight. Next 2 ul of sample was processed using the [Cell2seq - 16S rRNA Microbial Identification Kit](https://microzone.co.uk/shop/kits/cell-2-seq/) with universal primers (1492R + 27F) to amplify the 16S rRNA gene. PCR products were Sanger sequenced at Novogene, Inc resulting in a total of 171 reactions sequenced. To verify bacterial cultures were monoisolate, we inspected the Sanger chromatograms for mixed peaks and other disruptions and we imaged agar platings of each species to look for clearly different colony morphologies. In the vast majority of cases, each isolate was derived from a single strain.
 
-Sanger sequencing chromatograms were processed using the `sangeranalyseR` package in R v4.5.1 following default parameters ([code](R/bac_taxonomy_sanger_16S/01_read_format_sanger.qmd)) resulting in 118 high quality 16S rRNA gene sequences. Genus level identification for these 118 sequences was performed using the [IDTAXA algorithm](https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-018-0521-5) from the [`DECIPHER` v3.4.0](https://journal.r-project.org/articles/RJ-2024-022/RJ-2024-022.pdf) R package. Putative species level assignments were made from best blastn hits to the NCBI 16S rRNA (Bacteria/Archaea) database. Clustering of the sequences at 99% sequence identity was performed using the [`Clusterize` algorithm](http://doi.org/10.1038/s41467-024-47371-9) from DECIPHER. Sequences were then aligned using [`DECIPHER::AlignSeqs`](https://rnajournal.cshlp.org/content/26/5/531.long) in  RNA space and maximum likelihood phylogeny was inferred using `DECIPER::Treeline.`
+Sanger sequencing chromatograms were processed using the `sangeranalyseR` package in R v4.5.1 following default parameters ([code](https://github.com/slhogle/duckweedSynCom/blob/main/scripts/01_bac_taxonomy_sanger_16S/01_read_format_sanger.R)) resulting in 118 high quality 16S rRNA gene sequences. Genus level identification for these 118 sequences was performed using the [IDTAXA algorithm](https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-018-0521-5) from the [`DECIPHER` v3.4.0](https://journal.r-project.org/articles/RJ-2024-022/RJ-2024-022.pdf) R package. Putative species level assignments were made from best blastn hits to the NCBI 16S rRNA (Bacteria/Archaea) database. Clustering of the sequences at 99% sequence identity was performed using the [`Clusterize` algorithm](http://doi.org/10.1038/s41467-024-47371-9) from DECIPHER. Sequences were then aligned using [`DECIPHER::AlignSeqs`](https://rnajournal.cshlp.org/content/26/5/531.long) in  RNA space and maximum likelihood phylogeny was inferred using `DECIPER::Treeline.`
 
 ## Availability
 
@@ -131,60 +131,25 @@ An archived release of the code is available from Zenodo: <https://zenodo.org/re
 
 Raw sequencing data used in the project is available from NCBI Bioproject [PRJNA00000000](https://www.ncbi.nlm.nih
 
-## Reproducibility
+## Project organization
 
-The project uses [`renv`](https://rstudio.github.io/renv/index.html) to create a reproducible environment to execute the code in this project. [See here](https://rstudio.github.io/renv/articles/renv.html#collaboration) for a brief overview on collaboration and reproduction of the entire project. 
-To get up and running from an established repository, you could do:
+This repository follows a research-compendium layout:
 
-``` r
-install.packages("renv")
-renv::restore()
-```
+| Path | Contents |
+|------|----------|
+| `scripts/` | Numbered analysis notebooks and scripts, one directory per analysis |
+| `R/` | Helper functions sourced by the scripts |
+| `data/raw/` | Immutable raw data, one directory per acquisition event. Never modified |
+| `data/interim/` | Intermediate objects produced along the way |
+| `data/processed/` | Analysis-ready outputs, named to match the `scripts/` directory that produces them |
+| `data/_notrack/` | Inputs too large for version control. Not distributed with the repository |
+| `output/figures/`, `output/tables/` | Finished figures and tables |
+| `manuscript/` | Manuscript drafts and associated material |
 
-To initiate `renv` for a new project:
+Paths are resolved with [`here`](https://here.r-lib.org/), anchored on the
+`.here` file at the project root, so scripts run correctly regardless of the
+working directory. Each script declares its `data_raw` / `data_processed`
+paths in a "Global variables" block at the top.
 
-``` r
-# if on linux set cran here to download binaries
-options(repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/jammy/latest"))
-install.packages("renv")
-# initialize
-renv::init(bioconductor = TRUE)
-# install some new packages
-renv::install("tidyverse", "here", "fs", "sangeranalyseR", "DECIPHER")
-# record those packages in the lockfile
-renv::snapshot()
-```
-
-```{r}
-#| eval: false
-#| echo: false
-#| output: false
-#| error: false
-#| warning: false
-# If you want to automoate setting up some general directory structure you can do that here in a quarto chunk
-# that does not get output to the final HTML. 
-
-# Setup project structure
-library(here)
-library(fs)
-
-# define directory paths and overall structure
-# the _data_raw directory is never touched or modified! 
-# All downstream work and intermediate results should be put in the data directory
-
-fs::dir_create(here::here("data", "X", "Y01"), recurse = TRUE)
-fs::dir_create(here::here("data", "X", "Y02"), recurse = TRUE)
-fs::dir_create(here::here("data", "X", "Y03"), recurse = TRUE)
-fs::dir_create(here::here("data", "X", "Y04"), recurse = TRUE)
-fs::dir_create(here::here("data", "A", "B01"), recurse = TRUE)
-fs::dir_create(here::here("data", "A", "B02"), recurse = TRUE)
-
-fs::dir_create(here::here("R", "X", "Y01"), recurse = TRUE)
-fs::dir_create(here::here("R", "X", "Y02"), recurse = TRUE)
-fs::dir_create(here::here("R", "X", "Y03"), recurse = TRUE)
-fs::dir_create(here::here("R", "X", "Y04"), recurse = TRUE)
-fs::dir_create(here::here("R", "A", "B01"), recurse = TRUE)
-fs::dir_create(here::here("R", "A", "B02"), recurse = TRUE)
-
-fs::dir_create(here::here("figs"), recurse = TRUE)
-```
+R code is formatted with [air](https://posit-dev.github.io/air/) (see
+`air.toml`).
