@@ -1,51 +1,76 @@
 project:
   type: website
-  resources:
-    - "css/"
-    - "js/"
-    - "*.html"
-  output-dir: docs
+  output-dir: _site
+  render:
+    - index.qmd
+    - scripts/01_bac_taxonomy_sanger_16S/02_seq_cluster_phylo.qmd
+    - scripts/01_bac_taxonomy_sanger_16S/03_tree_summary_table.qmd
+    - scripts/02_duckweed_genotyping/01_read_format_sanger.qmd
+    # Not rendered - plain R scripts rather than Quarto notebooks:
+    # - scripts/01_bac_taxonomy_sanger_16S/01_read_format_sanger.R
+    # - scripts/03_ampstop/01_18S_ampstop.R
 
 website:
   title: "duckweedSynCom"
-  sidebar:
-    style: "docked"
-    background: light
+  navbar:
     search: true
+    tools:
+      - icon: bluesky
+        href: https://bsky.app/profile/slhogle.bsky.social
+      - icon: github
+        href: https://github.com/slhogle/duckweedSynCom
+    left:
+      - sidebar:bac_taxonomy
+      - sidebar:dw_genotyping
+
+  sidebar:
+  - id: bac_taxonomy
+    title: "Bacterial taxonomy"
+    style: "docked"
     contents:
-      - section: "1. Taxonomic characterization of\nplant-associated heterotrophic bacteria"
-        contents:
-          - text: "i) 16S rRNA gene Sanger sequencing:\nProcess ab1files to fasta"
-            file: R/bac_taxonomy_sanger_16S/01_read_format_sanger.qmd
-          - text: "ii) Clustering and phylogeny of 16S gene"
-            file: R/bac_taxonomy_sanger_16S/02_seq_cluster_phylo.qmd
-          - text: "iii) Taxonomy summary"
-            file: R/bac_taxonomy_sanger_16S/03_tree_summary_table.qmd
-    
+    - text: "01.B Cluster + phylogeny"
+      href: scripts/01_bac_taxonomy_sanger_16S/02_seq_cluster_phylo.qmd
+    - text: "01.C Taxonomy summary"
+      href: scripts/01_bac_taxonomy_sanger_16S/03_tree_summary_table.qmd
+  - id: dw_genotyping
+    title: "Duckweed genotyping"
+    style: "docked"
+    contents:
+    - text: "02.A Sanger barcodes"
+      href: scripts/02_duckweed_genotyping/01_read_format_sanger.qmd
+
 format:
   html:
     theme:
-      - cosmo
-    # include table of contents
+      light: flatly
+      dark: darkly
     toc: true
     # when printing dataframes use rmarkdown::paged_table())
     df-print: paged
     # set default dimensions for figures
     fig-width: 8
     fig-height: 6
-    # tidy format R code upon render
+    # tidy format R code upon render.
+    # NOTE: kept false (hambiEvoEnvCoexist uses true). Code in this project is
+    # formatted with air (see air.toml); letting formatR rewrite it on render
+    # would fight that and can mangle native pipes.
     tidy: false
     # include line numbers in code blocks
     code-line-numbers: true
-    # The code-link option enables hyper-linking of functions within code blocks to their online documentation:
-    #code-link: true
     number-sections: true
     code-fold: show
     code-summary: "Show/hide code"
     code-tools: true
-  
-# auto: re-render only when source changes   
+
 execute:
-  freeze: false 
-  
+  freeze: auto        # Default: saving intermediate files to make project rendering faster
+  echo: true          # Default: Shows the source code in the output
+  eval: true          # Default: Runs the code
+  # NOTE: kept true (hambiEvoEnvCoexist uses false). The notebooks here were
+  # written against Quarto's default of showing output and only ever opt out
+  # per-chunk, so suppressing globally would blank almost every result.
+  output: true        # Default: Shows output from running the code
+  warning: false      # Default: Suppresses warnings
+  message: false      # Default: Suppresses messages
+
 editor: source
