@@ -16,23 +16,22 @@ library(sangeranalyseR)
 library(Biostrings)
 
 
+# Global variables --------------------------------------------------------
+
+data_raw <- here::here("data", "raw", "20250701_sanger_seq")
+data_processed <- here::here("data", "processed", "01_bac_taxonomy_sanger_16S")
+
+fs::dir_create(data_processed)
+
+
 # Read data --------------------------------------------------------------
 
 # metadata
-sanger_batch_info <- readr::read_tsv(here::here(
-  "data_raw",
-  "sanger_seq",
-  "sanger_batch_info.tsv"
-))
+sanger_batch_info <- readr::read_tsv(here::here(data_raw, "sanger_batch_info.tsv"))
 
 # batch20250606 ----------------------------------------------------------
 # contigs_batch20250606 <- sangeranalyseR::SangerAlignment(
-#   ABIF_Directory = here::here(
-#     "data_raw",
-#     "sanger_seq",
-#     "batch20250606",
-#     "ab1_files"
-#   ),
+#   ABIF_Directory = here::here(data_raw, "batch20250606", "ab1_files"),
 #   # Requires trimmed reads to be at least 400 bp. A good sanger trace has a trimmed
 #   # length of about 800 bp
 #   minReadLength = 400,
@@ -43,25 +42,15 @@ sanger_batch_info <- readr::read_tsv(here::here(
 # # save intermediate files
 # write_rds(
 #   contigs_batch20250606,
-#   here::here("data", "sanger_seq", "batch20250606", "batch20250606.rds")
+#   here::here(data_processed, "batch20250606", "batch20250606.rds")
 # )
 
 # read back
-contigs_batch20250606 <- readr::read_rds(here::here(
-  "data",
-  "sanger_seq",
-  "batch20250606",
-  "batch20250606.rds"
-))
+contigs_batch20250606 <- readr::read_rds(here::here(data_processed, "batch20250606", "batch20250606.rds"))
 
 # batch20250620 ----------------------------------------------------------
 # contigs_batch20250620 <- sangeranalyseR::SangerAlignment(
-#   ABIF_Directory = here::here(
-#     "data_raw",
-#     "sanger_seq",
-#     "batch20250620",
-#     "ab1_files"
-#   ),
+#   ABIF_Directory = here::here(data_raw, "batch20250620", "ab1_files"),
 #   # Requires trimmed reads to be at least 400 bp. A good sanger trace has a trimmed
 #   # length of about 800 bp
 #   minReadLength = 400,
@@ -72,27 +61,22 @@ contigs_batch20250606 <- readr::read_rds(here::here(
 # # save intermediate files
 # write_rds(
 #   contigs_batch20250620,
-#   here::here("data", "sanger_seq", "batch20250620", "batch20250620.rds")
+#   here::here(data_processed, "batch20250620", "batch20250620.rds")
 # )
 
 # read back
-contigs_batch20250620 <- read_rds(here::here(
-  "data",
-  "sanger_seq",
-  "batch20250620",
-  "batch20250620.rds"
-))
+contigs_batch20250620 <- read_rds(here::here(data_processed, "batch20250620", "batch20250620.rds"))
 
 # Write fasta ------------------------------------------------------------
 
 sangeranalyseR::writeFasta(
   contigs_batch20250606,
-  here::here("data", "sanger_seq", "batch20250606")
+  here::here(data_processed, "batch20250606")
 )
 
 sangeranalyseR::writeFasta(
   contigs_batch20250620,
-  here::here("data", "sanger_seq", "batch20250620")
+  here::here(data_processed, "batch20250620")
 )
 
 # Combine batches --------------------------------------------------------
@@ -157,7 +141,7 @@ sanger_batch_info_01 <- bind_rows(
 
 write_tsv(
   sanger_batch_info_01,
-  here::here("data", "sanger_seq", "sanger_batch_info_01.tsv")
+  here::here(data_processed, "sanger_batch_info_01.tsv")
 )
 
 # Rename fasta files -----------------------------------------------------
@@ -165,12 +149,7 @@ write_tsv(
 # Here we combine all the fastas into a single file and rename them.
 
 ## batch20250606
-batch20250606_fa <- Biostrings::readDNAStringSet(here::here(
-  "data",
-  "sanger_seq",
-  "batch20250606",
-  "Sanger_contigs_unalignment.fa"
-))
+batch20250606_fa <- Biostrings::readDNAStringSet(here::here(data_processed, "batch20250606", "Sanger_contigs_unalignment.fa"))
 
 batch20250606_fa_map <- sanger_batch_info_01 %>%
   filter(sanger_batch == "batch20250606") %>%
@@ -183,12 +162,7 @@ names(batch20250606_fa) <- batch20250606_fa_map[names(batch20250606_fa), ]
 
 ## batch20250620
 
-batch20250620_fa <- Biostrings::readDNAStringSet(here::here(
-  "data",
-  "sanger_seq",
-  "batch20250620",
-  "Sanger_contigs_unalignment.fa"
-))
+batch20250620_fa <- Biostrings::readDNAStringSet(here::here(data_processed, "batch20250620", "Sanger_contigs_unalignment.fa"))
 
 batch20250620_fa_map <- sanger_batch_info_01 %>%
   filter(sanger_batch == "batch20250620") %>%
@@ -202,6 +176,6 @@ names(batch20250620_fa) <- batch20250620_fa_map[names(batch20250620_fa), ]
 # combine and write
 writeXStringSet(
   c(batch20250606_fa, batch20250620_fa),
-  here::here("data", "sanger_seq", "16S_rRNA_SynCom.fna"),
+  here::here(data_processed, "16S_rRNA_SynCom.fna"),
   format = 'fasta'
 )

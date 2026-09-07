@@ -19,12 +19,25 @@ library(fs)
 library(DECIPHER)
 ```
 
+## Global variables
+
+The IDTAXA training set lives under `data/_notrack/` because it exceeds
+GitHub's file size limit and is not distributed with this repository. See
+`data/_notrack/README.md` for how to obtain it.
+
+```{r}
+data_notrack <- here::here("data", "_notrack")
+data_processed <- here::here("data", "processed", "01_bac_taxonomy_sanger_16S")
+
+fs::dir_create(data_processed)
+```
+
 # Read and format
 
 Read 16S rRNA fasta sequences from the prior step.
 
 ```{r}
-syncom16s_fna <- here::here("data", "sanger_seq", "16S_rRNA_SynCom.fna")
+syncom16s_fna <- here::here(data_processed, "16S_rRNA_SynCom.fna")
 ```
 
 Convert to a DNA stringset object
@@ -66,7 +79,7 @@ here](https://www2.decipher.codes/ClassifyOrganisms.html).
 set.seed(234676)
 
 # load the training data set
-load(here::here("_data_raw", "idtaxa", "GTDB_r226-mod_April2025.RData"))
+load(here::here(data_notrack, "idtaxa", "GTDB_r226-mod_April2025.RData"))
 
 # classify the sequences
 syncom16s_ids <- IdTaxa(syncom16s_seqs,
@@ -81,13 +94,13 @@ rm(.Random.seed, envir=globalenv())
 ```{r}
 #| eval: false
 #| include: false
-write_rds(syncom16s_ids, here::here("data", "sanger_seq", "syncom16s_ids.rds"))
+write_rds(syncom16s_ids, here::here(data_processed, "syncom16s_ids.rds"))
 ```
 
 ```{r}
 #| eval: true
 #| include: false
-syncom16s_ids <- read_rds(here::here("data", "sanger_seq", "syncom16s_ids.rds"))
+syncom16s_ids <- read_rds(here::here(data_processed, "syncom16s_ids.rds"))
 ```
 
 ```{r}
@@ -132,7 +145,7 @@ Now read this file back into R
 ```{r}
 #| echo: true
 #| output: false
-syncom16s_blastn <- readr::read_tsv(here::here("data", "sanger_seq", "blastn_lineage_best_hit.tsv"),
+syncom16s_blastn <- readr::read_tsv(here::here(data_processed, "blastn_lineage_best_hit.tsv"),
                 col_names = FALSE) %>% 
   dplyr::select(id = X2, ncbi_taxid = X1, ncbi_best_species = X4)
 ```
@@ -185,19 +198,19 @@ rm(.Random.seed, envir=globalenv())
 ```{r}
 #| eval: false
 #| include: false
-write_rds(syncom16s_seqs_rna_aligned, here::here("data", "sanger_seq", "syncom16s_seqs_rna_aligned.rds"))
+write_rds(syncom16s_seqs_rna_aligned, here::here(data_processed, "syncom16s_seqs_rna_aligned.rds"))
 ```
 
 ```{r}
 #| eval: true
 #| include: false
-syncom16s_seqs_rna_aligned <- read_rds(here::here("data", "sanger_seq", "syncom16s_seqs_rna_aligned.rds"))
+syncom16s_seqs_rna_aligned <- read_rds(here::here(data_processed, "syncom16s_seqs_rna_aligned.rds"))
 ```
 
 ```{r}
 # Write as aligned fasta DNA file 
 writeXStringSet(DNAStringSet(syncom16s_seqs_rna_aligned),
-                here::here("data", "sanger_seq", "16S_rRNA_SynCom_aligned.fna"),
+                here::here(data_processed, "16S_rRNA_SynCom_aligned.fna"),
                 format='fasta')
 ```
 
@@ -227,13 +240,13 @@ rm(.Random.seed, envir=globalenv())
 ```{r}
 #| eval: false
 #| include: false
-write_rds(syncom16s_seqs_mltree, here::here("data", "sanger_seq", "syncom16s_seqs_mltree.rds"))
+write_rds(syncom16s_seqs_mltree, here::here(data_processed, "syncom16s_seqs_mltree.rds"))
 ```
 
 ```{r}
 #| eval: true
 #| include: false
-syncom16s_seqs_mltree <- read_rds(here::here("data", "sanger_seq", "syncom16s_seqs_mltree.rds"))
+syncom16s_seqs_mltree <- read_rds(here::here(data_processed, "syncom16s_seqs_mltree.rds"))
 ```
 
 ```{r}
@@ -253,7 +266,7 @@ Save ML tree as newick file
 
 ```{r}
 WriteDendrogram(syncom16s_seqs_mltree, 
-                file=here::here("data", "sanger_seq", "syncom16s_seqs_mltree.nwk"),
+                file=here::here(data_processed, "syncom16s_seqs_mltree.nwk"),
                 # quote ="" ensure that bootstraps are not written quoted as strings
                 # so that ggtree doesn't fail to parse them
                 quote="")
@@ -292,7 +305,7 @@ Time difference of 1090.3 secs
 ```{r}
 #| echo: true
 #| output: false
-sanger_batch_info <- read_tsv(here::here("data", "sanger_seq", "sanger_batch_info_01.tsv"))
+sanger_batch_info <- read_tsv(here::here(data_processed, "sanger_batch_info_01.tsv"))
 ```
 
 ```{r}
@@ -307,5 +320,5 @@ final_table <- left_join(syncom16s_idtx_lineage_info, sanger_batch_info, by = jo
   relocate(ncbi_best_species, ncbi_taxid, .after = location) %>% 
   dplyr::select(-genus1)
 
-write_tsv(final_table, here::here("data", "strain_table_info.tsv"))
+write_tsv(final_table, here::here(data_processed, "strain_table_info.tsv"))
 ```

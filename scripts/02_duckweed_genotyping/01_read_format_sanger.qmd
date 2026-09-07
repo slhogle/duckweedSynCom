@@ -42,6 +42,15 @@ library(sangeranalyseR)
 library(Biostrings)
 ```
 
+## Global variables
+
+```{r}
+data_raw <- here::here("data", "raw", "20251105_duckweed_genotypeing")
+data_processed <- here::here("data", "processed", "02_duckweed_genotyping")
+
+fs::dir_create(data_processed)
+```
+
 # Read and format
 
 This code follows the [instructions here](https://sangeranalyser.readthedocs.io/en/latest/content/quickstart.html). Basically, the function reads Fwd/Rev traces trims them using "M1 - Modified Mott Trimming" algorithm, overlaps them then aligns them
@@ -50,7 +59,7 @@ This code follows the [instructions here](https://sangeranalyser.readthedocs.io/
 #| eval: false
 #| include: true
 contigs_atpFH <- sangeranalyseR::SangerAlignment(
-  ABIF_Directory = here::here("_data_raw", "duckweed_genotypeing", "renamed_ab1_files", "atpFH"),
+  ABIF_Directory = here::here(data_raw, "renamed_ab1_files", "atpFH"),
   # we are being a bit permissive with the read qualities here since the Sanger traces
   # weren't super good. But they are good enough for assigning species identity
   minReadLength = 1,
@@ -63,7 +72,7 @@ contigs_atpFH <- sangeranalyseR::SangerAlignment(
 contigs_atpFH@objectResults@readResultTable
 
 contigs_psbKI <- sangeranalyseR::SangerAlignment(
-  ABIF_Directory = here::here("_data_raw", "duckweed_genotypeing", "renamed_ab1_files", "psbKI"),
+  ABIF_Directory = here::here(data_raw, "renamed_ab1_files", "psbKI"),
   # we are being a bit permissive with the read qualities here since the Sanger traces
   # weren't super good. But they are good enough for assigning species identity
   minReadLength = 1,
@@ -82,17 +91,17 @@ contigs_psbKI@objectResults@readResultTable
 #| eval: false
 #| include: true
 sangeranalyseR::writeFasta(contigs_atpFH,
-                           here::here("data", "duckweed_genotypeing"))
+                           data_processed)
 
 sangeranalyseR::writeFasta(contigs_psbKI,
-                           here::here("data", "duckweed_genotypeing"))
+                           data_processed)
 ```
 
 ```{r}
 #| eval: false
 #| include: false
 # saving intermediate files
-write_rds(contigs_atpFH, here::here("data", "duckweed_genotypeing", "atpFH.rds"))
+write_rds(contigs_atpFH, here::here(data_processed, "atpFH.rds"))
 
-write_rds(contigs_psbKI, here::here("data", "duckweed_genotypeing", "psbKI.rds"))
+write_rds(contigs_psbKI, here::here(data_processed, "psbKI.rds"))
 ```

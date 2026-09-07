@@ -21,6 +21,12 @@ library(treeio)
 library(DT)
 ```
 
+## Global variables
+
+```{r}
+data_processed <- here::here("data", "processed", "01_bac_taxonomy_sanger_16S")
+```
+
 # Read and format
 
 Read phylogenetic tree and associated data table from the previous step
@@ -28,10 +34,10 @@ Read phylogenetic tree and associated data table from the previous step
 ```{r}
 #| echo: true
 #| output: false
-syncom16s_seqs_mltree_nwk <- treeio::read.newick(here::here("data", "sanger_seq", "syncom16s_seqs_mltree.nwk"),
+syncom16s_seqs_mltree_nwk <- treeio::read.newick(here::here(data_processed, "syncom16s_seqs_mltree.nwk"),
                             node.label="support")
 
-final_table <- read_tsv(here::here("data", "strain_table_info.tsv"))
+final_table <- read_tsv(here::here(data_processed, "strain_table_info.tsv"))
 ```
 
 # Summary table
