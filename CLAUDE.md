@@ -31,7 +31,7 @@ duckweedSynCom/
 │   ├── 04_lemna_bacteria_coculture_frondarea/  # Coculture frond-area growth; 01 feeds 02 (Bayesian model)
 │   └── _notrack/                               # Gitignored local-only work in progress
 ├── data/
-│   ├── raw/         # One dated dir per acquisition batch, never modified, committed
+│   ├── raw/         # One dated dir per acquisition batch, never modified, gitignored (not tracked)
 │   ├── interim/     # Cached model fits (.rds) etc., mirrors scripts/ track names
 │   ├── processed/   # Cleaned analysis-ready tables, mirrors scripts/ track names, committed
 │   └── _notrack/, processed/_notrack/   # Gitignored local-only/orphaned data
@@ -109,5 +109,9 @@ to avoid dumping console spam into the rendered page.
 - `tidy: false` (code is formatted with `air`, see `air.toml`; MCTdownUnder's
   `tidy: true` + formatR would fight `air` and can mangle native pipes).
 
-`AGENTS.md` is intentionally not committed here (see `.gitignore`) - keep any
-local copy in sync with this file by hand if you use one.
+`data/raw/` is not tracked in git (too large; see `.gitignore`). Never
+`git add` anything under it - raw data lives on disk only.
+
+`CLAUDE.md` and `AGENTS.md` are intentionally not committed here (see
+`.gitignore`) - keep any local copy of `AGENTS.md` in sync with this file by
+hand if you use one.
