@@ -1,12 +1,19 @@
 # repo specific files
 wip
 _notrack
-.claude
+
+# sequencing data
+# too big to track
+/data/raw
 
 # Quarto
 _freeze
 .quarto
 *.rmarkdown
+
+# Anthropic
+CLAUDE.md
+.claude
 
 # Posit and Positron
 .vscode
