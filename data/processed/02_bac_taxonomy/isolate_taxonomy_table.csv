@@ -1,0 +1,163 @@
+seq_id,batch,well,bacteria_plate_well,location,google_drive_id,assembly_type,consensus_length,fwd_trimmed_length,rev_trimmed_length,overlap_length,fwd_rev_overlap_identity,silva_identity,silva_quality,silva_score,domain,phylum,class,order,family,genus,gtdb_genus,gtdb_species
+batch20250508_01,batch20250508,01,NA,NA,NA,consensus,1428,969,1066,604,97.2,97.4551,96,0.965985,Bacteria,Pseudomonadota,Gammaproteobacteria,Burkholderiales,Comamonadaceae,NA,Roseateles,Roseateles sp900109745
+batch20250508_02,batch20250508,02,NA,NA,NA,consensus,849,1165,414,408,97.3,96.7175,94,0.945728,Bacteria,Pseudomonadota,Alphaproteobacteria,Sphingomonadales,Sphingomonadaceae,Sphingomonas,NA,NA
+batch20250508_03,batch20250508,03,NA,NA,NA,consensus,1380,924,1028,571,96.8,99.8551,99,0.997182,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+batch20250508_04,batch20250508,04,NA,NA,NA,consensus,1425,892,992,458,98.3,98.8803,98,0.983257,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Chromobacterium,NA,NA
+batch20250508_05,batch20250508,05,NA,NA,NA,consensus,1395,859,1005,463,98.1,99.0179,97,0.979081,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+batch20250508_06,batch20250508,06,NA,NA,NA,consensus,1293,824,1044,575,95.7,97.6043,96,0.964819,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Aquitalea,NA,NA
+batch20250508_07,batch20250508,07,NA,NA,NA,consensus,1426,950,971,495,96.4,99.3631,98,0.980047,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+batch20250508_08,batch20250508,08,NA,NA,NA,consensus,1422,971,1011,558,97,99.2604,98,0.989513,Bacteria,Pseudomonadota,Gammaproteobacteria,Enterobacterales,Enterobacteriaceae,NA,Pantoea,Pantoea vagans
+batch20250508_09,batch20250508,09,NA,NA,NA,consensus,1432,908,992,466,97.2,98.6656,96,0.968269,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Moraxellaceae,Acinetobacter,Acinetobacter,Acinetobacter johnsonii
+batch20250508_10,batch20250508,10,NA,NA,NA,consensus,1207,949,1178,916,98.9,99.0887,98,0.989848,Bacteria,Pseudomonadota,Gammaproteobacteria,Enterobacterales,Enterobacteriaceae,NA,Pantoea,Pantoea vagans
+HA_A1,batch20250606,A01,A01,Haunisten Allas,HA_A1,consensus,1402,1407,1413,1111,95.3,99.3581,98,0.987134,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Chromobacterium,NA,NA
+HA_A2,batch20250606,A02,A02,Haunisten Allas,HA_A2,consensus,1416,1493,1457,1079,95.7,98.3063,96,0.962105,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_B3,batch20250606,A03,B03,Haunisten Allas,HA_B3,consensus,1426,1428,1457,1069,97.3,99.3622,98,0.981643,Bacteria,Pseudomonadota,Gammaproteobacteria,Aeromonadales,Aeromonadaceae,Aeromonas,NA,NA
+HA_A5,batch20250606,A04,A05,Haunisten Allas,HA_A5,consensus,1343,694,1421,503,93.6,97.7679,96,0.96313,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Chromobacterium,NA,NA
+HA_B6,batch20250606,A05,B06,Haunisten Allas,HA_B6,consensus,1414,1432,1438,1084,96.7,99.7108,98,0.989405,Bacteria,Pseudomonadota,Gammaproteobacteria,Burkholderiales,Comamonadaceae,Delftia,NA,NA
+HA_C7,batch20250606,A06,C07,Haunisten Allas,HA_C7,singleton_R,1379,0,1379,0,0,95.0837,82,0.822576,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_F8,batch20250606,A07,F08,Haunisten Allas,HA_F8,consensus,1353,1133,1376,1039,96.7,99.1131,98,0.9812,Bacteria,Bacteroidota,Flavobacteriia,Flavobacteriales,Weeksellaceae,Chryseobacterium,Chryseobacterium,Chryseobacterium indicum
+HA_C11,batch20250606,A09,C11,Haunisten Allas,HA_C11,consensus,1414,1414,1458,1054,96.5,99.1525,98,0.986615,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+SJ_H2,batch20250606,A10,H02,Savojärvi,SJ_H2,consensus,1443,1110,1461,939,97.6,98.1263,95,0.956455,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_B1,batch20250606,B01,B01,Haunisten Allas,HA_B1,consensus,1406,1166,1400,994,97.5,99.005,98,0.98299,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Chromobacterium,NA,NA
+HA_B2,batch20250606,B02,B02,Haunisten Allas,HA_B2,consensus,1388,1410,1409,1022,96.8,99.2795,98,0.9856,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_F3,batch20250606,B03,F03,Haunisten Allas,HA_F3,consensus,1422,1416,1455,995,97.2,98.5159,98,0.98291,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Aquitalea,NA,NA
+HA_B5,batch20250606,B04,B05,Haunisten Allas,HA_B5,consensus,1390,836,1429,629,91.6,97.4874,96,0.960575,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Chromobacterium,NA,NA
+HA_C6,batch20250606,B05,C06,Haunisten Allas,HA_C6,consensus,1440,1434,1447,1038,96.7,98.1026,97,0.975,Bacteria,Bacillota,Bacilli,Exiguobacteriales,Exiguobacteriaceae,Exiguobacterium,NA,NA
+HA_D7,batch20250606,B06,D07,Haunisten Allas,HA_D7,consensus,1391,1471,1417,1175,93,97.1326,95,0.954732,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Aquitalea,NA,NA
+HA_A12,batch20250606,B09,A12,Haunisten Allas,HA_A12,consensus,1400,1442,1418,1064,95.8,98.9286,97,0.978499,Bacteria,Pseudomonadota,Gammaproteobacteria,Enterobacterales,Enterobacteriaceae,Yersinia,NA,NA
+SJ_A5,batch20250606,B10,A05,Savojärvi,SJ_A5,singleton_F,910,910,0,0,0,96.1583,94,0.941112,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+SJ_F6,batch20250606,B11,F06,Savojärvi,SJ_F6,consensus,1427,1200,1211,984,99.1,99.5211,99,0.991239,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_A1,batch20250606,B12,A01,Turun Linna,TL_A1,consensus,1431,1174,1153,892,99.1,99.6815,98,0.986675,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_C1,batch20250606,C01,C01,Haunisten Allas,HA_C1,consensus,1425,1123,1419,943,97.2,99.1591,98,0.981398,Bacteria,Pseudomonadota,Gammaproteobacteria,Aeromonadales,Aeromonadaceae,Aeromonas,NA,NA
+HA_C2,batch20250606,C02,C02,Haunisten Allas,HA_C2,consensus,1405,1389,1418,1008,96.4,99.074700000000007,97,0.978734,Bacteria,Pseudomonadota,Gammaproteobacteria,Burkholderiales,Oxalobacteraceae,Herbaspirillum,NA,NA
+HA_A4,batch20250606,C03,A04,Haunisten Allas,HA_A4,consensus,1410,1444,1428,1172,94.5,99.212,97,0.97612,Bacteria,Pseudomonadota,Gammaproteobacteria,Aeromonadales,Aeromonadaceae,Aeromonas,NA,NA
+HA_C5,batch20250606,C04,C05,Haunisten Allas,HA_C5,consensus,1431,1017,1435,389,85.1,98.5977,97,0.975946,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,NA,NA,NA
+HA_E6,batch20250606,C05,E06,Haunisten Allas,HA_E6,consensus,1409,1420,1392,1141,96.7,98.638,97,0.974829,Bacteria,Pseudomonadota,Gammaproteobacteria,Aeromonadales,Aeromonadaceae,Aeromonas,Aeromonas,Aeromonas finlandensis
+HA_F7,batch20250606,C06,F07,Haunisten Allas,HA_F7,consensus,1388,1401,1393,1037,97,98.8831,98,0.983115,Bacteria,Pseudomonadota,Gammaproteobacteria,Aeromonadales,Aeromonadaceae,Aeromonas,Aeromonas,Aeromonas finlandensis
+HA_H8,batch20250606,C07,H08,Haunisten Allas,HA_H8,consensus,1361,1368,1439,1108,95,98.8987,99,0.999011,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Aquitalea,NA,NA
+HA_C10,batch20250606,C08,C10,Haunisten Allas,HA_C10,consensus,1368,1406,1408,1230,95,95.7401,97,0.97781,Bacteria,Deinococcota,Deinococci,Deinococcales,Deinococcaceae,Deinococcus,Deinococcus,Deinococcus depolymerans
+HA_B12,batch20250606,C09,B12,Haunisten Allas,HA_B12,singleton_R,354,0,354,0,0,94.0678,95,0.959813,Bacteria,Pseudomonadota,Gammaproteobacteria,Burkholderiales,Comamonadaceae,Polaromonas,NA,NA
+SJ_B5,batch20250606,C10,B05,Savojärvi,SJ_B5,singleton_F,248,248,0,0,0,95.1807,92,0.92071,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,Pseudomonas_E,Pseudomonas_E moraviensis_A
+SJ_A9,batch20250606,C11,A09,Savojärvi,SJ_A9,consensus,1383,1141,1193,951,99.8,99.7101,99,0.992591,Bacteria,Pseudomonadota,Alphaproteobacteria,Sphingomonadales,Sphingomonadaceae,Sphingomonas,NA,NA
+TL_B1,batch20250606,C12,B01,Turun Linna,TL_B1,consensus,1461,1031,1130,689,98.5,97.4319,92,0.928288,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_D1,batch20250606,D01,D01,Haunisten Allas,HA_D1,singleton_R,845,0,845,0,0,89.2435,84,0.840912,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Chromobacterium,NA,NA
+HA_E2,batch20250606,D02,E02,Haunisten Allas,HA_E2,consensus,1420,1469,1450,1136,94.2,98.1026,98,0.981249,Bacteria,Bacillota,Bacilli,Exiguobacteriales,Exiguobacteriaceae,Exiguobacterium,NA,NA
+HA_B4,batch20250606,D03,B04,Haunisten Allas,HA_B4,consensus,1401,1458,1424,1145,94.1,99.0728,98,0.983366,Bacteria,Pseudomonadota,Gammaproteobacteria,Enterobacterales,Enterobacteriaceae,Yersinia,NA,NA
+HA_E5,batch20250606,D04,E05,Haunisten Allas,HA_E5,consensus,1400,1381,1416,1051,96.5,99.2834,98,0.985325,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_F6,batch20250606,D05,F06,Haunisten Allas,HA_F6,singleton_F,1255,1255,0,0,0,98.6134,98,0.980301,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,NA,NA,NA
+HA_A8,batch20250606,D06,A08,Haunisten Allas,HA_A8,consensus,1318,1335,1368,1131,96.5,99.3171,98,0.982426,Bacteria,Bacteroidota,Flavobacteriia,Flavobacteriales,Weeksellaceae,Chryseobacterium,Chryseobacterium,Chryseobacterium indicum
+HA_C9,batch20250606,D07,C09,Haunisten Allas,HA_C9,consensus,1324,1128,1358,1033,96.8,98.4234,97,0.977823,Bacteria,Bacteroidota,Flavobacteriia,Flavobacteriales,Weeksellaceae,Chryseobacterium,Chryseobacterium,Chryseobacterium indicum
+HA_D10,batch20250606,D08,D10,Haunisten Allas,HA_D10,consensus,1314,1331,1379,1099,95.2,95.9153,97,0.973697,Bacteria,Deinococcota,Deinococci,Deinococcales,Deinococcaceae,Deinococcus,Deinococcus,Deinococcus depolymerans
+HA_D12,batch20250606,D09,D12,Haunisten Allas,HA_D12,consensus,1367,1355,1404,1076,96.8,98.9043,99,0.991759,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Aquitalea,NA,NA
+SJ_C5,batch20250606,D10,C05,Savojärvi,SJ_C5,consensus,1422,1416,1442,1045,96.3,99.0155,99,0.993561,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,Pseudomonas_E,Pseudomonas_E lutea
+SJ_C9,batch20250606,D11,C09,Savojärvi,SJ_C9,consensus,1372,1407,1380,1016,90.9,97.7487,96,0.961278,Bacteria,Pseudomonadota,Alphaproteobacteria,Sphingomonadales,Sphingomonadaceae,Sphingomonas,NA,NA
+TL_C1,batch20250606,D12,C01,Turun Linna,TL_C1,consensus,1424,1204,1163,941,98.7,100,99,0.998023,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_E1,batch20250606,E01,E01,Haunisten Allas,HA_E1,consensus,1334,1140,1336,969,97.6,97.3625,94,0.941879,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_F2,batch20250606,E02,F02,Haunisten Allas,HA_F2,consensus,1284,1348,1314,1014,97.1,98.8345,97,0.978869,Bacteria,Bacteroidota,Flavobacteriia,Flavobacteriales,Weeksellaceae,Chryseobacterium,Chryseobacterium,Chryseobacterium indicum
+HA_C4,batch20250606,E03,C04,Haunisten Allas,HA_C4,consensus,1377,1361,1392,1028,95,99.419,98,0.988246,Bacteria,Pseudomonadota,Gammaproteobacteria,Aeromonadales,Aeromonadaceae,Aeromonas,NA,NA
+HA_F5,batch20250606,E04,F05,Haunisten Allas,HA_F5,consensus,1373,1368,1406,1068,96.3,99.6221,99,0.99598,Bacteria,Pseudomonadota,Gammaproteobacteria,Aeromonadales,Aeromonadaceae,Aeromonas,NA,NA
+HA_G6,batch20250606,E05,G06,Haunisten Allas,HA_G6,consensus,1401,1449,1417,1141,94.4,98.5601,97,0.970646,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,NA,NA,NA
+HA_B8,batch20250606,E06,B08,Haunisten Allas,HA_B8,consensus,1322,1370,1367,1058,96,99.0937,97,0.97818,Bacteria,Pseudomonadota,Gammaproteobacteria,Burkholderiales,Oxalobacteraceae,Herbaspirillum,NA,NA
+HA_E9,batch20250606,E07,E09,Haunisten Allas,HA_E9,consensus,1312,1322,1382,1087,96.8,96.6667,98,0.989919,Bacteria,Deinococcota,Deinococci,Deinococcales,Deinococcaceae,Deinococcus,Deinococcus,Deinococcus depolymerans
+HA_E10,batch20250606,E08,E10,Haunisten Allas,HA_E10,consensus,1297,795,1347,596,95.5,95.4338,97,0.970381,Bacteria,Deinococcota,Deinococci,Deinococcales,Deinococcaceae,Deinococcus,Deinococcus,Deinococcus depolymerans
+SJ_D5,batch20250606,E10,D05,Savojärvi,SJ_D5,consensus,1440,1456,1469,1117,96.4,97.9958,97,0.9785,Bacteria,Pseudomonadota,Gammaproteobacteria,Enterobacterales,Hafniaceae,Serratia,NA,NA
+SJ_D9,batch20250606,E11,D09,Savojärvi,SJ_D9,consensus,1355,740,912,293,92.5,96.9817,96,0.960324,Bacteria,Pseudomonadota,Alphaproteobacteria,Caulobacterales,Caulobacteraceae,Caulobacter,NA,NA
+TL_D1,batch20250606,E12,D01,Turun Linna,TL_D1,consensus,1412,1147,1097,821,98.4,99.2918,98,0.982807,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_F1,batch20250606,F01,F01,Haunisten Allas,HA_F1,consensus,1341,1176,1093,928,98.9,97.392,95,0.956782,Bacteria,Pseudomonadota,Gammaproteobacteria,Enterobacterales,Enterobacteriaceae,Erwinia,NA,NA
+HA_G2,batch20250606,F02,G02,Haunisten Allas,HA_G2,consensus,1315,1407,966,827,94.8,98.6353,97,0.974993,Bacteria,Bacteroidota,Flavobacteriia,Flavobacteriales,Weeksellaceae,Chryseobacterium,Chryseobacterium,Chryseobacterium indicum
+HA_E4,batch20250606,F03,E04,Haunisten Allas,HA_E4,singleton_F,294,294,0,0,0,87.1622,83,0.836871,Bacteria,Bacteroidota,Flavobacteriia,Flavobacteriales,Weeksellaceae,Chryseobacterium,Chryseobacterium,Chryseobacterium indicum
+HA_H6,batch20250606,F05,H06,Haunisten Allas,HA_H6,consensus,1294,1101,1105,912,98.1,98.9206,97,0.97840800000000006,Bacteria,Bacteroidota,Flavobacteriia,Flavobacteriales,Weeksellaceae,Chryseobacterium,Chryseobacterium,Chryseobacterium indicum
+HA_C8,batch20250606,F06,C08,Haunisten Allas,HA_C8,consensus,1252,1305,1359,1004,96.4,98.9625,98,0.982552,Bacteria,Pseudomonadota,Gammaproteobacteria,Burkholderiales,Oxalobacteraceae,NA,NA,NA
+HA_F9,batch20250606,F07,F09,Haunisten Allas,HA_F9,consensus,1290,1171,1319,1018,96.4,99.7041,99,0.994826,Bacteria,Pseudomonadota,Gammaproteobacteria,Burkholderiales,Comamonadaceae,Acidovorax,NA,NA
+HA_F10,batch20250606,F08,F10,Haunisten Allas,HA_F10,consensus,1392,1442,1409,1082,97,97.711,98,0.982787,Bacteria,Bacillota,Bacilli,Exiguobacteriales,Exiguobacteriaceae,Exiguobacterium,NA,NA
+HA_G12,batch20250606,F09,G12,Haunisten Allas,HA_G12,consensus,1451,1426,1265,1068,99.3,99.0251,99,0.994608,Bacteria,Bacillota,Bacilli,Exiguobacteriales,Exiguobacteriaceae,Exiguobacterium,NA,NA
+SJ_E5,batch20250606,F10,E05,Savojärvi,SJ_E5,consensus,1306,1121,1235,1049,98.8,99.4636,99,0.993291,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+SJ_F9,batch20250606,F11,F09,Savojärvi,SJ_F9,consensus,1406,1419,1402,1036,96.9,97.7257,98,0.981823,Bacteria,Pseudomonadota,Gammaproteobacteria,Burkholderiales,Comamonadaceae,Roseateles,Roseateles,Roseateles sp900109745
+TL_E1,batch20250606,F12,E01,Turun Linna,TL_E1,consensus,1430,1212,1154,935,98.1,99.4417,99,0.994233,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_G1,batch20250606,G01,G01,Haunisten Allas,HA_G1,consensus,1392,1161,960,727,90.2,94.1977,91,0.916294,Bacteria,Pseudomonadota,Gammaproteobacteria,Enterobacterales,Hafniaceae,Serratia,NA,NA
+HA_H2,batch20250606,G02,H02,Haunisten Allas,HA_H2,consensus,1390,1149,997,752,98.5,97.34,96,0.961311,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Aquitalea,NA,NA
+HA_F4,batch20250606,G03,F04,Haunisten Allas,HA_F4,consensus,1371,1373,1419,1065,96.7,99.0518,98,0.984659,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Chromobacterium,NA,NA
+HA_H5,batch20250606,G04,H05,Haunisten Allas,HA_H5,consensus,1312,1473,1293,1064,94.5,98.9329,98,0.981465,Bacteria,Pseudomonadota,Gammaproteobacteria,Aeromonadales,Aeromonadaceae,Aeromonas,NA,NA
+HA_A7,batch20250606,G05,A07,Haunisten Allas,HA_A7,consensus,1377,1410,1395,1033,96.6,99.3953,98,0.986729,Bacteria,Pseudomonadota,Gammaproteobacteria,Aeromonadales,Aeromonadaceae,Aeromonas,NA,NA
+HA_D8,batch20250606,G06,D08,Haunisten Allas,HA_D8,consensus,1248,1338,1310,1105,96.8,99.04,98,0.980283,Bacteria,Bacteroidota,Flavobacteriia,Flavobacteriales,Weeksellaceae,Chryseobacterium,Chryseobacterium,Chryseobacterium indicum
+HA_G9,batch20250606,G07,G09,Haunisten Allas,HA_G9,consensus,1308,1413,1383,1061,94.6,98.318,96,0.961486,Bacteria,Pseudomonadota,Gammaproteobacteria,Enterobacterales,Enterobacteriaceae,Yersinia,NA,NA
+HA_G10,batch20250606,G08,G10,Haunisten Allas,HA_G10,consensus,1360,1417,1403,1003,89.9,96.5492,93,0.939572,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Aquitalea,NA,NA
+HA_H12,batch20250606,G09,H12,Haunisten Allas,HA_H12,consensus,1378,1086,1382,881,95.7,98.1146,97,0.976849,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Aquitalea,NA,NA
+SJ_F5,batch20250606,G10,F05,Savojärvi,SJ_F5,consensus,1426,1318,1242,1120,98.7,99.6006,99,0.992525,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+SJ_H9,batch20250606,G11,H09,Savojärvi,SJ_H9,consensus,1428,1137,1121,828,99,99.6466,98,0.989997,Bacteria,Pseudomonadota,Gammaproteobacteria,Aeromonadales,Aeromonadaceae,Aeromonas,NA,NA
+TL_G1,batch20250606,G12,G01,Turun Linna,TL_G1,consensus,1433,1117,1230,906,97.8,99.6022,98,0.984722,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_H1,batch20250606,H01,H01,Haunisten Allas,HA_H1,consensus,1374,1156,1092,874,98.7,99.4709,98,0.98338,Bacteria,Pseudomonadota,Gammaproteobacteria,Aeromonadales,Aeromonadaceae,Aeromonas,NA,NA
+HA_A3,batch20250606,H02,A03,Haunisten Allas,HA_A3,consensus,1380,1112,1091,821,98.4,99.4203,98,0.985358,Bacteria,Pseudomonadota,Gammaproteobacteria,Aeromonadales,Aeromonadaceae,Aeromonas,NA,NA
+HA_G4,batch20250606,H03,G04,Haunisten Allas,HA_G4,consensus,1358,1391,1371,1117,97.9,99.8527,99,0.997338,Bacteria,Bacteroidota,Flavobacteriia,Flavobacteriales,Weeksellaceae,Chryseobacterium,Chryseobacterium,Chryseobacterium indicum
+HA_A6,batch20250606,H04,A06,Haunisten Allas,HA_A6,consensus,1370,1156,1375,939,97.2,99.1254,98,0.983587,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Chromobacterium,NA,NA
+HA_B7,batch20250606,H05,B07,Haunisten Allas,HA_B7,consensus,1351,1369,1386,1054,95.3,98.9645,98,0.984493,Bacteria,Pseudomonadota,Gammaproteobacteria,Aeromonadales,Aeromonadaceae,Aeromonas,NA,NA
+HA_E8,batch20250606,H06,E08,Haunisten Allas,HA_E8,consensus,1377,1372,1376,1030,97.2,99.8548,99,0.997087,Bacteria,Pseudomonadota,Gammaproteobacteria,Aeromonadales,Aeromonadaceae,Aeromonas,NA,NA
+HA_H9,batch20250606,H07,H09,Haunisten Allas,HA_H9,consensus,1331,1339,1349,980,96.4,98.6557,98,0.981558,Bacteria,Pseudomonadota,Gammaproteobacteria,Burkholderiales,Oxalobacteraceae,Undibacterium,NA,NA
+HA_H10,batch20250606,H08,H10,Haunisten Allas,HA_H10,consensus,1338,795,1376,671,95.2,98.9537,98,0.9839,Bacteria,Pseudomonadota,Gammaproteobacteria,Enterobacterales,Enterobacteriaceae,Yersinia,Yersinia,Yersinia kristensenii
+SJ_D2,batch20250606,H09,D02,Savojärvi,SJ_D2,consensus,1398,1417,1371,1045,96.2,99.1291,97,0.973094,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+SJ_G5,batch20250606,H10,G05,Savojärvi,SJ_G5,consensus,1428,1327,1407,1201,97,99.7312,99,0.995109,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+SJ_A10,batch20250606,H11,A10,Savojärvi,SJ_A10,consensus,1415,1217,1150,948,99.4,99.4362,99,0.994831,Bacteria,Pseudomonadota,Gammaproteobacteria,Burkholderiales,Comamonadaceae,Roseateles,NA,NA
+TL_A2,batch20250606,H12,A02,Turun Linna,TL_A2,consensus,1432,1086,1153,800,97.9,98.9576,99,0.994024,Bacteria,Pseudomonadota,Gammaproteobacteria,Enterobacterales,Hafniaceae,NA,Rouxiella,Rouxiella badensis
+TL_B2,batch20250620,A01,B02,Turun Linna,TL_B2,consensus,1427,1242,1268,1079,98.9,100,99,0.996461,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_G4,batch20250620,A02,G04,Turun Linna,TL_G4,consensus,1427,1453,1433,1166,97.2,100,99,0.993827,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_G5,batch20250620,A03,G05,Turun Linna,TL_G5,consensus,1417,1258,1268,1109,99.3,99.6479,99,0.994161,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_B8,batch20250620,A05,B08,Turun Linna,TL_B8,consensus,1428,1440,1170,1020,98.8,100,99,0.992906,Bacteria,Bacillota,Bacilli,Lactobacillales,Streptococcaceae,Lactococcus,Streptosporangium,Streptosporangium canum
+TL_D9,batch20250620,A06,D09,Turun Linna,TL_D9,consensus,1432,1422,1155,951,96.7,98.6082,97,0.979866,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_C11,batch20250620,A07,C11,Turun Linna,TL_C11,consensus,1417,1290,1235,1103,98.7,99.9242,99,0.994909,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,Pseudomonas_E,Pseudomonas_E putida
+TL_D2,batch20250620,B01,D02,Turun Linna,TL_D2,consensus,1424,1249,1461,1097,97.7,99.8597,99,0.996736,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,NA,NA,NA
+TL_H4,batch20250620,B02,H04,Turun Linna,TL_H4,consensus,1398,1394,1442,1066,94.1,98.2066,98,0.98939,Bacteria,Bacteroidota,Flavobacteriia,Flavobacteriales,Weeksellaceae,Chryseobacterium,NA,NA
+TL_H5,batch20250620,B03,H05,Turun Linna,TL_H5,consensus,1427,1425,1419,1169,97.9,98.8878,99,0.991942,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_A7,batch20250620,B04,A07,Turun Linna,TL_A7,consensus,1422,1217,1249,1043,99.3,100,99,0.995866,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_C8,batch20250620,B05,C08,Turun Linna,TL_C8,consensus,1421,1190,1220,988,99.6,99.906,99,0.99235,Bacteria,Bacillota,Bacilli,Lactobacillales,Streptococcaceae,Lactococcus,NA,NA
+TL_E9,batch20250620,B06,E09,Turun Linna,TL_E9,consensus,1418,1226,1117,925,99.4,100,99,0.994988,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_D11,batch20250620,B07,D11,Turun Linna,TL_D11,consensus,1428,1186,1460,1092,96.5,100,99,0.99336,Bacteria,Bacillota,Bacilli,Lactobacillales,Streptococcaceae,Lactococcus,NA,NA
+SJ_F10,batch20250620,B10,F10,Savojärvi,SJ_F10,consensus,1430,1422,1271,1083,97.9,99.2302,98,0.984489,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_G2,batch20250620,C01,G02,Turun Linna,TL_G2,consensus,1427,1183,1157,906,99.4,99.9202,99,0.994465,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_A5,batch20250620,C02,A05,Turun Linna,TL_A5,consensus,1433,1409,1125,905,98.1,99.3213,98,0.985047,Bacteria,Pseudomonadota,Gammaproteobacteria,Enterobacterales,Enterobacteriaceae,NA,NA,NA
+TL_A6,batch20250620,C03,A06,Turun Linna,TL_A6,consensus,1432,1197,1474,1123,96.1,100,99,0.99041,Bacteria,Bacillota,Bacilli,Lactobacillales,Streptococcaceae,Lactococcus,NA,NA
+TL_B7,batch20250620,C04,B07,Turun Linna,TL_B7,consensus,1429,1410,1453,1169,97.9,100,99,0.991054,Bacteria,Bacillota,Bacilli,Lactobacillales,Streptococcaceae,Lactococcus,NA,NA
+TL_D8,batch20250620,C05,D08,Turun Linna,TL_D8,consensus,1434,1187,1173,926,99.9,100,99,0.9943,Bacteria,Bacillota,Bacilli,Lactobacillales,Streptococcaceae,Lactococcus,NA,NA
+TL_G9,batch20250620,C06,G09,Turun Linna,TL_G9,consensus,1422,1436,1449,1061,94.3,98.39,98,0.986961,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_E11,batch20250620,C07,E11,Turun Linna,TL_E11,singleton_R,1486,0,1486,0,0,94.8583,80,0.800695,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_A05,batch20250620,C08,A05,Haunisten Allas,HA_A05,consensus,1389,1435,1182,1098,96.7,99.1367,98,0.986398,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Chromobacterium,NA,NA
+HA_G02,batch20250620,C09,G02,Haunisten Allas,HA_G02,consensus,1412,1387,1186,989,97,99.1361,98,0.989102,Bacteria,Bacteroidota,Flavobacteriia,Flavobacteriales,Weeksellaceae,Chryseobacterium,Chryseobacterium,Chryseobacterium indicum
+TL_E01,batch20250620,C10,E01,Turun Linna,TL_E01,consensus,1350,1424,854,803,93.4,97.5574,96,0.966062,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Chromobacterium,NA,NA
+TL_C3,batch20250620,D01,C03,Turun Linna,TL_C3,consensus,1414,1163,1129,871,99.3,99.9202,99,0.993754,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_B5,batch20250620,D02,B05,Turun Linna,TL_B5,singleton_F,1193,1193,0,0,0,98.9305,98,0.980738,Bacteria,Bacillota,Bacilli,Lactobacillales,Streptococcaceae,Lactococcus,NA,NA
+TL_B6,batch20250620,D03,B06,Turun Linna,TL_B6,consensus,1422,1397,1480,1070,97.5,99.2863,97,0.97769,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_C7,batch20250620,D04,C07,Turun Linna,TL_C7,consensus,1430,1443,1294,1122,98.8,100,99,0.991278,Bacteria,Bacillota,Bacilli,Lactobacillales,Streptococcaceae,Lactococcus,NA,NA
+TL_E8,batch20250620,D05,E08,Turun Linna,TL_E8,singleton_R,849,0,849,0,0,89.6592,83,0.838363,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_H9,batch20250620,D06,H09,Turun Linna,TL_H9,consensus,1424,1429,1433,1156,96.5,99.6019,98,0.984784,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_F11,batch20250620,D07,F11,Turun Linna,TL_F11,singleton_R,1413,0,1413,0,0,98.3402,87,0.872092,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_G05,batch20250620,D09,G05,Haunisten Allas,HA_G05,consensus,1433,1541,1279,1087,97.8,99.1256,98,0.982717,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_D3,batch20250620,E01,D03,Turun Linna,TL_D3,consensus,1434,1164,1161,885,98.5,99.3631,98,0.987014,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_C5,batch20250620,E02,C05,Turun Linna,TL_C5,consensus,1428,1403,1431,1058,95.4,99.6951,99,0.992169,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_C6,batch20250620,E03,C06,Turun Linna,TL_C6,consensus,1432,1427,1428,1126,96.8,99.8122,98,0.989468,Bacteria,Bacillota,Bacilli,Lactobacillales,Streptococcaceae,Lactococcus,NA,NA
+TL_E7,batch20250620,E04,E07,Turun Linna,TL_E7,consensus,1436,1407,1465,1127,95.6,100,99,0.994481,Bacteria,Bacillota,Bacilli,Lactobacillales,Streptococcaceae,Lactococcus,NA,NA
+TL_E10,batch20250620,E06,E10,Turun Linna,TL_E10,consensus,1423,1449,1433,1175,98,99.6805,99,0.993858,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_H11,batch20250620,E07,H11,Turun Linna,TL_H11,consensus,1424,1258,1441,1102,97.7,100,99,0.992374,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_B05,batch20250620,E08,B05,Haunisten Allas,HA_B05,singleton_F,1230,1230,0,0,0,97.1269,95,0.956448,Bacteria,Pseudomonadota,Gammaproteobacteria,Neisseriales,Chromobacteriaceae,Chromobacterium,NA,NA
+HA_H10_b0620,batch20250620,E09,H10,Haunisten Allas,HA_H10,consensus,1431,1454,1243,1120,97.1,99.5643,99,0.995384,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Moraxellaceae,Acinetobacter,NA,NA
+TL_A4,batch20250620,F01,A04,Turun Linna,TL_A4,consensus,1432,642,998,184,82.6,94.8207,92,0.920397,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_D5,batch20250620,F02,D05,Turun Linna,TL_D5,consensus,1426,1424,1439,1139,96,99.9202,99,0.994659,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_D6,batch20250620,F03,D06,Turun Linna,TL_D6,consensus,1434,1444,1463,1136,97.5,100,99,0.995688,Bacteria,Bacillota,Bacilli,Lactobacillales,Streptococcaceae,Lactococcus,NA,NA
+TL_F7,batch20250620,F04,F07,Turun Linna,TL_F7,consensus,1425,1414,1423,1154,97,99.5943,99,0.995429,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_G8,batch20250620,F05,G08,Turun Linna,TL_G8,consensus,1426,1245,1173,991,99.4,99.8983,99,0.997873,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_G10,batch20250620,F06,G10,Turun Linna,TL_G10,singleton_R,1419,0,1419,0,0,96.9874,86,0.86494,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_E4,batch20250620,G01,E04,Turun Linna,TL_E4,consensus,1429,1308,1174,1001,99,99.1626,99,0.990881,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_E5,batch20250620,G02,E05,Turun Linna,TL_E5,consensus,1432,1449,1131,895,95.6,99.0244,97,0.977748,Bacteria,Pseudomonadota,Gammaproteobacteria,Enterobacterales,Enterobacteriaceae,Pantoea,NA,NA
+TL_F6,batch20250620,G03,F06,Turun Linna,TL_F6,consensus,1437,1435,1443,1180,97.3,100,99,0.995786,Bacteria,Bacillota,Bacilli,Lactobacillales,Streptococcaceae,Lactococcus,NA,NA
+TL_H7,batch20250620,G04,H07,Turun Linna,TL_H7,consensus,1377,1385,1431,1051,95,99.1693,98,0.981019,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_H8,batch20250620,G05,H08,Turun Linna,TL_H8,consensus,1432,1412,1475,1153,96.4,99.906,98,0.987122,Bacteria,Bacillota,Bacilli,Lactobacillales,Streptococcaceae,Lactococcus,NA,NA
+TL_H10,batch20250620,G06,H10,Turun Linna,TL_H10,consensus,1406,1324,1450,1166,95.6,99.4845,99,0.990617,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Moraxellaceae,Acinetobacter,Acinetobacter,Acinetobacter johnsonii
+TL_B12,batch20250620,G07,B12,Turun Linna,TL_B12,singleton_R,1451,0,1451,0,0,98.2438,91,0.918022,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_C05,batch20250620,G08,C05,Haunisten Allas,HA_C05,singleton_F,1247,1247,0,0,0,98.9109,97,0.973641,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+SJ_D09,batch20250620,G09,D09,Savojärvi,SJ_D09,consensus,1442,1408,1471,1211,93.3,98.3414,98,0.98407,Bacteria,Pseudomonadota,Gammaproteobacteria,Enterobacterales,Hafniaceae,Serratia,NA,NA
+TL_F4,batch20250620,H01,F04,Turun Linna,TL_F4,consensus,1425,1255,1275,1097,99.2,100,99,0.995578,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_F5,batch20250620,H02,F05,Turun Linna,TL_F5,consensus,1433,1184,1146,894,99.6,100,99,0.996305,Bacteria,Bacillota,Bacilli,Lactobacillales,Streptococcaceae,Lactococcus,NA,NA
+TL_G6,batch20250620,H03,G06,Turun Linna,TL_G6,consensus,1433,1441,1142,933,98,99.906,99,0.991375,Bacteria,Bacillota,Bacilli,Lactobacillales,Streptococcaceae,Lactococcus,NA,NA
+TL_A8,batch20250620,H04,A08,Turun Linna,TL_A8,consensus,1433,1198,1294,1059,99,100,99,0.990876,Bacteria,Bacillota,Bacilli,Lactobacillales,Streptococcaceae,Lactococcus,NA,NA
+TL_A9,batch20250620,H05,A09,Turun Linna,TL_A9,singleton_R,1122,0,1122,0,0,99.2889,99,0.991766,Bacteria,Pseudomonadota,Gammaproteobacteria,Enterobacterales,Enterobacteriaceae,Pantoea,NA,NA
+TL_A11,batch20250620,H06,A11,Turun Linna,TL_A11,consensus,1406,1376,1198,980,98.7,99.6815,98,0.988905,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+TL_C12,batch20250620,H07,C12,Turun Linna,TL_C12,singleton_R,946,0,946,0,0,89.2405,85,0.858567,Bacteria,Pseudomonadota,Gammaproteobacteria,Pseudomonadales,Pseudomonadaceae,Pseudomonas,NA,NA
+HA_E04,batch20250620,H08,E04,Haunisten Allas,HA_E04,singleton_F,1164,1164,0,0,0,97.4935,96,0.960877,Bacteria,Bacteroidota,Flavobacteriia,Flavobacteriales,Weeksellaceae,Chryseobacterium,Chryseobacterium,Chryseobacterium indicum

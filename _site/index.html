@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Shane L Hogle">
+<meta name="author" content="Milla Similä">
+<meta name="dcterms.date" content="2026-09-27">
+<meta name="keywords" content="Microbiology, Ecology, Evolution">
+
+<title>Data analysis for the project duckweedSynCom – duckweedSynCom</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-0a6b7249c26820e032cb0bd839ff02b1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-f5f3cdedfeab4f70f0f5ec42e45ef763.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-653cdf8410ba41438f4bdd99f4a1f759.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-f5f3cdedfeab4f70f0f5ec42e45ef763.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">duckweedSynCom</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-sanger-sequencing" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Sanger sequencing</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-sanger-sequencing">    
+        <li>
+    <a class="dropdown-item" href="./scripts/01_sanger_seq/01_trace_qc_assembly.html">
+ <span class="dropdown-text">01.A Trace QC + assembly</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-bacterial-taxonomy" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Bacterial taxonomy</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-bacterial-taxonomy">    
+        <li>
+    <a class="dropdown-item" href="./scripts/02_bac_taxonomy/01_taxonomy_summary.html">
+ <span class="dropdown-text">02.A Taxonomy + phylogeny</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-duckweed-genotyping" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Duckweed genotyping</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-duckweed-genotyping">    
+        <li>
+    <a class="dropdown-item" href="./scripts/03_duckweed_genotyping/01_read_format_sanger.html">
+ <span class="dropdown-text">03.A Sanger Duckweed genotype</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-coculture-frond-area" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Coculture frond area</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-coculture-frond-area">    
+        <li>
+    <a class="dropdown-item" href="./scripts/04_lemna_bacteria_coculture_frondarea/01_read_frondarea.html">
+ <span class="dropdown-text">04.A Read + format frond area</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./scripts/04_lemna_bacteria_coculture_frondarea/02_growth_model.html">
+ <span class="dropdown-text">04.B Bayesian growth model</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools tools-wide">
+    <a href="https://bsky.app/profile/slhogle.bsky.social" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-bluesky"></i></a>
+    <a href="https://github.com/slhogle/duckweedSynCom" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#manuscript" id="toc-manuscript" class="nav-link active" data-scroll-target="#manuscript"><span class="header-section-number">1</span> Manuscript:</a>
+  <ul class="collapse">
+  <li><a href="#published-record" id="toc-published-record" class="nav-link" data-scroll-target="#published-record"><span class="header-section-number">1.1</span> Published record</a></li>
+  <li><a href="#preprint" id="toc-preprint" class="nav-link" data-scroll-target="#preprint"><span class="header-section-number">1.2</span> Preprint</a></li>
+  </ul></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction"><span class="header-section-number">2</span> Introduction</a></li>
+  <li><a href="#sampling-plants-and-bacteria" id="toc-sampling-plants-and-bacteria" class="nav-link" data-scroll-target="#sampling-plants-and-bacteria"><span class="header-section-number">3</span> Sampling plants and bacteria</a></li>
+  <li><a href="#laboratory-processing-of-plants-and-bacteria" id="toc-laboratory-processing-of-plants-and-bacteria" class="nav-link" data-scroll-target="#laboratory-processing-of-plants-and-bacteria"><span class="header-section-number">4</span> Laboratory processing of plants and bacteria</a>
+  <ul class="collapse">
+  <li><a href="#plant-maintanence-and-generation-of-isogenic-lemna-minor-lines" id="toc-plant-maintanence-and-generation-of-isogenic-lemna-minor-lines" class="nav-link" data-scroll-target="#plant-maintanence-and-generation-of-isogenic-lemna-minor-lines"><span class="header-section-number">4.1</span> Plant maintanence and generation of isogenic <em>Lemna minor</em> lines</a></li>
+  <li><a href="#isolation-of-plant-associated-heterotrophic-bacteria" id="toc-isolation-of-plant-associated-heterotrophic-bacteria" class="nav-link" data-scroll-target="#isolation-of-plant-associated-heterotrophic-bacteria"><span class="header-section-number">4.2</span> Isolation of plant-associated heterotrophic bacteria</a></li>
+  </ul></li>
+  <li><a href="#experimental-measurements-and-data-analysis" id="toc-experimental-measurements-and-data-analysis" class="nav-link" data-scroll-target="#experimental-measurements-and-data-analysis"><span class="header-section-number">5</span> Experimental measurements and data analysis</a>
+  <ul class="collapse">
+  <li><a href="#taxonomic-characterization-of-plant-associated-heterotrophic-bacteria" id="toc-taxonomic-characterization-of-plant-associated-heterotrophic-bacteria" class="nav-link" data-scroll-target="#taxonomic-characterization-of-plant-associated-heterotrophic-bacteria"><span class="header-section-number">5.1</span> Taxonomic characterization of plant-associated heterotrophic bacteria</a></li>
+  </ul></li>
+  <li><a href="#availability" id="toc-availability" class="nav-link" data-scroll-target="#availability"><span class="header-section-number">6</span> Availability</a></li>
+  <li><a href="#project-organization" id="toc-project-organization" class="nav-link" data-scroll-target="#project-organization"><span class="header-section-number">7</span> Project organization</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Data analysis for the project duckweedSynCom</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+</div>
+
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Authors</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author">Shane L Hogle <a href="https://orcid.org/0000-0003-2595-3863" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            <a href="https://www.utu.fi/en">
+            University of Turku
+            </a>
+          </p>
+      </div>
+    <div class="quarto-title-meta-contents">
+    <p class="author">Milla Similä </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            <a href="https://www.utu.fi/en">
+            University of Turku
+            </a>
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 27, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+<div>
+  <div class="keywords">
+    <div class="block-title">Keywords</div>
+    <p>Microbiology, Ecology, Evolution</p>
+  </div>
+</div>
+
+</header>
+
+
+<section id="manuscript" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="manuscript"><span class="header-section-number">1</span> Manuscript:</h2>
+<section id="published-record" class="level3" data-number="1.1">
+<h3 data-number="1.1" class="anchored" data-anchor-id="published-record"><span class="header-section-number">1.1</span> Published record</h3>
+<p>TBD</p>
+</section>
+<section id="preprint" class="level3" data-number="1.2">
+<h3 data-number="1.2" class="anchored" data-anchor-id="preprint"><span class="header-section-number">1.2</span> Preprint</h3>
+<p>TBD</p>
+</section>
+</section>
+<section id="introduction" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="introduction"><span class="header-section-number">2</span> Introduction</h2>
+<p>The goal of this project is construct and characterize a synthetic bacterial community (SynCom) associated with duckweed (<em>Lemna minor</em>). The plants and bacteria have all been isolated form Southwest Finland. The plant and bacteria isolate system will be used to explored fundamental questions in host-microbiome ecology and evolution.</p>
+</section>
+<section id="sampling-plants-and-bacteria" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="sampling-plants-and-bacteria"><span class="header-section-number">3</span> Sampling plants and bacteria</h2>
+<p>Between June-August 2024 Milla and Shane collected duckweed plants (<em>Lemna minor</em>) from various aquatic habitats in Southwest Finland. The general collection approach was to collect approximately 50 individual plants using sterile tweezers and place these plants in 50 mL Falcon tubes containing water from the sampling location. Once collected plants and water were placed in a cooler and rapidly taken to a laboratory for processing. We collected plants from three locations in Finland (see map in <a href="#fig-01" class="quarto-xref">Figure&nbsp;1</a> below). The culturable fraction of the bacterial communities associated with each plant were cultured and isolated on nutrient agar back in the laboratory.</p>
+<div id="cell-fig-01" class="cell" data-execution_count="2">
+<div id="fig-01" class="cell-output cell-output-display quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="2">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div style="width:100%;"><div style="position:relative;width:100%;height:0;padding-bottom:60%;"><span style="color:#565656">Make this Notebook Trusted to load map: File -&gt; Trust Notebook</span><iframe srcdoc="<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=UTF-8&quot; />
+    <script src=&quot;https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js&quot;></script>
+    <script src=&quot;https://code.jquery.com/jquery-3.7.1.min.js&quot;></script>
+    <script src=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js&quot;></script>
+    <script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js&quot;></script>
+    <link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css&quot;/>
+    <link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css&quot;/>
+    <link rel=&quot;stylesheet&quot; href=&quot;https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css&quot;/>
+    <link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css&quot;/>
+    <link rel=&quot;stylesheet&quot; href=&quot;https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css&quot;/>
+    <link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css&quot;/>
+    
+            <meta name=&quot;viewport&quot; content=&quot;width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no&quot; />
+            <style>
+                #map_217b3e6872b3f7dc0692dac80c8e1614 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class=&quot;folium-map&quot; id=&quot;map_217b3e6872b3f7dc0692dac80c8e1614&quot; ></div>
+        
+</body>
+<script>
+    
+    
+            var map_217b3e6872b3f7dc0692dac80c8e1614 = L.map(
+                &quot;map_217b3e6872b3f7dc0692dac80c8e1614&quot;,
+                {
+                    center: [60.56048033333334, 22.283286333333333],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  &quot;zoom&quot;: 10,
+  &quot;zoomControl&quot;: true,
+  &quot;preferCanvas&quot;: false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_75a1ab9d11b4b50baf6e02aa53170ff9 = L.tileLayer(
+                &quot;https://tile.openstreetmap.org/{z}/{x}/{y}.png&quot;,
+                {
+  &quot;minZoom&quot;: 0,
+  &quot;maxZoom&quot;: 19,
+  &quot;maxNativeZoom&quot;: 19,
+  &quot;noWrap&quot;: false,
+  &quot;attribution&quot;: &quot;\u0026copy; \u003ca href=\&quot;https://www.openstreetmap.org/copyright\&quot;\u003eOpenStreetMap\u003c/a\u003e contributors&quot;,
+  &quot;subdomains&quot;: &quot;abc&quot;,
+  &quot;detectRetina&quot;: false,
+  &quot;tms&quot;: false,
+  &quot;opacity&quot;: 1,
+}
+
+            );
+        
+    
+            tile_layer_75a1ab9d11b4b50baf6e02aa53170ff9.addTo(map_217b3e6872b3f7dc0692dac80c8e1614);
+        
+    
+            var tile_layer_7970fc8d0a754247c8c1920e7e89063a = L.tileLayer(
+                &quot;https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}&quot;,
+                {
+  &quot;minZoom&quot;: 0,
+  &quot;maxZoom&quot;: 18,
+  &quot;maxNativeZoom&quot;: 18,
+  &quot;noWrap&quot;: false,
+  &quot;attribution&quot;: &quot;Esri&quot;,
+  &quot;subdomains&quot;: &quot;abc&quot;,
+  &quot;detectRetina&quot;: false,
+  &quot;tms&quot;: false,
+  &quot;opacity&quot;: 1,
+}
+
+            );
+        
+    
+            tile_layer_7970fc8d0a754247c8c1920e7e89063a.addTo(map_217b3e6872b3f7dc0692dac80c8e1614);
+        
+    
+            var circle_marker_3843d4d5541851288ce63e3bd6aa02d5 = L.circleMarker(
+                [60.50386, 22.20311],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;red&quot;, &quot;fillOpacity&quot;: 1.0, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;opacity&quot;: 1.0, &quot;radius&quot;: 7, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(map_217b3e6872b3f7dc0692dac80c8e1614);
+        
+    
+        var popup_551bb1ffc581078437147eb52f38fc0f = L.popup({
+  &quot;maxWidth&quot;: 250,
+});
+
+        
+            
+                var html_dec46c7480fc4ac3b2a9667724037ae6 = $(`<div id=&quot;html_dec46c7480fc4ac3b2a9667724037ae6&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;><b>Haunisten allas</b><br>Latitude: 60.50386<br>Longitude: 22.20311<br>Temperature (C): 21.5<br>Date of sampling: June 17, 2024<br>Approximate time of sampling: 0900</div>`)[0];
+                popup_551bb1ffc581078437147eb52f38fc0f.setContent(html_dec46c7480fc4ac3b2a9667724037ae6);
+            
+        
+
+        circle_marker_3843d4d5541851288ce63e3bd6aa02d5.bindPopup(popup_551bb1ffc581078437147eb52f38fc0f)
+        ;
+
+        
+    
+    
+            var circle_marker_14e8bb0ed488ff46f3f5e672503882de = L.circleMarker(
+                [60.435369, 22.23116],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;red&quot;, &quot;fillOpacity&quot;: 1.0, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;opacity&quot;: 1.0, &quot;radius&quot;: 7, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(map_217b3e6872b3f7dc0692dac80c8e1614);
+        
+    
+        var popup_4d1cd3572e874c48a28733e89ad5b77c = L.popup({
+  &quot;maxWidth&quot;: 250,
+});
+
+        
+            
+                var html_8fe781b3eb68752c142ea74495ca2630 = $(`<div id=&quot;html_8fe781b3eb68752c142ea74495ca2630&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;><b>Turun Linna</b><br>Latitude: 60.435369<br>Longitude: 22.23116<br>Temperature (C): 16.0<br>Date of sampling: June 17, 2024<br>Approximate time of sampling: 1100</div>`)[0];
+                popup_4d1cd3572e874c48a28733e89ad5b77c.setContent(html_8fe781b3eb68752c142ea74495ca2630);
+            
+        
+
+        circle_marker_14e8bb0ed488ff46f3f5e672503882de.bindPopup(popup_4d1cd3572e874c48a28733e89ad5b77c)
+        ;
+
+        
+    
+    
+            var circle_marker_b94b80d10b6fb21e86563368eea004be = L.circleMarker(
+                [60.742212, 22.415589],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;red&quot;, &quot;fillOpacity&quot;: 1.0, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;opacity&quot;: 1.0, &quot;radius&quot;: 7, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(map_217b3e6872b3f7dc0692dac80c8e1614);
+        
+    
+        var popup_33fd350bda9cfe658ce5cf913bb06016 = L.popup({
+  &quot;maxWidth&quot;: 250,
+});
+
+        
+            
+                var html_4cdb283e2964bd3d701ccab6cddab497 = $(`<div id=&quot;html_4cdb283e2964bd3d701ccab6cddab497&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;><b>Savojärvi</b><br>Latitude: 60.742212<br>Longitude: 22.415589<br>Temperature (C): 15.7<br>Date of sampling: July 27, 2024<br>Approximate time of sampling: 1200</div>`)[0];
+                popup_33fd350bda9cfe658ce5cf913bb06016.setContent(html_4cdb283e2964bd3d701ccab6cddab497);
+            
+        
+
+        circle_marker_b94b80d10b6fb21e86563368eea004be.bindPopup(popup_33fd350bda9cfe658ce5cf913bb06016)
+        ;
+
+        
+    
+    
+            var layer_control_bbb9ffbe38009e108fab8e8eb96ccb84_layers = {
+                base_layers : {
+                    &quot;openstreetmap&quot; : tile_layer_75a1ab9d11b4b50baf6e02aa53170ff9,
+                    &quot;Esri.WorldImagery&quot; : tile_layer_7970fc8d0a754247c8c1920e7e89063a,
+                },
+                overlays :  {
+                },
+            };
+            let layer_control_bbb9ffbe38009e108fab8e8eb96ccb84 = L.control.layers(
+                layer_control_bbb9ffbe38009e108fab8e8eb96ccb84_layers.base_layers,
+                layer_control_bbb9ffbe38009e108fab8e8eb96ccb84_layers.overlays,
+                {
+  &quot;position&quot;: &quot;topright&quot;,
+  &quot;collapsed&quot;: true,
+  &quot;autoZIndex&quot;: true,
+}
+            ).addTo(map_217b3e6872b3f7dc0692dac80c8e1614);
+
+        
+</script>
+</html>" style="position:absolute;width:100%;height:100%;left:0;top:0;border:none !important;" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen=""></iframe></div></div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Map of duckweed (<em>Lemna minor</em>) sampling locations (red points) in Southwest Finland during summer of 2024. Click on the red points to open a pop-up with additional sampling information. Satellite imagery can be overlaid on the map via the layer control in the top-right corner.
+</figcaption>
+</figure>
+</div>
+</div>
+<p>The sampling locations approximate an urban to rural gradient (euptrophic to oligotrophic) starting from the urban location of <a href="https://fi.wikipedia.org/wiki/Turun_linna">Turun Linna</a> (Turku Castle, city center - Turku, Finland), moving to the more suburban artificial reservoir <a href="https://fi.wikipedia.org/wiki/Haunisten_allas">Haunisten allas</a> (Raisio, Finland), and finally near to <a href="https://fi.wikipedia.org/wiki/Savoj%C3%A4rvi">lake Savojärvi</a> in Kurjenrahkan kansallispuisto (Kurjenrahka National Park - Pöytyä, Finland). Savojärvi is a <a href="https://en.wikipedia.org/wiki/Dystrophic_lake">dystrophic lake</a> with high concentrations of humic substances and low pH ranging from 4.5 in spring to 6 in the fall. The duckweed was collected from a <a href="https://en.wikipedia.org/wiki/Bog">bog</a> on the east side of the lake.</p>
+</section>
+<section id="laboratory-processing-of-plants-and-bacteria" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="laboratory-processing-of-plants-and-bacteria"><span class="header-section-number">4</span> Laboratory processing of plants and bacteria</h2>
+<p>Once samples were returned to the laboratory, we subset plants into three subgroups from each location:</p>
+<ol type="1">
+<li>At least 5-10 individual plants were rinsed in sterile water then frozen at -80C for later microbial DNA extraction and sequencing.</li>
+<li>At least 5-10 individual plants were were rinsed in sterile water then transferred to sterile growth medium for plant maintenance.</li>
+<li>At least 5-10 individual plants were rinsed in sterile water then homogenized using sterile tissue grinders. The homogenate was then plated on nutrient agar to isolate bacteria.</li>
+</ol>
+<section id="plant-maintanence-and-generation-of-isogenic-lemna-minor-lines" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="plant-maintanence-and-generation-of-isogenic-lemna-minor-lines"><span class="header-section-number">4.1</span> Plant maintanence and generation of isogenic <em>Lemna minor</em> lines</h3>
+<p>Immediately after returning to the university laboratory, approximately six individual plants per well were cultured in 6 well plates containing 4 mL of 1x <a href="https://www.sigmaaldrich.com/FI/en/product/sigma/h2395">Hoagland’s media No.&nbsp;2.</a>. These were grown in an environmental chamber set at a cycle of light (16h) / dark (8h) cycle at 24°C. After approximately one week the plants looked decidedly less healthy. To optimize conditions for improved growth 0.5x and 0.2x concentration Hoagland’s medium was tested as well as light levels ranging from approximately 50 to 100 μmol m-2 s-1. However, growth did not improve over approximately one month of weekly transfers under factorial combinations of these conditions. After some additional time of deteriorating growth, duckweed plants collected from Turun linna (TL) were lost, while plants from Haunisten allas (HA) and Savojärvi (SJ) continued to deteriorate.</p>
+<p>At this point of deteriorating <em>Lemna minor</em> growth we noticed extensive algal growth as well as cloudy media which may have been fungal growth. We suspected that some pathogenic microbes were parasitizing the plants while algae may have been competing with the plants for growth. We followed a miniaturized version of <a href="https://dx.doi.org/10.17504/protocols.io.9gdh3s6">this protocol</a> for sterilizing duckweed plants in bleach solution. Briefly, approximately 20 plants are combined with sterile water and Phosphate Buffered Saline (PBS) solution and vortexed for 5 minutes to dislodge attached microbes. Next, individual plants were transfered to 1.5 ml tubes containing 1% bleach solution and gently inverted for 1 minute. Plants were serially rinsed and transferred three times through sterile 0.5x <a href="https://www.sigmaaldrich.com/FI/en/product/sigma/s6765">Schenk and Hildebrandt (SH)</a> growth medium with the first rinse lasting 1 minute, and subsequent rinses lasting 5-10 minutes. After the final rinse, plants were added to 0.5x SH growth medium with 1% w/vol sucrose for rapid plant growth. After five days, plants were checked for growth. Plants with cloudy wells (indicating contamination) were discarded. Plants growing in clear wells were further checked for sterility by transferring them to SH medium with 1% w/vol sucrose and 0.1% w/vol yeast extract. The added carbon sources were intended to facilitate rapid heterotrophic microbial growth if microbes were present. After 6 further days of growth, single healthy plants were collected from wells lacking turbidity and used to start isogenic maintanence lines.</p>
+<p>Plants that were cured of associated microbes had significantly improved growth in an environmental test chamber set at 23°C with a 16/8 hour light/dark cycle. Light conditions are between 125-128 μmol m-2 s-1 and are generated using 6500 K LED bulbs (1800 lumens). Specifically we use the <a href="https://www.k-rauta.fi/tuote/led-valoputki-osram-substitube-t8-em-1200mm-1800lm-6500k-g13/4099854039188">OSRAM SubstiTUBE T8 EM 1200mm 1800lm 6500K G13</a>, which is designed to be dropped in place for fluorescent tubes (using the specially provided starter plug included). Every 6 months plants are tested for heterotrophic microbial contamination by transferring plants to 1% w/vol sucrose and 0.1% w/vol yeast extract in SH medium to encourage microbial growth. Additionally, plants are homogenized in a tissue grinder and plated on nutrient agar. No contaminating bacteria have been detected since sterilizing the plants in September 2024.</p>
+</section>
+<section id="isolation-of-plant-associated-heterotrophic-bacteria" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="isolation-of-plant-associated-heterotrophic-bacteria"><span class="header-section-number">4.2</span> Isolation of plant-associated heterotrophic bacteria</h3>
+<p>After returning plants to the lab, we washed plants with sterile water, PBS, and 0.1% triton x-100 to remove loosely associated bacteria. Then plants were next homogenized using the <a href="https://www.dwk.com/kimble-biomasher-ii-closed-system-tissue-grinder">KIMBLE Biomasher II Tissue homogenizer</a> and the homogenate was diluted by factors of 10 to 1/1000 dilution. These dilutions from each plant were plated on different agar petri dishes containing 100 mg L-1 cycloheximide to prevent fungal growth and different growth media:</p>
+<ol type="1">
+<li>0.01x Reasoner’s 2A (R2A) agar and 1% v/v methanol</li>
+<li>0.01x tryptic soy agar (RSA) and 1% v/v methanol</li>
+<li>0.01x Yeast Mannitol Agar (YSA) and 1% v/v methanol</li>
+</ol>
+<p>The plates were incubated at 30°C until visible colonies formed. After visible colonies were formed, 192 different colonies were picked and transfered to the liquid media they were isolated from in a 96 well plate. Colonies were selected so as to maximize morphological diversity (e.g., color, size, shape) of the isolates. The 96 well plates of putative single species isolates were grown overnight at 30C with shaking. After approximately 24 hours, glycerol was added to the plates (final concne 35% glycerol) and the plates were frozen at -80C for later use.</p>
+</section>
+</section>
+<section id="experimental-measurements-and-data-analysis" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="experimental-measurements-and-data-analysis"><span class="header-section-number">5</span> Experimental measurements and data analysis</h2>
+<section id="taxonomic-characterization-of-plant-associated-heterotrophic-bacteria" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="taxonomic-characterization-of-plant-associated-heterotrophic-bacteria"><span class="header-section-number">5.1</span> Taxonomic characterization of plant-associated heterotrophic bacteria</h3>
+<p>The frozen, archived 96 well plates were thawed and grown overnight. Next 2 ul of sample was processed using the <a href="https://microzone.co.uk/shop/kits/cell-2-seq/">Cell2seq - 16S rRNA Microbial Identification Kit</a> with universal primers (1492R + 27F) to amplify the 16S rRNA gene. PCR products were Sanger sequenced at Novogene, Inc resulting in a total of 171 reactions sequenced. To verify bacterial cultures were monoisolate, we inspected the Sanger chromatograms for mixed peaks and other disruptions and we imaged agar platings of each species to look for clearly different colony morphologies. In the vast majority of cases, each isolate was derived from a single strain.</p>
+<p>Sanger sequencing chromatograms were processed using the <code>sangeranalyseR</code> package in R v4.5.1 following default parameters resulting in 118 high quality 16S rRNA gene sequences. Genus level identification for these 118 sequences was performed using the <a href="https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-018-0521-5">IDTAXA algorithm</a> from the <a href="https://journal.r-project.org/articles/RJ-2024-022/RJ-2024-022.pdf"><code>DECIPHER</code> v3.4.0</a> R package. Putative species level assignments were made from best blastn hits to the NCBI 16S rRNA (Bacteria/Archaea) database. Clustering of the sequences at 99% sequence identity was performed using the <a href="http://doi.org/10.1038/s41467-024-47371-9"><code>Clusterize</code> algorithm</a> from DECIPHER. Sequences were then aligned using <a href="https://rnajournal.cshlp.org/content/26/5/531.long"><code>DECIPHER::AlignSeqs</code></a> in RNA space and maximum likelihood phylogeny was inferred using <code>DECIPER::Treeline.</code></p>
+</section>
+</section>
+<section id="availability" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="availability"><span class="header-section-number">6</span> Availability</h2>
+<p>Data and code in this GitHub repository (<a href="https://github.com/slhogle/duckweedSynCom" class="uri">https://github.com/slhogle/duckweedSynCom</a>) are provided under <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL3</a>. The rendered project site is available at <a href="https://slhogle.github.io/duckweedSynCom/" class="uri">https://slhogle.github.io/duckweedSynCom/</a>, which has been produced using <a href="https://quarto.org/">Quarto notebooks</a>. The content on the rendered site is released under the <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0.</a> This repository hosts all code and data for this project, including the code necessary to fully recreate the rendered webpage.</p>
+<p>An archived release of the code is available from Zenodo: <a href="https://zenodo.org/records/EVENTUAL_ZENODO_RECORD" class="uri">https://zenodo.org/records/EVENTUAL_ZENODO_RECORD</a></p>
+<p>Raw sequencing data used in the project is available from NCBI Bioproject [PRJNA00000000](https://www.ncbi.nlm.nih</p>
+</section>
+<section id="project-organization" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="project-organization"><span class="header-section-number">7</span> Project organization</h2>
+<p>This repository follows a research-compendium layout:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 37%">
+<col style="width: 62%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Path</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>scripts/</code></td>
+<td>Numbered analysis notebooks and scripts, one directory per analysis</td>
+</tr>
+<tr class="even">
+<td><code>R/</code></td>
+<td>Helper functions sourced by the scripts</td>
+</tr>
+<tr class="odd">
+<td><code>data/raw/</code></td>
+<td>Immutable raw data, one directory per acquisition event. Never modified</td>
+</tr>
+<tr class="even">
+<td><code>data/interim/</code></td>
+<td>Intermediate objects produced along the way</td>
+</tr>
+<tr class="odd">
+<td><code>data/processed/</code></td>
+<td>Analysis-ready outputs, named to match the <code>scripts/</code> directory that produces them</td>
+</tr>
+<tr class="even">
+<td><code>data/_notrack/</code></td>
+<td>Inputs too large for version control. Not distributed with the repository</td>
+</tr>
+<tr class="odd">
+<td><code>output/figures/</code>, <code>output/tables/</code></td>
+<td>Finished figures and tables</td>
+</tr>
+<tr class="even">
+<td><code>manuscript/</code></td>
+<td>Manuscript drafts and associated material</td>
+</tr>
+</tbody>
+</table>
+<p>Paths are resolved with <a href="https://here.r-lib.org/"><code>here</code></a>, anchored on the <code>.here</code> file at the project root, so scripts run correctly regardless of the working directory. Each script declares its <code>data_raw</code> / <code>data_processed</code> paths in a “Global variables” block at the top.</p>
+<p>R code is formatted with <a href="https://posit-dev.github.io/air/">air</a> (see <code>air.toml</code>).</p>
+
+
+<!-- -->
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-reuse"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div class="quarto-appendix-contents"><div><a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></div></div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1"></a><span class="co">---</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="an">title:</span><span class="co"> "Data analysis for the project duckweedSynCom"</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="an">date:</span><span class="co"> today</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="an">author:</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">  - name: Shane L Hogle</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">    orcid: 0000-0003-2595-3863</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">    affiliation:</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">      - name: University of Turku</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="co">        city: Turku</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="co">        state: Finland</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="co">        url: https://www.utu.fi/en</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co">  - name: Milla Similä</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co">    affiliation:</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">      - name: University of Turku</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="co">        city: Turku</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="co">        state: Finland</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a><span class="co">        url: https://www.utu.fi/en</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="co">#abstract: &gt;</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a><span class="co">#  The abstract text can go here</span></span>
+<span id="cb1-20"><a href="#cb1-20"></a><span class="co">#  and also here ...</span></span>
+<span id="cb1-21"><a href="#cb1-21"></a><span class="an">keywords:</span></span>
+<span id="cb1-22"><a href="#cb1-22"></a><span class="co">  - Microbiology</span></span>
+<span id="cb1-23"><a href="#cb1-23"></a><span class="co">  - Ecology</span></span>
+<span id="cb1-24"><a href="#cb1-24"></a><span class="co">  - Evolution</span></span>
+<span id="cb1-25"><a href="#cb1-25"></a><span class="an">license:</span><span class="co"> "CC BY"</span></span>
+<span id="cb1-26"><a href="#cb1-26"></a><span class="an">copyright:</span></span>
+<span id="cb1-27"><a href="#cb1-27"></a><span class="co">  holder: Shane L Hogle</span></span>
+<span id="cb1-28"><a href="#cb1-28"></a><span class="co">  year: 2025</span></span>
+<span id="cb1-29"><a href="#cb1-29"></a><span class="co"># citation:</span></span>
+<span id="cb1-30"><a href="#cb1-30"></a><span class="co">#   container-title: BioRxiv</span></span>
+<span id="cb1-31"><a href="#cb1-31"></a><span class="co">#   volume:</span></span>
+<span id="cb1-32"><a href="#cb1-32"></a><span class="co">#   issue:</span></span>
+<span id="cb1-33"><a href="#cb1-33"></a><span class="co">#   doi:</span></span>
+<span id="cb1-34"><a href="#cb1-34"></a><span class="an">funding:</span><span class="co"> "[Research Council of Finland Award 356133](https://research.fi/en/results/funding/77810)"</span></span>
+<span id="cb1-35"><a href="#cb1-35"></a><span class="co">#bibliography: references.bib</span></span>
+<span id="cb1-36"><a href="#cb1-36"></a><span class="co">---</span></span>
+<span id="cb1-37"><a href="#cb1-37"></a></span>
+<span id="cb1-38"><a href="#cb1-38"></a><span class="fu">## Manuscript:</span></span>
+<span id="cb1-39"><a href="#cb1-39"></a></span>
+<span id="cb1-40"><a href="#cb1-40"></a><span class="fu">### Published record</span></span>
+<span id="cb1-41"><a href="#cb1-41"></a></span>
+<span id="cb1-42"><a href="#cb1-42"></a>TBD</span>
+<span id="cb1-43"><a href="#cb1-43"></a></span>
+<span id="cb1-44"><a href="#cb1-44"></a><span class="fu">### Preprint</span></span>
+<span id="cb1-45"><a href="#cb1-45"></a></span>
+<span id="cb1-46"><a href="#cb1-46"></a>TBD</span>
+<span id="cb1-47"><a href="#cb1-47"></a></span>
+<span id="cb1-48"><a href="#cb1-48"></a><span class="fu">## Introduction</span></span>
+<span id="cb1-49"><a href="#cb1-49"></a></span>
+<span id="cb1-50"><a href="#cb1-50"></a>The goal of this project is construct and characterize a synthetic bacterial community (SynCom) associated with duckweed (*Lemna minor*). The plants and bacteria have all been isolated form Southwest Finland. The plant and bacteria isolate system will be used to explored fundamental questions in host-microbiome ecology and evolution.</span>
+<span id="cb1-51"><a href="#cb1-51"></a></span>
+<span id="cb1-52"><a href="#cb1-52"></a><span class="fu">## Sampling plants and bacteria</span></span>
+<span id="cb1-53"><a href="#cb1-53"></a></span>
+<span id="cb1-54"><a href="#cb1-54"></a>Between June-August 2024 Milla and Shane collected duckweed plants (*Lemna minor*) from various aquatic habitats in Southwest Finland. The general collection approach was to collect approximately 50 individual plants using sterile tweezers and place these plants in 50 mL Falcon tubes containing water from the sampling location. Once collected plants and water were placed in a cooler and rapidly taken to a laboratory for processing. We collected plants from three locations in Finland (see map in @fig-01 below). The culturable fraction of the bacterial communities associated with each plant were cultured and isolated on nutrient agar back in the laboratory.</span>
+<span id="cb1-55"><a href="#cb1-55"></a></span>
+<span id="cb1-58"><a href="#cb1-58"></a><span class="in">```{python}</span></span>
+<span id="cb1-59"><a href="#cb1-59"></a><span class="co">#| echo: false</span></span>
+<span id="cb1-60"><a href="#cb1-60"></a><span class="co">#| output: false</span></span>
+<span id="cb1-61"><a href="#cb1-61"></a><span class="im">import</span> folium</span>
+<span id="cb1-62"><a href="#cb1-62"></a><span class="in">```</span></span>
+<span id="cb1-63"><a href="#cb1-63"></a></span>
+<span id="cb1-66"><a href="#cb1-66"></a><span class="in">```{python}</span></span>
+<span id="cb1-67"><a href="#cb1-67"></a><span class="co">#| label: fig-01</span></span>
+<span id="cb1-68"><a href="#cb1-68"></a><span class="co">#| echo: false</span></span>
+<span id="cb1-69"><a href="#cb1-69"></a><span class="co">#| output: true</span></span>
+<span id="cb1-70"><a href="#cb1-70"></a><span class="co">#| fig-cap: 'Map of duckweed (*Lemna minor*) sampling locations (red points) in Southwest Finland during summer of 2024. Click on the red points to open a pop-up with additional sampling information. Satellite imagery can be overlaid on the map via the layer control in the top-right corner.'</span></span>
+<span id="cb1-71"><a href="#cb1-71"></a>sites <span class="op">=</span> [</span>
+<span id="cb1-72"><a href="#cb1-72"></a>    {</span>
+<span id="cb1-73"><a href="#cb1-73"></a>        <span class="st">"name"</span>: <span class="st">"Haunisten allas"</span>,</span>
+<span id="cb1-74"><a href="#cb1-74"></a>        <span class="st">"lat"</span>: <span class="fl">60.50386</span>,</span>
+<span id="cb1-75"><a href="#cb1-75"></a>        <span class="st">"lon"</span>: <span class="fl">22.20311</span>,</span>
+<span id="cb1-76"><a href="#cb1-76"></a>        <span class="st">"temp_c"</span>: <span class="fl">21.5</span>,</span>
+<span id="cb1-77"><a href="#cb1-77"></a>        <span class="st">"date"</span>: <span class="st">"June 17, 2024"</span>,</span>
+<span id="cb1-78"><a href="#cb1-78"></a>        <span class="st">"time"</span>: <span class="st">"0900"</span>,</span>
+<span id="cb1-79"><a href="#cb1-79"></a>    },</span>
+<span id="cb1-80"><a href="#cb1-80"></a>    {</span>
+<span id="cb1-81"><a href="#cb1-81"></a>        <span class="st">"name"</span>: <span class="st">"Turun Linna"</span>,</span>
+<span id="cb1-82"><a href="#cb1-82"></a>        <span class="st">"lat"</span>: <span class="fl">60.435369</span>,</span>
+<span id="cb1-83"><a href="#cb1-83"></a>        <span class="st">"lon"</span>: <span class="fl">22.231160</span>,</span>
+<span id="cb1-84"><a href="#cb1-84"></a>        <span class="st">"temp_c"</span>: <span class="fl">16.0</span>,</span>
+<span id="cb1-85"><a href="#cb1-85"></a>        <span class="st">"date"</span>: <span class="st">"June 17, 2024"</span>,</span>
+<span id="cb1-86"><a href="#cb1-86"></a>        <span class="st">"time"</span>: <span class="st">"1100"</span>,</span>
+<span id="cb1-87"><a href="#cb1-87"></a>    },</span>
+<span id="cb1-88"><a href="#cb1-88"></a>    {</span>
+<span id="cb1-89"><a href="#cb1-89"></a>        <span class="st">"name"</span>: <span class="st">"Savojärvi"</span>,</span>
+<span id="cb1-90"><a href="#cb1-90"></a>        <span class="st">"lat"</span>: <span class="fl">60.742212</span>,</span>
+<span id="cb1-91"><a href="#cb1-91"></a>        <span class="st">"lon"</span>: <span class="fl">22.415589</span>,</span>
+<span id="cb1-92"><a href="#cb1-92"></a>        <span class="st">"temp_c"</span>: <span class="fl">15.7</span>,</span>
+<span id="cb1-93"><a href="#cb1-93"></a>        <span class="st">"date"</span>: <span class="st">"July 27, 2024"</span>,</span>
+<span id="cb1-94"><a href="#cb1-94"></a>        <span class="st">"time"</span>: <span class="st">"1200"</span>,</span>
+<span id="cb1-95"><a href="#cb1-95"></a>    },</span>
+<span id="cb1-96"><a href="#cb1-96"></a>]</span>
+<span id="cb1-97"><a href="#cb1-97"></a></span>
+<span id="cb1-98"><a href="#cb1-98"></a>center_lat <span class="op">=</span> <span class="bu">sum</span>(s[<span class="st">"lat"</span>] <span class="cf">for</span> s <span class="kw">in</span> sites) <span class="op">/</span> <span class="bu">len</span>(sites)</span>
+<span id="cb1-99"><a href="#cb1-99"></a>center_lon <span class="op">=</span> <span class="bu">sum</span>(s[<span class="st">"lon"</span>] <span class="cf">for</span> s <span class="kw">in</span> sites) <span class="op">/</span> <span class="bu">len</span>(sites)</span>
+<span id="cb1-100"><a href="#cb1-100"></a></span>
+<span id="cb1-101"><a href="#cb1-101"></a>m <span class="op">=</span> folium.Map(location<span class="op">=</span>[center_lat, center_lon], zoom_start<span class="op">=</span><span class="dv">10</span>, tiles<span class="op">=</span><span class="st">"OpenStreetMap"</span>)</span>
+<span id="cb1-102"><a href="#cb1-102"></a></span>
+<span id="cb1-103"><a href="#cb1-103"></a>folium.TileLayer(</span>
+<span id="cb1-104"><a href="#cb1-104"></a>    tiles<span class="op">=</span>(</span>
+<span id="cb1-105"><a href="#cb1-105"></a>        <span class="st">"https://server.arcgisonline.com/ArcGIS/rest/services/"</span></span>
+<span id="cb1-106"><a href="#cb1-106"></a>        <span class="st">"World_Imagery/MapServer/tile/</span><span class="sc">{z}</span><span class="st">/</span><span class="sc">{y}</span><span class="st">/</span><span class="sc">{x}</span><span class="st">"</span></span>
+<span id="cb1-107"><a href="#cb1-107"></a>    ),</span>
+<span id="cb1-108"><a href="#cb1-108"></a>    attr<span class="op">=</span><span class="st">"Esri"</span>,</span>
+<span id="cb1-109"><a href="#cb1-109"></a>    name<span class="op">=</span><span class="st">"Esri.WorldImagery"</span>,</span>
+<span id="cb1-110"><a href="#cb1-110"></a>).add_to(m)</span>
+<span id="cb1-111"><a href="#cb1-111"></a></span>
+<span id="cb1-112"><a href="#cb1-112"></a><span class="cf">for</span> s <span class="kw">in</span> sites:</span>
+<span id="cb1-113"><a href="#cb1-113"></a>    popup_html <span class="op">=</span> (</span>
+<span id="cb1-114"><a href="#cb1-114"></a>        <span class="ss">f"&lt;b&gt;</span><span class="sc">{</span>s[<span class="st">'name'</span>]<span class="sc">}</span><span class="ss">&lt;/b&gt;&lt;br&gt;"</span></span>
+<span id="cb1-115"><a href="#cb1-115"></a>        <span class="ss">f"Latitude: </span><span class="sc">{</span>s[<span class="st">'lat'</span>]<span class="sc">}</span><span class="ss">&lt;br&gt;"</span></span>
+<span id="cb1-116"><a href="#cb1-116"></a>        <span class="ss">f"Longitude: </span><span class="sc">{</span>s[<span class="st">'lon'</span>]<span class="sc">}</span><span class="ss">&lt;br&gt;"</span></span>
+<span id="cb1-117"><a href="#cb1-117"></a>        <span class="ss">f"Temperature (C): </span><span class="sc">{</span>s[<span class="st">'temp_c'</span>]<span class="sc">}</span><span class="ss">&lt;br&gt;"</span></span>
+<span id="cb1-118"><a href="#cb1-118"></a>        <span class="ss">f"Date of sampling: </span><span class="sc">{</span>s[<span class="st">'date'</span>]<span class="sc">}</span><span class="ss">&lt;br&gt;"</span></span>
+<span id="cb1-119"><a href="#cb1-119"></a>        <span class="ss">f"Approximate time of sampling: </span><span class="sc">{</span>s[<span class="st">'time'</span>]<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb1-120"><a href="#cb1-120"></a>    )</span>
+<span id="cb1-121"><a href="#cb1-121"></a>    folium.CircleMarker(</span>
+<span id="cb1-122"><a href="#cb1-122"></a>        location<span class="op">=</span>[s[<span class="st">"lat"</span>], s[<span class="st">"lon"</span>]],</span>
+<span id="cb1-123"><a href="#cb1-123"></a>        radius<span class="op">=</span><span class="dv">7</span>,</span>
+<span id="cb1-124"><a href="#cb1-124"></a>        color<span class="op">=</span><span class="st">"red"</span>,</span>
+<span id="cb1-125"><a href="#cb1-125"></a>        weight<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb1-126"><a href="#cb1-126"></a>        fill<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb1-127"><a href="#cb1-127"></a>        fill_color<span class="op">=</span><span class="st">"red"</span>,</span>
+<span id="cb1-128"><a href="#cb1-128"></a>        fill_opacity<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb1-129"><a href="#cb1-129"></a>        popup<span class="op">=</span>folium.Popup(popup_html, max_width<span class="op">=</span><span class="dv">250</span>),</span>
+<span id="cb1-130"><a href="#cb1-130"></a>    ).add_to(m)</span>
+<span id="cb1-131"><a href="#cb1-131"></a></span>
+<span id="cb1-132"><a href="#cb1-132"></a>folium.LayerControl().add_to(m)</span>
+<span id="cb1-133"><a href="#cb1-133"></a></span>
+<span id="cb1-134"><a href="#cb1-134"></a>m</span>
+<span id="cb1-135"><a href="#cb1-135"></a><span class="in">```</span></span>
+<span id="cb1-136"><a href="#cb1-136"></a></span>
+<span id="cb1-137"><a href="#cb1-137"></a>The sampling locations approximate an urban to rural gradient (euptrophic to oligotrophic) starting from the urban location of <span class="co">[</span><span class="ot">Turun Linna</span><span class="co">](https://fi.wikipedia.org/wiki/Turun_linna)</span> (Turku Castle, city center - Turku, Finland), moving to the more suburban artificial reservoir <span class="co">[</span><span class="ot">Haunisten allas</span><span class="co">](https://fi.wikipedia.org/wiki/Haunisten_allas)</span> (Raisio, Finland), and finally near to <span class="co">[</span><span class="ot">lake Savojärvi</span><span class="co">](https://fi.wikipedia.org/wiki/Savoj%C3%A4rvi)</span> in Kurjenrahkan kansallispuisto (Kurjenrahka National Park - Pöytyä, Finland). Savojärvi is a <span class="co">[</span><span class="ot">dystrophic lake</span><span class="co">](https://en.wikipedia.org/wiki/Dystrophic_lake)</span> with high concentrations of humic substances and low pH ranging from 4.5 in spring to 6 in the fall. The duckweed was collected from a <span class="co">[</span><span class="ot">bog</span><span class="co">](https://en.wikipedia.org/wiki/Bog)</span> on the east side of the lake.</span>
+<span id="cb1-138"><a href="#cb1-138"></a></span>
+<span id="cb1-139"><a href="#cb1-139"></a><span class="fu">## Laboratory processing of plants and bacteria</span></span>
+<span id="cb1-140"><a href="#cb1-140"></a></span>
+<span id="cb1-141"><a href="#cb1-141"></a>Once samples were returned to the laboratory, we subset plants into three subgroups from each location:</span>
+<span id="cb1-142"><a href="#cb1-142"></a></span>
+<span id="cb1-143"><a href="#cb1-143"></a><span class="ss">1. </span>At least 5-10 individual plants were rinsed in sterile water then frozen at -80C for later microbial DNA extraction and sequencing.</span>
+<span id="cb1-144"><a href="#cb1-144"></a><span class="ss">2. </span>At least 5-10 individual plants were were rinsed in sterile water then transferred to sterile growth medium for plant maintenance.</span>
+<span id="cb1-145"><a href="#cb1-145"></a><span class="ss">3. </span>At least 5-10 individual plants were rinsed in sterile water then homogenized using sterile tissue grinders. The homogenate was then plated on nutrient agar to isolate bacteria.</span>
+<span id="cb1-146"><a href="#cb1-146"></a></span>
+<span id="cb1-147"><a href="#cb1-147"></a><span class="fu">### Plant maintanence and generation of isogenic *Lemna minor* lines</span></span>
+<span id="cb1-148"><a href="#cb1-148"></a></span>
+<span id="cb1-149"><a href="#cb1-149"></a>Immediately after returning to the university laboratory, approximately six individual plants per well were cultured in 6 well plates containing 4 mL of 1x <span class="co">[</span><span class="ot">Hoagland's media No. 2.</span><span class="co">](https://www.sigmaaldrich.com/FI/en/product/sigma/h2395)</span>. These were grown in an environmental chamber set at a cycle of light (16h) / dark (8h) cycle at 24°C. After approximately one week the plants looked decidedly less healthy. To optimize conditions for improved growth 0.5x and 0.2x concentration Hoagland's medium was tested as well as light levels ranging from approximately 50 to 100 μmol m-2 s-1. However, growth did not improve over approximately one month of weekly transfers under factorial combinations of these conditions. After some additional time of deteriorating growth, duckweed plants collected from Turun linna (TL) were lost, while plants from Haunisten allas (HA) and Savojärvi (SJ) continued to deteriorate.</span>
+<span id="cb1-150"><a href="#cb1-150"></a></span>
+<span id="cb1-151"><a href="#cb1-151"></a>At this point of deteriorating *Lemna minor* growth we noticed extensive algal growth as well as cloudy media which may have been fungal growth. We suspected that some pathogenic microbes were parasitizing the plants while algae may have been competing with the plants for growth. We followed a miniaturized version of <span class="co">[</span><span class="ot">this protocol</span><span class="co">](https://dx.doi.org/10.17504/protocols.io.9gdh3s6)</span> for sterilizing duckweed plants in bleach solution. Briefly, approximately 20 plants are combined with sterile water and Phosphate Buffered Saline (PBS) solution and vortexed for 5 minutes to dislodge attached microbes. Next, individual plants were transfered to 1.5 ml tubes containing 1% bleach solution and gently inverted for 1 minute. Plants were serially rinsed and transferred three times through sterile 0.5x <span class="co">[</span><span class="ot">Schenk and Hildebrandt (SH)</span><span class="co">](https://www.sigmaaldrich.com/FI/en/product/sigma/s6765)</span> growth medium with the first rinse lasting 1 minute, and subsequent rinses lasting 5-10 minutes. After the final rinse, plants were added to 0.5x SH growth medium with 1% w/vol sucrose for rapid plant growth. After five days, plants were checked for growth. Plants with cloudy wells (indicating contamination) were discarded. Plants growing in clear wells were further checked for sterility by transferring them to SH medium with 1% w/vol sucrose and 0.1% w/vol yeast extract. The added carbon sources were intended to facilitate rapid heterotrophic microbial growth if microbes were present. After 6 further days of growth, single healthy plants were collected from wells lacking turbidity and used to start isogenic maintanence lines.</span>
+<span id="cb1-152"><a href="#cb1-152"></a></span>
+<span id="cb1-153"><a href="#cb1-153"></a>Plants that were cured of associated microbes had significantly improved growth in an environmental test chamber set at 23°C with a 16/8 hour light/dark cycle. Light conditions are between 125-128 μmol m-2 s-1 and are generated using 6500 K LED bulbs (1800 lumens). Specifically we use the <span class="co">[</span><span class="ot">OSRAM SubstiTUBE T8 EM 1200mm 1800lm 6500K G13</span><span class="co">](https://www.k-rauta.fi/tuote/led-valoputki-osram-substitube-t8-em-1200mm-1800lm-6500k-g13/4099854039188)</span>, which is designed to be dropped in place for fluorescent tubes (using the specially provided starter plug included). Every 6 months plants are tested for heterotrophic microbial contamination by transferring plants to 1% w/vol sucrose and 0.1% w/vol yeast extract in SH medium to encourage microbial growth. Additionally, plants are homogenized in a tissue grinder and plated on nutrient agar. No contaminating bacteria have been detected since sterilizing the plants in September 2024.</span>
+<span id="cb1-154"><a href="#cb1-154"></a></span>
+<span id="cb1-155"><a href="#cb1-155"></a><span class="fu">### Isolation of plant-associated heterotrophic bacteria</span></span>
+<span id="cb1-156"><a href="#cb1-156"></a></span>
+<span id="cb1-157"><a href="#cb1-157"></a>After returning plants to the lab, we washed plants with sterile water, PBS, and 0.1% triton x-100 to remove loosely associated bacteria. Then plants were next homogenized using the <span class="co">[</span><span class="ot">KIMBLE Biomasher II Tissue homogenizer</span><span class="co">](https://www.dwk.com/kimble-biomasher-ii-closed-system-tissue-grinder)</span> and the homogenate was diluted by factors of 10 to 1/1000 dilution. These dilutions from each plant were plated on different agar petri dishes containing 100 mg L-1 cycloheximide to prevent fungal growth and different growth media:</span>
+<span id="cb1-158"><a href="#cb1-158"></a></span>
+<span id="cb1-159"><a href="#cb1-159"></a><span class="ss">1. </span>0.01x Reasoner's 2A (R2A) agar and 1% v/v methanol</span>
+<span id="cb1-160"><a href="#cb1-160"></a><span class="ss">2. </span>0.01x tryptic soy agar (RSA) and 1% v/v methanol</span>
+<span id="cb1-161"><a href="#cb1-161"></a><span class="ss">3. </span>0.01x Yeast Mannitol Agar (YSA) and 1% v/v methanol</span>
+<span id="cb1-162"><a href="#cb1-162"></a></span>
+<span id="cb1-163"><a href="#cb1-163"></a>The plates were incubated at 30°C until visible colonies formed. After visible colonies were formed, 192 different colonies were picked and transfered to the liquid media they were isolated from in a 96 well plate. Colonies were selected so as to maximize morphological diversity (e.g., color, size, shape) of the isolates. The 96 well plates of putative single species isolates were grown overnight at 30C with shaking. After approximately 24 hours, glycerol was added to the plates (final concne 35% glycerol) and the plates were frozen at -80C for later use.</span>
+<span id="cb1-164"><a href="#cb1-164"></a></span>
+<span id="cb1-165"><a href="#cb1-165"></a><span class="fu">## Experimental measurements and data analysis</span></span>
+<span id="cb1-166"><a href="#cb1-166"></a></span>
+<span id="cb1-167"><a href="#cb1-167"></a><span class="fu">### Taxonomic characterization of plant-associated heterotrophic bacteria</span></span>
+<span id="cb1-168"><a href="#cb1-168"></a></span>
+<span id="cb1-169"><a href="#cb1-169"></a>The frozen, archived 96 well plates were thawed and grown overnight. Next 2 ul of sample was processed using the <span class="co">[</span><span class="ot">Cell2seq - 16S rRNA Microbial Identification Kit</span><span class="co">](https://microzone.co.uk/shop/kits/cell-2-seq/)</span> with universal primers (1492R + 27F) to amplify the 16S rRNA gene. PCR products were Sanger sequenced at Novogene, Inc resulting in a total of 171 reactions sequenced. To verify bacterial cultures were monoisolate, we inspected the Sanger chromatograms for mixed peaks and other disruptions and we imaged agar platings of each species to look for clearly different colony morphologies. In the vast majority of cases, each isolate was derived from a single strain.</span>
+<span id="cb1-170"><a href="#cb1-170"></a></span>
+<span id="cb1-171"><a href="#cb1-171"></a>Sanger sequencing chromatograms were processed using the <span class="in">`sangeranalyseR`</span> package in R v4.5.1 following default parameters resulting in 118 high quality 16S rRNA gene sequences. Genus level identification for these 118 sequences was performed using the <span class="co">[</span><span class="ot">IDTAXA algorithm</span><span class="co">](https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-018-0521-5)</span> from the <span class="co">[</span><span class="ot">`DECIPHER` v3.4.0</span><span class="co">](https://journal.r-project.org/articles/RJ-2024-022/RJ-2024-022.pdf)</span> R package. Putative species level assignments were made from best blastn hits to the NCBI 16S rRNA (Bacteria/Archaea) database. Clustering of the sequences at 99% sequence identity was performed using the <span class="co">[</span><span class="ot">`Clusterize` algorithm</span><span class="co">](http://doi.org/10.1038/s41467-024-47371-9)</span> from DECIPHER. Sequences were then aligned using <span class="co">[</span><span class="ot">`DECIPHER::AlignSeqs`</span><span class="co">](https://rnajournal.cshlp.org/content/26/5/531.long)</span> in  RNA space and maximum likelihood phylogeny was inferred using <span class="in">`DECIPER::Treeline.`</span></span>
+<span id="cb1-172"><a href="#cb1-172"></a></span>
+<span id="cb1-173"><a href="#cb1-173"></a><span class="fu">## Availability</span></span>
+<span id="cb1-174"><a href="#cb1-174"></a></span>
+<span id="cb1-175"><a href="#cb1-175"></a>Data and code in this GitHub repository (<span class="ot">&lt;https://github.com/slhogle/duckweedSynCom&gt;</span>) are provided under <span class="co">[</span><span class="ot">GNU AGPL3</span><span class="co">](https://www.gnu.org/licenses/agpl-3.0.html)</span>.</span>
+<span id="cb1-176"><a href="#cb1-176"></a>The rendered project site is available at <span class="ot">&lt;https://slhogle.github.io/duckweedSynCom/&gt;</span>, which has been produced using <span class="co">[</span><span class="ot">Quarto notebooks</span><span class="co">](https://quarto.org/)</span>.</span>
+<span id="cb1-177"><a href="#cb1-177"></a>The content on the rendered site is released under the <span class="co">[</span><span class="ot">CC BY 4.0.</span><span class="co">](https://creativecommons.org/licenses/by/4.0/)</span></span>
+<span id="cb1-178"><a href="#cb1-178"></a>This repository hosts all code and data for this project, including the code necessary to fully recreate the rendered webpage.</span>
+<span id="cb1-179"><a href="#cb1-179"></a></span>
+<span id="cb1-180"><a href="#cb1-180"></a>An archived release of the code is available from Zenodo: <span class="ot">&lt;https://zenodo.org/records/EVENTUAL_ZENODO_RECORD&gt;</span></span>
+<span id="cb1-181"><a href="#cb1-181"></a></span>
+<span id="cb1-182"><a href="#cb1-182"></a>Raw sequencing data used in the project is available from NCBI Bioproject <span class="co">[</span><span class="ot">PRJNA00000000</span><span class="co">]</span>(https://www.ncbi.nlm.nih</span>
+<span id="cb1-183"><a href="#cb1-183"></a></span>
+<span id="cb1-184"><a href="#cb1-184"></a><span class="fu">## Project organization</span></span>
+<span id="cb1-185"><a href="#cb1-185"></a></span>
+<span id="cb1-186"><a href="#cb1-186"></a>This repository follows a research-compendium layout:</span>
+<span id="cb1-187"><a href="#cb1-187"></a></span>
+<span id="cb1-188"><a href="#cb1-188"></a><span class="pp">|</span> Path <span class="pp">|</span> Contents <span class="pp">|</span></span>
+<span id="cb1-189"><a href="#cb1-189"></a><span class="pp">|------|----------|</span></span>
+<span id="cb1-190"><a href="#cb1-190"></a><span class="pp">|</span> <span class="in">`scripts/`</span> <span class="pp">|</span> Numbered analysis notebooks and scripts, one directory per analysis <span class="pp">|</span></span>
+<span id="cb1-191"><a href="#cb1-191"></a><span class="pp">|</span> <span class="in">`R/`</span> <span class="pp">|</span> Helper functions sourced by the scripts <span class="pp">|</span></span>
+<span id="cb1-192"><a href="#cb1-192"></a><span class="pp">|</span> <span class="in">`data/raw/`</span> <span class="pp">|</span> Immutable raw data, one directory per acquisition event. Never modified <span class="pp">|</span></span>
+<span id="cb1-193"><a href="#cb1-193"></a><span class="pp">|</span> <span class="in">`data/interim/`</span> <span class="pp">|</span> Intermediate objects produced along the way <span class="pp">|</span></span>
+<span id="cb1-194"><a href="#cb1-194"></a><span class="pp">|</span> <span class="in">`data/processed/`</span> <span class="pp">|</span> Analysis-ready outputs, named to match the <span class="in">`scripts/`</span> directory that produces them <span class="pp">|</span></span>
+<span id="cb1-195"><a href="#cb1-195"></a><span class="pp">|</span> <span class="in">`data/_notrack/`</span> <span class="pp">|</span> Inputs too large for version control. Not distributed with the repository <span class="pp">|</span></span>
+<span id="cb1-196"><a href="#cb1-196"></a><span class="pp">|</span> <span class="in">`output/figures/`</span>, <span class="in">`output/tables/`</span> <span class="pp">|</span> Finished figures and tables <span class="pp">|</span></span>
+<span id="cb1-197"><a href="#cb1-197"></a><span class="pp">|</span> <span class="in">`manuscript/`</span> <span class="pp">|</span> Manuscript drafts and associated material <span class="pp">|</span></span>
+<span id="cb1-198"><a href="#cb1-198"></a></span>
+<span id="cb1-199"><a href="#cb1-199"></a>Paths are resolved with <span class="co">[</span><span class="ot">`here`</span><span class="co">](https://here.r-lib.org/)</span>, anchored on the</span>
+<span id="cb1-200"><a href="#cb1-200"></a><span class="in">`.here`</span> file at the project root, so scripts run correctly regardless of the</span>
+<span id="cb1-201"><a href="#cb1-201"></a>working directory. Each script declares its <span class="in">`data_raw`</span> / <span class="in">`data_processed`</span></span>
+<span id="cb1-202"><a href="#cb1-202"></a>paths in a "Global variables" block at the top.</span>
+<span id="cb1-203"><a href="#cb1-203"></a></span>
+<span id="cb1-204"><a href="#cb1-204"></a>R code is formatted with <span class="co">[</span><span class="ot">air</span><span class="co">](https://posit-dev.github.io/air/)</span> (see</span>
+<span id="cb1-205"><a href="#cb1-205"></a><span class="in">`air.toml`</span>).</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

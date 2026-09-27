@@ -1,0 +1,2013 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Shane Hogle">
+<meta name="dcterms.date" content="2026-09-27">
+
+<title>Bayesian model of duckweed growth with and without bacteria – duckweedSynCom</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-0a6b7249c26820e032cb0bd839ff02b1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-f5f3cdedfeab4f70f0f5ec42e45ef763.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-653cdf8410ba41438f4bdd99f4a1f759.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-f5f3cdedfeab4f70f0f5ec42e45ef763.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">duckweedSynCom</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-sanger-sequencing" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Sanger sequencing</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-sanger-sequencing">    
+        <li>
+    <a class="dropdown-item" href="../../scripts/01_sanger_seq/01_trace_qc_assembly.html">
+ <span class="dropdown-text">01.A Trace QC + assembly</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-bacterial-taxonomy" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Bacterial taxonomy</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-bacterial-taxonomy">    
+        <li>
+    <a class="dropdown-item" href="../../scripts/02_bac_taxonomy/01_taxonomy_summary.html">
+ <span class="dropdown-text">02.A Taxonomy + phylogeny</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-duckweed-genotyping" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Duckweed genotyping</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-duckweed-genotyping">    
+        <li>
+    <a class="dropdown-item" href="../../scripts/03_duckweed_genotyping/01_read_format_sanger.html">
+ <span class="dropdown-text">03.A Sanger Duckweed genotype</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-coculture-frond-area" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Coculture frond area</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-coculture-frond-area">    
+        <li>
+    <a class="dropdown-item" href="../../scripts/04_lemna_bacteria_coculture_frondarea/01_read_frondarea.html">
+ <span class="dropdown-text">04.A Read + format frond area</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../scripts/04_lemna_bacteria_coculture_frondarea/02_growth_model.html">
+ <span class="dropdown-text">04.B Bayesian growth model</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools tools-wide">
+    <a href="https://bsky.app/profile/slhogle.bsky.social" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-bluesky"></i></a>
+    <a href="https://github.com/slhogle/duckweedSynCom" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../scripts/04_lemna_bacteria_coculture_frondarea/02_growth_model.html">04.B Bayesian growth model</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../scripts/04_lemna_bacteria_coculture_frondarea/01_read_frondarea.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">04.A Read + format frond area</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../scripts/04_lemna_bacteria_coculture_frondarea/02_growth_model.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">04.B Bayesian growth model</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#design-and-modeling-strategy" id="toc-design-and-modeling-strategy" class="nav-link active" data-scroll-target="#design-and-modeling-strategy"><span class="header-section-number">1</span> Design and modeling strategy</a>
+  <ul class="collapse">
+  <li><a href="#libraries" id="toc-libraries" class="nav-link" data-scroll-target="#libraries"><span class="header-section-number">1.1</span> Libraries</a></li>
+  <li><a href="#global-variables" id="toc-global-variables" class="nav-link" data-scroll-target="#global-variables"><span class="header-section-number">1.2</span> Global variables</a></li>
+  </ul></li>
+  <li><a href="#load-data" id="toc-load-data" class="nav-link" data-scroll-target="#load-data"><span class="header-section-number">2</span> Load data</a></li>
+  <li><a href="#exploratory-look" id="toc-exploratory-look" class="nav-link" data-scroll-target="#exploratory-look"><span class="header-section-number">3</span> Exploratory look</a></li>
+  <li><a href="#fit-model" id="toc-fit-model" class="nav-link" data-scroll-target="#fit-model"><span class="header-section-number">4</span> Fit model</a></li>
+  <li><a href="#diagnostics" id="toc-diagnostics" class="nav-link" data-scroll-target="#diagnostics"><span class="header-section-number">5</span> Diagnostics</a></li>
+  <li><a href="#estimated-growth-trajectories" id="toc-estimated-growth-trajectories" class="nav-link" data-scroll-target="#estimated-growth-trajectories"><span class="header-section-number">6</span> Estimated growth trajectories</a></li>
+  <li><a href="#marginal-effects-growth-deltas-relative-to-control" id="toc-marginal-effects-growth-deltas-relative-to-control" class="nav-link" data-scroll-target="#marginal-effects-growth-deltas-relative-to-control"><span class="header-section-number">7</span> Marginal effects: growth deltas relative to CONTROL</a></li>
+  <li><a href="#sensitivity-check-unbalanced-control-baseline" id="toc-sensitivity-check-unbalanced-control-baseline" class="nav-link" data-scroll-target="#sensitivity-check-unbalanced-control-baseline"><span class="header-section-number">8</span> Sensitivity check: unbalanced CONTROL baseline</a></li>
+  <li><a href="#write-results" id="toc-write-results" class="nav-link" data-scroll-target="#write-results"><span class="header-section-number">9</span> Write results</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Bayesian model of duckweed growth with and without bacteria</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Shane Hogle </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 27, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+<div>
+  <div class="abstract">
+    <div class="block-title">Abstract</div>
+    Fits a Bayesian multilevel model of <em>Lemna</em> frond area over the course of coculture with 42 individual bacterial strains (or <code>CONTROL</code>, no bacteria), then uses <code>marginaleffects</code> to estimate, for each strain, the difference-in-differences in growth relative to <code>CONTROL</code> - i.e.&nbsp;whether that strain significantly increases or decreases duckweed growth.
+  </div>
+</div>
+
+
+</header>
+
+
+<section id="design-and-modeling-strategy" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Design and modeling strategy</h1>
+<p>Frond area was measured longitudinally (day 0, 4, 8) for individual wells, 8 wells (biological replicates) per strain per plate, see <a href="../../scripts/04_lemna_bacteria_coculture_frondarea/01_read_frondarea.html">01_read_frondarea.qmd</a> for how the raw plate-reader exports were combined and cleaned. Two design features shape the model:</p>
+<ul>
+<li><strong>Repeated measures</strong>: the same physical well is imaged at all three timepoints, so observations within a well are correlated. We account for this with a well-level random intercept, <code>(1 | well_uid)</code>.</li>
+<li><strong>Strain and plate are almost completely confounded</strong>: with one exception (<code>CONTROL</code>, which spans several plates), every strain occupies exactly one physical plate. This means any plate-specific batch effect (e.g.&nbsp;a plate that got slightly more light) is inseparable from that strain’s estimated effect - there is no cross-plate replication to disentangle them. Therefore, we do not add a separate plate-level random effect (it would be almost entirely collinear with the strain fixed effect); this is worth keeping in mind when interpreting any single strain’s effect.</li>
+</ul>
+<p>Frond area is strictly positive and right-skewed (growth is a roughly multiplicative process), so we model it with a <code>lognormal()</code> family rather than treating raw area as Gaussian. <code>day</code> is treated as a 3-level factor (0/4/8) rather than a continuous slope, since we only have 3 timepoints and no reason to assume a linear (or any particular parametric) growth curve over that range.</p>
+<p>The fixed-effect structure is <code>day * strain</code>, with <code>CONTROL</code> set as the reference level for <code>strain</code> and day 0 as the reference level for <code>day</code>. Under this parameterization, the <code>day:strain</code> interaction coefficients directly represent, for each strain, how its growth trajectory deviates from <code>CONTROL</code>’s - i.e.&nbsp;exactly the “delta” quantity of interest. We use <code>marginaleffects</code> to compute these contrasts on the natural (response, cm²) scale with correctly propagated posterior uncertainty, rather than reading raw log-scale coefficients.</p>
+<section id="libraries" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="libraries"><span class="header-section-number">1.1</span> Libraries</h2>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">library</span>(fs)</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="fu">library</span>(brms)</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="fu">library</span>(cmdstanr)</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="fu">library</span>(marginaleffects)</span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="fu">library</span>(tidybayes)</span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="fu">library</span>(bayesplot)</span>
+<span id="cb1-9"><a href="#cb1-9"></a></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="fu">options</span>(<span class="at">mc.cores =</span> <span class="dv">4</span>, <span class="at">brms.backend =</span> <span class="st">"cmdstanr"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="global-variables" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="global-variables"><span class="header-section-number">1.2</span> Global variables</h2>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>data_processed <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="st">"data"</span>,</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="st">"processed"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="st">"04_lemna_bacteria_coculture_frondarea"</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>)</span>
+<span id="cb2-6"><a href="#cb2-6"></a>models_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  <span class="st">"data"</span>,</span>
+<span id="cb2-8"><a href="#cb2-8"></a>  <span class="st">"interim"</span>,</span>
+<span id="cb2-9"><a href="#cb2-9"></a>  <span class="st">"04_lemna_bacteria_coculture_frondarea"</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>)</span>
+<span id="cb2-11"><a href="#cb2-11"></a></span>
+<span id="cb2-12"><a href="#cb2-12"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(models_dir)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+</section>
+<section id="load-data" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Load data</h1>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>frondarea <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">path</span>(data_processed, <span class="st">"frondarea.rds"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-3"><a href="#cb3-3"></a>    <span class="at">day =</span> <span class="fu">factor</span>(day, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">4</span>, <span class="dv">8</span>)),</span>
+<span id="cb3-4"><a href="#cb3-4"></a>    <span class="at">strain =</span> <span class="fu">fct_relevel</span>(strain, <span class="st">"CONTROL"</span>)</span>
+<span id="cb3-5"><a href="#cb3-5"></a>  )</span>
+<span id="cb3-6"><a href="#cb3-6"></a></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="fu">glimpse</span>(frondarea)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 1,125
+Columns: 20
+$ day              &lt;fct&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ plate_uid        &lt;chr&gt; "HA_36_HA40_HA44", "HA_36_HA40_HA44", "HA_36_HA40_HA4…
+$ well_uid         &lt;chr&gt; "HA_36_HA40_HA44_A1", "HA_36_HA40_HA44_A2", "HA_36_HA…
+$ well_id          &lt;chr&gt; "A1", "A2", "A3", "A4", "A5", "A6", "B1", "B2", "B3",…
+$ plate_id         &lt;chr&gt; "A1", "A1", "A1", "A1", "A1", "A1", "A1", "A1", "A1",…
+$ plate_name       &lt;chr&gt; "HA_36_HA40_HA44", "HA_36_HA40_HA44", "HA_36_HA40_HA4…
+$ strain           &lt;fct&gt; HA36, HA36, HA40, HA40, HA44, HA44, HA36, HA36, HA40,…
+$ sample           &lt;chr&gt; "HA36", "HA36", "HA40", "HA40", "HA44", "HA44", "HA36…
+$ replicate        &lt;dbl&gt; 1, 5, 1, 5, 1, 5, 2, 6, 2, 6, 2, 6, 3, 7, 3, 7, 3, 7,…
+$ is_control       &lt;lgl&gt; FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALS…
+$ area             &lt;dbl&gt; 7.63, 6.80, 7.08, 6.24, 7.23, 3.80, 6.38, 7.62, 8.45,…
+$ count            &lt;dbl&gt; 2, 1, 1, 2, 1, 2, 2, 2, 2, 1, 1, 2, 1, 2, 1, 2, 1, 1,…
+$ color_blue       &lt;dbl&gt; 44.0, 39.0, 52.0, 25.0, 50.0, 35.5, 31.5, 35.5, 52.0,…
+$ color_green      &lt;dbl&gt; 135.0, 139.0, 141.0, 133.0, 140.0, 138.0, 136.5, 138.…
+$ color_hue        &lt;dbl&gt; 53.68, 51.99, 51.01, 51.78, 51.65, 50.78, 51.62, 52.1…
+$ color_red        &lt;dbl&gt; 121.5, 126.0, 131.0, 116.0, 129.0, 125.0, 120.0, 122.…
+$ color_saturation &lt;dbl&gt; 170.51, 181.65, 158.65, 204.94, 160.84, 187.10, 195.2…
+$ color_value      &lt;dbl&gt; 134.85, 138.79, 141.16, 132.88, 139.73, 138.45, 136.6…
+$ date             &lt;chr&gt; "2026-06-03T12:17:28.796Z", "2026-06-03T12:16:38.213Z…
+$ source_file      &lt;chr&gt; "DW_plates_1-10_0d.xlsx", "DW_plates_1-10_0d.xlsx", "…</code></pre>
+</div>
+</div>
+</section>
+<section id="exploratory-look" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Exploratory look</h1>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>frondarea <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> day, <span class="at">y =</span> area, <span class="at">group =</span> well_uid, <span class="at">color =</span> is_control)) <span class="sc">+</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">0.8</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>strain) <span class="sc">+</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb5-7"><a href="#cb5-7"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">TRUE</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"firebrick"</span>, <span class="st">`</span><span class="at">FALSE</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"grey40"</span>),</span>
+<span id="cb5-8"><a href="#cb5-8"></a>    <span class="at">guide =</span> <span class="st">"none"</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>  <span class="fu">labs</span>(</span>
+<span id="cb5-11"><a href="#cb5-11"></a>    <span class="at">x =</span> <span class="st">"Day"</span>,</span>
+<span id="cb5-12"><a href="#cb5-12"></a>    <span class="at">y =</span> <span class="fu">expression</span>(<span class="st">"Frond area ("</span> <span class="sc">*</span> cm<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="st">")"</span>),</span>
+<span id="cb5-13"><a href="#cb5-13"></a>    <span class="at">title =</span> <span class="st">"Per-well frond area trajectories by strain"</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-15"><a href="#cb5-15"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">9</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-frondarea-trajectories" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-frondarea-trajectories-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="02_growth_model_files/figure-html/fig-frondarea-trajectories-1.svg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-frondarea-trajectories-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Per-well frond area trajectories by strain across the three imaging timepoints (day 0, 4, 8), prior to model fitting. CONTROL wells (no bacteria) are highlighted in red.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="fit-model" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Fit model</h1>
+<p>Priors are weakly informative on the log scale: <code>normal(0, 1)</code> on all fixed-effect coefficients (day, strain, and their interaction) allows roughly up to e-fold differences within one prior SD, which keeps estimates regularized given 42 strains are each informed by only 8 wells; <code>exponential(1)</code> on the well-level random-effect SD. Default <code>brms</code> priors are used for the intercept and residual SD (<code>sigma</code>), which are already sensible weakly-informative choices for this scale.</p>
+<p>The fitted model is cached to disk via <code>brm(..., file = ...)</code>. On subsequent renders, <code>brms</code> will simply reload the cached fit instead of resampling, and only refit if the formula, data, priors, or family change (<code>file_refit = "on_change"</code>).</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>priors <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb6-2"><a href="#cb6-2"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">class =</span> <span class="st">"b"</span>),</span>
+<span id="cb6-3"><a href="#cb6-3"></a>  <span class="fu">prior</span>(<span class="fu">exponential</span>(<span class="dv">1</span>), <span class="at">class =</span> <span class="st">"sd"</span>)</span>
+<span id="cb6-4"><a href="#cb6-4"></a>)</span>
+<span id="cb6-5"><a href="#cb6-5"></a></span>
+<span id="cb6-6"><a href="#cb6-6"></a>fit_growth <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb6-7"><a href="#cb6-7"></a>  area <span class="sc">~</span> day <span class="sc">*</span> strain <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> well_uid),</span>
+<span id="cb6-8"><a href="#cb6-8"></a>  <span class="at">data =</span> frondarea,</span>
+<span id="cb6-9"><a href="#cb6-9"></a>  <span class="at">family =</span> <span class="fu">lognormal</span>(),</span>
+<span id="cb6-10"><a href="#cb6-10"></a>  <span class="at">prior =</span> priors,</span>
+<span id="cb6-11"><a href="#cb6-11"></a>  <span class="at">sample_prior =</span> <span class="st">"yes"</span>,</span>
+<span id="cb6-12"><a href="#cb6-12"></a>  <span class="at">chains =</span> <span class="dv">4</span>,</span>
+<span id="cb6-13"><a href="#cb6-13"></a>  <span class="at">cores =</span> <span class="dv">4</span>,</span>
+<span id="cb6-14"><a href="#cb6-14"></a>  <span class="at">iter =</span> <span class="dv">4000</span>,</span>
+<span id="cb6-15"><a href="#cb6-15"></a>  <span class="at">warmup =</span> <span class="dv">1000</span>,</span>
+<span id="cb6-16"><a href="#cb6-16"></a>  <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> <span class="fl">0.95</span>, <span class="at">max_treedepth =</span> <span class="dv">12</span>),</span>
+<span id="cb6-17"><a href="#cb6-17"></a>  <span class="at">seed =</span> <span class="dv">123</span>,</span>
+<span id="cb6-18"><a href="#cb6-18"></a>  <span class="at">backend =</span> <span class="st">"cmdstanr"</span>,</span>
+<span id="cb6-19"><a href="#cb6-19"></a>  <span class="at">file =</span> <span class="fu">path</span>(models_dir, <span class="st">"fit_growth"</span>),</span>
+<span id="cb6-20"><a href="#cb6-20"></a>  <span class="at">file_refit =</span> <span class="st">"on_change"</span></span>
+<span id="cb6-21"><a href="#cb6-21"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>When <code>brms</code> reloads a cached fit, the training data can’t always be recovered reliably from the environment, which <code>marginaleffects</code> warns about. We attach it explicitly so all downstream contrasts use exactly the data the model was fit to.</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>fit_growth <span class="ot">&lt;-</span> <span class="fu">set_modeldata</span>(fit_growth, frondarea)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="diagnostics" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Diagnostics</h1>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">summary</span>(fit_growth)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code> Family: lognormal 
+  Links: mu = identity 
+Formula: area ~ day * strain + (1 | well_uid) 
+   Data: frondarea (Number of observations: 1125) 
+  Draws: 4 chains, each with iter = 4000; warmup = 1000; thin = 1;
+         total post-warmup draws = 12000
+
+Multilevel Hyperparameters:
+~well_uid (Number of levels: 408) 
+              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sd(Intercept)     0.24      0.01     0.22     0.26 1.00     3613     5656
+
+Regression Coefficients:
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept            1.80      0.04     1.73     1.87 1.00     2338     4107
+day4                 0.72      0.05     0.62     0.82 1.00     1215     2540
+day8                 1.19      0.05     1.09     1.29 1.00     1158     2723
+strainHA01          -0.12      0.11    -0.34     0.11 1.00     4137     6024
+strainHA02          -0.01      0.11    -0.24     0.21 1.00     3885     5883
+strainHA03          -0.02      0.11    -0.24     0.20 1.00     3463     5415
+strainHA06           0.03      0.11    -0.19     0.26 1.00     3857     5809
+strainHA08          -0.08      0.12    -0.31     0.15 1.00     3596     5997
+strainHA10          -0.12      0.12    -0.34     0.12 1.00     4209     6178
+strainHA12          -0.14      0.11    -0.36     0.08 1.00     4067     6059
+strainHA14          -0.02      0.12    -0.24     0.21 1.00     3872     6126
+strainHA16          -0.19      0.12    -0.43     0.03 1.00     3674     5852
+strainHA17          -0.07      0.11    -0.29     0.15 1.00     3944     6271
+strainHA18           0.01      0.11    -0.22     0.23 1.00     4085     5725
+strainHA21A         -0.00      0.12    -0.23     0.22 1.00     4038     6192
+strainHA21B          0.10      0.12    -0.12     0.33 1.00     3741     6013
+strainHA27           0.00      0.11    -0.22     0.23 1.00     3661     5676
+strainHA32           0.19      0.11    -0.03     0.41 1.00     3928     6240
+strainHA36           0.14      0.12    -0.09     0.36 1.00     4139     6278
+strainHA40           0.01      0.11    -0.21     0.23 1.00     3927     6269
+strainHA44          -0.03      0.11    -0.26     0.19 1.00     4240     5996
+strainHA46           0.06      0.11    -0.16     0.29 1.00     3747     5725
+strainHA48           0.30      0.11     0.08     0.53 1.00     3949     5909
+strainHA59           0.06      0.12    -0.17     0.29 1.00     3904     6139
+strainHA61           0.28      0.11     0.06     0.50 1.00     3817     5360
+strainHA64           0.17      0.12    -0.06     0.39 1.00     4046     6756
+strainHA69A          0.24      0.11     0.02     0.46 1.00     3756     6569
+strainHA82           0.12      0.11    -0.10     0.34 1.00     3858     6404
+strainSJ02           0.05      0.11    -0.18     0.27 1.00     3979     6223
+strainSJ07           0.18      0.11    -0.05     0.40 1.00     4002     5963
+strainSJ08           0.04      0.12    -0.19     0.26 1.00     3881     5896
+strainSJ09           0.11      0.12    -0.11     0.34 1.00     3877     5381
+strainSJ14           0.13      0.11    -0.09     0.36 1.00     3670     5483
+strainSJ17           0.14      0.11    -0.08     0.37 1.00     3561     6201
+strainTL01           0.08      0.11    -0.15     0.30 1.00     4002     6125
+strainTL02           0.08      0.12    -0.15     0.31 1.00     3663     5316
+strainTL03           0.18      0.11    -0.05     0.40 1.00     3236     5662
+strainTL05           0.16      0.11    -0.06     0.39 1.00     3986     6387
+strainTL06           0.06      0.11    -0.16     0.28 1.00     3455     5475
+strainTL09           0.15      0.12    -0.08     0.37 1.00     3968     6043
+strainTL23           0.06      0.11    -0.16     0.28 1.00     3408     5409
+strainTL29           0.10      0.12    -0.12     0.33 1.00     3663     5741
+strainTL34           0.09      0.11    -0.14     0.32 1.00     4058     6275
+strainTL58          -0.20      0.12    -0.42     0.04 1.00     3568     5903
+strainTL64          -0.18      0.12    -0.41     0.05 1.00     3629     4555
+day4:strainHA01     -0.63      0.11    -0.85    -0.42 1.00     4466     6982
+day8:strainHA01     -1.00      0.11    -1.22    -0.79 1.00     4048     7573
+day4:strainHA02     -0.64      0.11    -0.85    -0.42 1.00     4537     7252
+day8:strainHA02     -0.99      0.11    -1.21    -0.78 1.00     3990     7125
+day4:strainHA03     -0.61      0.11    -0.83    -0.39 1.00     4299     7917
+day8:strainHA03     -0.98      0.11    -1.20    -0.76 1.00     3923     6096
+day4:strainHA06     -0.29      0.11    -0.51    -0.07 1.00     3953     7126
+day8:strainHA06     -0.07      0.11    -0.29     0.15 1.00     3898     6919
+day4:strainHA08     -0.52      0.11    -0.73    -0.30 1.00     4408     7475
+day8:strainHA08     -0.60      0.11    -0.81    -0.38 1.00     4160     6934
+day4:strainHA10     -0.65      0.12    -0.88    -0.41 1.00     3786     7617
+day8:strainHA10     -0.87      0.11    -1.10    -0.65 1.00     3892     7045
+day4:strainHA12     -0.13      0.11    -0.34     0.09 1.00     4701     6871
+day8:strainHA12     -0.20      0.11    -0.41     0.02 1.00     4017     6967
+day4:strainHA14     -0.17      0.11    -0.39     0.04 1.00     3767     8121
+day8:strainHA14     -0.12      0.11    -0.33     0.10 1.00     4013     7068
+day4:strainHA16      0.18      0.11    -0.04     0.40 1.00     3893     6072
+day8:strainHA16      0.36      0.11     0.15     0.58 1.00     4376     7796
+day4:strainHA17     -0.57      0.11    -0.78    -0.36 1.00     3595     6647
+day8:strainHA17     -0.64      0.11    -0.85    -0.42 1.00     3809     7397
+day4:strainHA18     -0.55      0.11    -0.77    -0.33 1.00     4454     7264
+day8:strainHA18     -0.79      0.11    -1.00    -0.57 1.00     4252     7648
+day4:strainHA21A    -0.46      0.11    -0.68    -0.24 1.00     3590     7326
+day8:strainHA21A    -0.64      0.11    -0.85    -0.42 1.00     3778     7349
+day4:strainHA21B    -0.12      0.11    -0.34     0.10 1.00     4017     6688
+day8:strainHA21B    -0.25      0.11    -0.47    -0.04 1.00     3966     7172
+day4:strainHA27      0.00      0.11    -0.21     0.22 1.00     3317     6979
+day8:strainHA27      0.07      0.11    -0.15     0.28 1.00     3859     6741
+day4:strainHA32     -0.33      0.11    -0.54    -0.11 1.00     4495     7870
+day8:strainHA32     -0.53      0.11    -0.75    -0.32 1.00     4044     7104
+day4:strainHA36      0.09      0.11    -0.13     0.31 1.00     4032     6755
+day8:strainHA36      0.05      0.11    -0.16     0.27 1.00     3475     6231
+day4:strainHA40     -0.06      0.11    -0.28     0.15 1.00     3877     7784
+day8:strainHA40     -0.14      0.11    -0.35     0.08 1.00     4090     7086
+day4:strainHA44     -0.58      0.11    -0.80    -0.36 1.00     4443     7238
+day8:strainHA44     -1.03      0.11    -1.25    -0.82 1.00     4077     7147
+day4:strainHA46      0.19      0.11    -0.03     0.41 1.00     4329     6607
+day8:strainHA46      0.23      0.11     0.01     0.44 1.00     4081     7132
+day4:strainHA48     -0.12      0.11    -0.33     0.10 1.00     3823     7151
+day8:strainHA48     -0.21      0.11    -0.43     0.01 1.00     3815     7153
+day4:strainHA59      0.01      0.11    -0.21     0.22 1.00     3976     7221
+day8:strainHA59     -0.07      0.11    -0.29     0.14 1.00     3974     6880
+day4:strainHA61     -0.03      0.11    -0.24     0.19 1.00     4072     6721
+day8:strainHA61     -0.26      0.11    -0.47    -0.04 1.00     3717     6790
+day4:strainHA64     -0.24      0.11    -0.46    -0.01 1.00     4178     8021
+day8:strainHA64     -0.42      0.12    -0.66    -0.20 1.00     3830     6581
+day4:strainHA69A    -0.10      0.11    -0.32     0.12 1.00     4403     6493
+day8:strainHA69A    -0.19      0.11    -0.41     0.03 1.00     3844     6319
+day4:strainHA82     -0.41      0.11    -0.62    -0.19 1.00     3924     7315
+day8:strainHA82     -0.18      0.11    -0.39     0.04 1.00     4405     7528
+day4:strainSJ02     -0.28      0.11    -0.49    -0.06 1.00     4237     6280
+day8:strainSJ02     -0.08      0.11    -0.29     0.14 1.00     3806     6180
+day4:strainSJ07     -0.07      0.11    -0.28     0.15 1.00     4053     7070
+day8:strainSJ07      0.34      0.11     0.13     0.56 1.00     3887     7358
+day4:strainSJ08     -0.12      0.11    -0.34     0.11 1.00     3741     6687
+day8:strainSJ08     -0.22      0.11    -0.44     0.00 1.00     3972     7385
+day4:strainSJ09     -0.02      0.11    -0.23     0.20 1.00     4778     7255
+day8:strainSJ09      0.34      0.11     0.13     0.55 1.00     4630     7445
+day4:strainSJ14     -0.02      0.11    -0.24     0.20 1.00     3376     6983
+day8:strainSJ14      0.01      0.11    -0.20     0.23 1.00     3660     6812
+day4:strainSJ17     -0.13      0.11    -0.34     0.09 1.00     3953     6357
+day8:strainSJ17     -0.02      0.11    -0.23     0.21 1.00     4119     7363
+day4:strainTL01     -0.51      0.11    -0.73    -0.29 1.00     4247     7353
+day8:strainTL01     -0.66      0.11    -0.87    -0.45 1.00     4146     7783
+day4:strainTL02     -0.32      0.11    -0.54    -0.11 1.00     3733     7387
+day8:strainTL02     -0.41      0.11    -0.63    -0.20 1.00     3935     6397
+day4:strainTL03     -0.38      0.11    -0.60    -0.16 1.00     3642     7135
+day8:strainTL03     -0.46      0.11    -0.69    -0.24 1.00     4121     6721
+day4:strainTL05     -0.02      0.11    -0.23     0.20 1.00     4186     7269
+day8:strainTL05     -0.10      0.11    -0.31     0.12 1.00     4413     7421
+day4:strainTL06     -0.15      0.11    -0.36     0.07 1.00     4109     5995
+day8:strainTL06     -0.33      0.11    -0.55    -0.11 1.00     3863     7714
+day4:strainTL09     -0.34      0.11    -0.56    -0.12 1.00     3976     7096
+day8:strainTL09     -0.52      0.11    -0.73    -0.30 1.00     3956     7031
+day4:strainTL23     -0.00      0.11    -0.21     0.21 1.00     4613     6999
+day8:strainTL23     -0.22      0.11    -0.44    -0.01 1.00     3973     6611
+day4:strainTL29     -0.10      0.11    -0.32     0.11 1.00     3588     6559
+day8:strainTL29     -0.33      0.11    -0.56    -0.12 1.00     3726     7226
+day4:strainTL34      0.01      0.11    -0.21     0.23 1.00     4341     6654
+day8:strainTL34     -0.19      0.11    -0.41     0.02 1.00     4334     8033
+day4:strainTL58      0.60      0.11     0.39     0.82 1.00     3866     7345
+day8:strainTL58      1.05      0.11     0.83     1.27 1.00     3967     6808
+day4:strainTL64      0.40      0.11     0.19     0.62 1.00     4483     7155
+day8:strainTL64      0.89      0.11     0.67     1.11 1.00     4540     8008
+
+Further Distributional Parameters:
+      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sigma     0.20      0.01     0.19     0.21 1.00     6047     8123
+
+Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+</div>
+</div>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>rhat_range <span class="ot">&lt;-</span> <span class="fu">range</span>(brms<span class="sc">::</span><span class="fu">rhat</span>(fit_growth), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-2"><a href="#cb10-2"></a>ess_bulk_min <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="fu">summary</span>(fit_growth)<span class="sc">$</span>fixed<span class="sc">$</span>Bulk_ESS, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="fu">cat</span>(<span class="st">"Rhat range:"</span>, rhat_range, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rhat range: 0.9997847 1.002927 </code></pre>
+</div>
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="fu">cat</span>(<span class="st">"Minimum Bulk_ESS among fixed effects:"</span>, ess_bulk_min, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Minimum Bulk_ESS among fixed effects: 1157.924 </code></pre>
+</div>
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="fu">stopifnot</span>(<span class="st">"Rhat too high - check convergence"</span> <span class="ot">=</span> rhat_range[<span class="dv">2</span>] <span class="sc">&lt;</span> <span class="fl">1.01</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="fu">pp_check</span>(fit_growth, <span class="at">ndraws =</span> <span class="dv">100</span>) <span class="sc">+</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Posterior predictive check: overall"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-ppcheck-overall" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ppcheck-overall-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="02_growth_model_files/figure-html/fig-ppcheck-overall-1.svg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ppcheck-overall-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Posterior predictive check: distribution of observed frond area (dark line) against 100 draws from the fitted model’s posterior predictive distribution (light lines), pooled across all strains and days.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">pp_check</span>(fit_growth, <span class="at">type =</span> <span class="st">"stat_grouped"</span>, <span class="at">group =</span> <span class="st">"day"</span>, <span class="at">stat =</span> <span class="st">"median"</span>) <span class="sc">+</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Posterior predictive check: mean area by day"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-ppcheck-by-day" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ppcheck-by-day-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="02_growth_model_files/figure-html/fig-ppcheck-by-day-1.svg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ppcheck-by-day-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Posterior predictive check: median frond area by day, observed (dark) vs.&nbsp;posterior predictive draws (light), grouped by timepoint.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="estimated-growth-trajectories" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Estimated growth trajectories</h1>
+<p>Population-level (<code>re_formula = NA</code>, i.e.&nbsp;marginalizing over well-level random effects) predicted mean frond area by strain and day.</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>pred_trajectories <span class="ot">&lt;-</span> <span class="fu">avg_predictions</span>(</span>
+<span id="cb17-2"><a href="#cb17-2"></a>  fit_growth,</span>
+<span id="cb17-3"><a href="#cb17-3"></a>  <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"strain"</span>, <span class="st">"day"</span>),</span>
+<span id="cb17-4"><a href="#cb17-4"></a>  <span class="at">re_formula =</span> <span class="cn">NA</span>,</span>
+<span id="cb17-5"><a href="#cb17-5"></a>  <span class="at">type =</span> <span class="st">"response"</span></span>
+<span id="cb17-6"><a href="#cb17-6"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb17-7"><a href="#cb17-7"></a>  <span class="fu">as_tibble</span>()</span>
+<span id="cb17-8"><a href="#cb17-8"></a></span>
+<span id="cb17-9"><a href="#cb17-9"></a>pred_trajectories</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["strain"],"name":[1],"type":["fct"],"align":["left"]},{"label":["day"],"name":[2],"type":["fct"],"align":["left"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"CONTROL","2":"0","3":"6.189343","4":"5.781344","5":"6.630534","6":"Inf"},{"1":"CONTROL","2":"4","3":"12.750083","4":"11.454052","5":"14.149870","6":"Inf"},{"1":"CONTROL","2":"8","3":"20.309614","4":"18.253948","5":"22.587524","6":"Inf"},{"1":"HA01","2":"0","3":"5.516681","4":"4.446483","5":"6.833686","6":"Inf"},{"1":"HA01","2":"4","3":"6.047300","4":"4.867356","5":"7.505670","6":"Inf"},{"1":"HA01","2":"8","3":"6.644923","4":"5.353119","5":"8.243316","6":"Inf"},{"1":"HA02","2":"0","3":"6.108678","4":"4.918862","5":"7.548216","6":"Inf"},{"1":"HA02","2":"4","3":"6.654144","4":"5.323069","5":"8.249441","6":"Inf"},{"1":"HA02","2":"8","3":"7.410029","4":"5.941427","5":"9.211550","6":"Inf"},{"1":"HA03","2":"0","3":"6.096872","4":"4.944573","5":"7.504571","6":"Inf"},{"1":"HA03","2":"4","3":"6.803827","4":"5.504086","5":"8.409964","6":"Inf"},{"1":"HA03","2":"8","3":"7.511433","4":"6.072100","5":"9.276519","6":"Inf"},{"1":"HA06","2":"0","3":"6.399908","4":"5.191855","5":"7.945825","6":"Inf"},{"1":"HA06","2":"4","3":"9.889830","4":"7.934714","5":"12.203146","6":"Inf"},{"1":"HA06","2":"8","3":"19.575113","4":"15.748804","5":"24.249288","6":"Inf"},{"1":"HA08","2":"0","3":"5.693813","4":"4.573073","5":"7.086527","6":"Inf"},{"1":"HA08","2":"4","3":"6.986246","4":"5.622656","5":"8.718442","6":"Inf"},{"1":"HA08","2":"8","3":"10.291428","4":"8.313285","5":"12.793127","6":"Inf"},{"1":"HA10","2":"0","3":"5.504720","4":"4.420643","5":"6.879092","6":"Inf"},{"1":"HA10","2":"4","3":"5.957925","4":"4.778147","5":"7.441006","6":"Inf"},{"1":"HA10","2":"8","3":"7.567091","4":"6.108341","5":"9.312818","6":"Inf"},{"1":"HA12","2":"0","3":"5.379401","4":"4.374663","5":"6.644639","6":"Inf"},{"1":"HA12","2":"4","3":"9.766685","4":"7.914176","5":"12.142544","6":"Inf"},{"1":"HA12","2":"8","3":"14.524571","4":"11.672458","5":"18.002192","6":"Inf"},{"1":"HA14","2":"0","3":"6.080668","4":"4.898485","5":"7.552065","6":"Inf"},{"1":"HA14","2":"4","3":"10.508890","4":"8.497859","5":"12.992393","6":"Inf"},{"1":"HA14","2":"8","3":"17.769408","4":"14.317109","5":"21.939895","6":"Inf"},{"1":"HA16","2":"0","3":"5.106461","4":"4.081277","5":"6.304967","6":"Inf"},{"1":"HA16","2":"4","3":"12.596144","4":"10.142986","5":"15.677658","6":"Inf"},{"1":"HA16","2":"8","3":"24.079654","4":"19.395435","5":"29.880625","6":"Inf"},{"1":"HA17","2":"0","3":"5.745024","4":"4.648039","5":"7.115468","6":"Inf"},{"1":"HA17","2":"4","3":"6.671473","4":"5.401722","5":"8.227072","6":"Inf"},{"1":"HA17","2":"8","3":"9.985363","4":"8.068307","5":"12.340692","6":"Inf"},{"1":"HA18","2":"0","3":"6.227076","4":"5.041718","5":"7.723725","6":"Inf"},{"1":"HA18","2":"4","3":"7.410674","4":"5.985799","5":"9.187719","6":"Inf"},{"1":"HA18","2":"8","3":"9.308112","4":"7.498428","5":"11.512341","6":"Inf"},{"1":"HA21A","2":"0","3":"6.175560","4":"4.972662","5":"7.633602","6":"Inf"},{"1":"HA21A","2":"4","3":"8.005699","4":"6.436589","5":"9.939972","6":"Inf"},{"1":"HA21A","2":"8","3":"10.700686","4":"8.605546","5":"13.268494","6":"Inf"},{"1":"HA21B","2":"0","3":"6.807603","4":"5.514825","5":"8.469983","6":"Inf"},{"1":"HA21B","2":"4","3":"12.400467","4":"10.019953","5":"15.363916","6":"Inf"},{"1":"HA21B","2":"8","3":"17.359630","4":"14.010411","5":"21.569751","6":"Inf"},{"1":"HA27","2":"0","3":"6.209444","4":"5.052399","5":"7.721438","6":"Inf"},{"1":"HA27","2":"4","3":"12.866372","4":"10.371049","5":"15.917729","6":"Inf"},{"1":"HA27","2":"8","3":"21.862740","4":"17.646628","5":"27.128569","6":"Inf"},{"1":"HA32","2":"0","3":"7.470686","4":"6.042675","5":"9.228068","6":"Inf"},{"1":"HA32","2":"4","3":"11.073481","4":"8.930415","5":"13.778138","6":"Inf"},{"1":"HA32","2":"8","3":"14.414671","4":"11.630057","5":"17.899855","6":"Inf"},{"1":"HA36","2":"0","3":"7.103463","4":"5.715518","5":"8.796447","6":"Inf"},{"1":"HA36","2":"4","3":"16.030076","4":"12.902442","5":"19.862028","6":"Inf"},{"1":"HA36","2":"8","3":"24.585028","4":"19.857232","5":"30.575596","6":"Inf"},{"1":"HA40","2":"0","3":"6.231768","4":"5.046327","5":"7.700876","6":"Inf"},{"1":"HA40","2":"4","3":"12.035876","4":"9.762839","5":"14.912354","6":"Inf"},{"1":"HA40","2":"8","3":"17.856041","4":"14.453376","5":"22.117287","6":"Inf"},{"1":"HA44","2":"0","3":"5.993624","4":"4.829933","5":"7.447387","6":"Inf"},{"1":"HA44","2":"4","3":"6.919827","4":"5.582265","5":"8.588954","6":"Inf"},{"1":"HA44","2":"8","3":"7.025461","4":"5.676575","5":"8.690189","6":"Inf"},{"1":"HA46","2":"0","3":"6.600585","4":"5.329524","5":"8.176115","6":"Inf"},{"1":"HA46","2":"4","3":"16.363609","4":"13.241908","5":"20.270155","6":"Inf"},{"1":"HA46","2":"8","3":"27.235944","4":"22.079586","5":"33.582283","6":"Inf"},{"1":"HA48","2":"0","3":"8.371200","4":"6.735795","5":"10.375456","6":"Inf"},{"1":"HA48","2":"4","3":"15.261001","4":"12.328960","5":"18.913639","6":"Inf"},{"1":"HA48","2":"8","3":"22.235336","4":"17.952803","5":"27.493350","6":"Inf"},{"1":"HA59","2":"0","3":"6.573115","4":"5.323692","5":"8.140040","6":"Inf"},{"1":"HA59","2":"4","3":"13.653841","4":"10.984301","5":"16.936089","6":"Inf"},{"1":"HA59","2":"8","3":"20.031884","4":"16.154358","5":"24.927326","6":"Inf"},{"1":"HA61","2":"0","3":"8.221173","4":"6.651350","5":"10.114669","6":"Inf"},{"1":"HA61","2":"4","3":"16.422732","4":"13.250396","5":"20.324928","6":"Inf"},{"1":"HA61","2":"8","3":"20.855105","4":"16.819791","5":"25.828577","6":"Inf"},{"1":"HA64","2":"0","3":"7.306809","4":"5.870581","5":"9.093914","6":"Inf"},{"1":"HA64","2":"4","3":"11.863531","4":"9.551369","5":"14.654910","6":"Inf"},{"1":"HA64","2":"8","3":"15.674158","4":"12.623755","5":"19.447298","6":"Inf"},{"1":"HA69A","2":"0","3":"7.865401","4":"6.363704","5":"9.729139","6":"Inf"},{"1":"HA69A","2":"4","3":"14.614303","4":"11.799117","5":"18.165371","6":"Inf"},{"1":"HA69A","2":"8","3":"21.385021","4":"17.302278","5":"26.423752","6":"Inf"},{"1":"HA82","2":"0","3":"6.998088","4":"5.633826","5":"8.634076","6":"Inf"},{"1":"HA82","2":"4","3":"9.573216","4":"7.740462","5":"11.855987","6":"Inf"},{"1":"HA82","2":"8","3":"19.196947","4":"15.460155","5":"23.927375","6":"Inf"},{"1":"SJ02","2":"0","3":"6.470585","4":"5.244703","5":"8.039800","6":"Inf"},{"1":"SJ02","2":"4","3":"10.103658","4":"8.160312","5":"12.487181","6":"Inf"},{"1":"SJ02","2":"8","3":"19.699445","4":"15.906791","5":"24.448258","6":"Inf"},{"1":"SJ07","2":"0","3":"7.374642","4":"5.983707","5":"9.149021","6":"Inf"},{"1":"SJ07","2":"4","3":"14.214164","4":"11.480521","5":"17.574175","6":"Inf"},{"1":"SJ07","2":"8","3":"33.931373","4":"27.485400","5":"42.148189","6":"Inf"},{"1":"SJ08","2":"0","3":"6.423056","4":"5.182529","5":"7.989889","6":"Inf"},{"1":"SJ08","2":"4","3":"11.771733","4":"9.481656","5":"14.635057","6":"Inf"},{"1":"SJ08","2":"8","3":"16.926768","4":"13.705715","5":"21.169278","6":"Inf"},{"1":"SJ09","2":"0","3":"6.935017","4":"5.611837","5":"8.562533","6":"Inf"},{"1":"SJ09","2":"4","3":"14.032094","4":"11.302166","5":"17.468749","6":"Inf"},{"1":"SJ09","2":"8","3":"31.919903","4":"25.755763","5":"39.599761","6":"Inf"},{"1":"SJ14","2":"0","3":"7.067450","4":"5.723067","5":"8.758237","6":"Inf"},{"1":"SJ14","2":"4","3":"14.279184","4":"11.550953","5":"17.707455","6":"Inf"},{"1":"SJ14","2":"8","3":"23.449224","4":"18.906677","5":"29.159320","6":"Inf"},{"1":"SJ17","2":"0","3":"7.152977","4":"5.765283","5":"8.868769","6":"Inf"},{"1":"SJ17","2":"4","3":"12.986863","4":"10.470364","5":"16.036597","6":"Inf"},{"1":"SJ17","2":"8","3":"23.116809","4":"18.620677","5":"28.665968","6":"Inf"},{"1":"TL01","2":"0","3":"6.663264","4":"5.391079","5":"8.246965","6":"Inf"},{"1":"TL01","2":"4","3":"8.244853","4":"6.689944","5":"10.269386","6":"Inf"},{"1":"TL01","2":"8","3":"11.308859","4":"9.106290","5":"14.035471","6":"Inf"},{"1":"TL02","2":"0","3":"6.703865","4":"5.390293","5":"8.287402","6":"Inf"},{"1":"TL02","2":"4","3":"9.978842","4":"8.008823","5":"12.390963","6":"Inf"},{"1":"TL02","2":"8","3":"14.587384","4":"11.764419","5":"18.009051","6":"Inf"},{"1":"TL03","2":"0","3":"7.393714","4":"5.974847","5":"9.176969","6":"Inf"},{"1":"TL03","2":"4","3":"10.456990","4":"8.417819","5":"12.961529","6":"Inf"},{"1":"TL03","2":"8","3":"15.288513","4":"12.332912","5":"19.007534","6":"Inf"},{"1":"TL05","2":"0","3":"7.274311","4":"5.863438","5":"9.003274","6":"Inf"},{"1":"TL05","2":"4","3":"14.732794","4":"11.878218","5":"18.186442","6":"Inf"},{"1":"TL05","2":"8","3":"21.732205","4":"17.554161","5":"26.801870","6":"Inf"},{"1":"TL06","2":"0","3":"6.594517","4":"5.302979","5":"8.118307","6":"Inf"},{"1":"TL06","2":"4","3":"11.697718","4":"9.435136","5":"14.514357","6":"Inf"},{"1":"TL06","2":"8","3":"15.539559","4":"12.565487","5":"19.185229","6":"Inf"},{"1":"TL09","2":"0","3":"7.181597","4":"5.779167","5":"8.877392","6":"Inf"},{"1":"TL09","2":"4","3":"10.517807","4":"8.494107","5":"13.062409","6":"Inf"},{"1":"TL09","2":"8","3":"14.061343","4":"11.361239","5":"17.402894","6":"Inf"},{"1":"TL23","2":"0","3":"6.599376","4":"5.339462","5":"8.133335","6":"Inf"},{"1":"TL23","2":"4","3":"13.532461","4":"10.943044","5":"16.782697","6":"Inf"},{"1":"TL23","2":"8","3":"17.344927","4":"13.965241","5":"21.521056","6":"Inf"},{"1":"TL29","2":"0","3":"6.860179","4":"5.520026","5":"8.474638","6":"Inf"},{"1":"TL29","2":"4","3":"12.759270","4":"10.257360","5":"15.781312","6":"Inf"},{"1":"TL29","2":"8","3":"16.097141","4":"12.964893","5":"19.969701","6":"Inf"},{"1":"TL34","2":"0","3":"6.765479","4":"5.446312","5":"8.377345","6":"Inf"},{"1":"TL34","2":"4","3":"14.083421","4":"11.393212","5":"17.507896","6":"Inf"},{"1":"TL34","2":"8","3":"18.302336","4":"14.753049","5":"22.761223","6":"Inf"},{"1":"TL58","2":"0","3":"5.095185","4":"4.088999","5":"6.324600","6":"Inf"},{"1":"TL58","2":"4","3":"19.143939","4":"15.373526","5":"23.630690","6":"Inf"},{"1":"TL58","2":"8","3":"47.701105","4":"38.452155","5":"59.064728","6":"Inf"},{"1":"TL64","2":"0","3":"5.161943","4":"4.149189","5":"6.456281","6":"Inf"},{"1":"TL64","2":"4","3":"15.961434","4":"12.829112","5":"19.854666","6":"Inf"},{"1":"TL64","2":"8","3":"41.395832","4":"33.227891","5":"51.579461","6":"Inf"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>pred_trajectories <span class="sc">|&gt;</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a>  <span class="fu">mutate</span>(<span class="at">is_control =</span> strain <span class="sc">==</span> <span class="st">"CONTROL"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb18-3"><a href="#cb18-3"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> day, <span class="at">y =</span> estimate, <span class="at">group =</span> strain)) <span class="sc">+</span></span>
+<span id="cb18-4"><a href="#cb18-4"></a>  <span class="fu">geom_ribbon</span>(</span>
+<span id="cb18-5"><a href="#cb18-5"></a>    <span class="at">data =</span> \(x) <span class="fu">filter</span>(x, is_control),</span>
+<span id="cb18-6"><a href="#cb18-6"></a>    <span class="fu">aes</span>(<span class="at">ymin =</span> conf.low, <span class="at">ymax =</span> conf.high),</span>
+<span id="cb18-7"><a href="#cb18-7"></a>    <span class="at">fill =</span> <span class="st">"firebrick"</span>,</span>
+<span id="cb18-8"><a href="#cb18-8"></a>    <span class="at">alpha =</span> <span class="fl">0.15</span></span>
+<span id="cb18-9"><a href="#cb18-9"></a>  ) <span class="sc">+</span></span>
+<span id="cb18-10"><a href="#cb18-10"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">color =</span> is_control, <span class="at">linewidth =</span> is_control, <span class="at">group =</span> strain)) <span class="sc">+</span></span>
+<span id="cb18-11"><a href="#cb18-11"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb18-12"><a href="#cb18-12"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">TRUE</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"firebrick"</span>, <span class="st">`</span><span class="at">FALSE</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"grey50"</span>),</span>
+<span id="cb18-13"><a href="#cb18-13"></a>    <span class="at">guide =</span> <span class="st">"none"</span></span>
+<span id="cb18-14"><a href="#cb18-14"></a>  ) <span class="sc">+</span></span>
+<span id="cb18-15"><a href="#cb18-15"></a>  <span class="fu">scale_linewidth_manual</span>(</span>
+<span id="cb18-16"><a href="#cb18-16"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">TRUE</span><span class="st">`</span> <span class="ot">=</span> <span class="fl">1.2</span>, <span class="st">`</span><span class="at">FALSE</span><span class="st">`</span> <span class="ot">=</span> <span class="fl">0.5</span>),</span>
+<span id="cb18-17"><a href="#cb18-17"></a>    <span class="at">guide =</span> <span class="st">"none"</span></span>
+<span id="cb18-18"><a href="#cb18-18"></a>  ) <span class="sc">+</span></span>
+<span id="cb18-19"><a href="#cb18-19"></a>  <span class="fu">labs</span>(</span>
+<span id="cb18-20"><a href="#cb18-20"></a>    <span class="at">x =</span> <span class="st">"Day"</span>,</span>
+<span id="cb18-21"><a href="#cb18-21"></a>    <span class="at">y =</span> <span class="fu">expression</span>(<span class="st">"Predicted frond area ("</span> <span class="sc">*</span> cm<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="st">")"</span>),</span>
+<span id="cb18-22"><a href="#cb18-22"></a>    <span class="at">title =</span> <span class="st">"Model-estimated growth trajectories"</span>,</span>
+<span id="cb18-23"><a href="#cb18-23"></a>    <span class="at">subtitle =</span> <span class="st">"CONTROL in red; each grey line is one bacterial strain"</span></span>
+<span id="cb18-24"><a href="#cb18-24"></a>  ) <span class="sc">+</span></span>
+<span id="cb18-25"><a href="#cb18-25"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">11</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-growth-trajectories" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-growth-trajectories-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="02_growth_model_files/figure-html/fig-growth-trajectories-1.svg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-growth-trajectories-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Model-estimated mean frond area trajectories by strain and day, marginalizing over well-level random effects (<code>re_formula = NA</code>). CONTROL is highlighted in red with its 95% credible interval shaded; each grey line is one bacterial strain.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="marginal-effects-growth-deltas-relative-to-control" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Marginal effects: growth deltas relative to CONTROL</h1>
+<p>For each strain, we compute the day0-&gt;day8 (and day0-&gt;day4) change in frond area, then contrast that change against <code>CONTROL</code>’s change over the same interval - i.e.&nbsp;a difference-in-differences. Because <code>strain</code> was releveled so that <code>CONTROL</code> is the first factor level, <code>hypothesis = ~ reference</code> contrasts every strain’s growth against <code>CONTROL</code>’s growth directly.</p>
+<p>With <code>hypothesis = ~reference</code> the <code>CONTROL</code> row is consumed as the reference and the remaining 42 rows are labelled in a <code>hypothesis</code> column of the form <code>(HA01) - (CONTROL)</code>, so we parse the strain name back out of that label.</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>parse_strain <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb19-2"><a href="#cb19-2"></a>  <span class="fu">str_remove_all</span>(<span class="fu">str_extract</span>(x, <span class="st">"^</span><span class="sc">\\</span><span class="st">([^)]+</span><span class="sc">\\</span><span class="st">)"</span>), <span class="st">"[()]"</span>)</span>
+<span id="cb19-3"><a href="#cb19-3"></a>}</span>
+<span id="cb19-4"><a href="#cb19-4"></a></span>
+<span id="cb19-5"><a href="#cb19-5"></a>delta_vs_control <span class="ot">&lt;-</span> <span class="cf">function</span>(fit, days) {</span>
+<span id="cb19-6"><a href="#cb19-6"></a>  <span class="fu">avg_comparisons</span>(</span>
+<span id="cb19-7"><a href="#cb19-7"></a>    fit,</span>
+<span id="cb19-8"><a href="#cb19-8"></a>    <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">day =</span> days),</span>
+<span id="cb19-9"><a href="#cb19-9"></a>    <span class="at">by =</span> <span class="st">"strain"</span>,</span>
+<span id="cb19-10"><a href="#cb19-10"></a>    <span class="at">hypothesis =</span> <span class="sc">~</span>reference,</span>
+<span id="cb19-11"><a href="#cb19-11"></a>    <span class="at">re_formula =</span> <span class="cn">NA</span>,</span>
+<span id="cb19-12"><a href="#cb19-12"></a>    <span class="at">type =</span> <span class="st">"response"</span></span>
+<span id="cb19-13"><a href="#cb19-13"></a>  )</span>
+<span id="cb19-14"><a href="#cb19-14"></a>}</span>
+<span id="cb19-15"><a href="#cb19-15"></a></span>
+<span id="cb19-16"><a href="#cb19-16"></a>tidy_deltas <span class="ot">&lt;-</span> <span class="cf">function</span>(obj, days) {</span>
+<span id="cb19-17"><a href="#cb19-17"></a>  <span class="fu">as_tibble</span>(obj) <span class="sc">|&gt;</span></span>
+<span id="cb19-18"><a href="#cb19-18"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb19-19"><a href="#cb19-19"></a>      <span class="at">strain =</span> <span class="fu">parse_strain</span>(hypothesis),</span>
+<span id="cb19-20"><a href="#cb19-20"></a>      <span class="at">comparison_days =</span> <span class="fu">paste</span>(days, <span class="at">collapse =</span> <span class="st">" -&gt; "</span>),</span>
+<span id="cb19-21"><a href="#cb19-21"></a>      <span class="at">.before =</span> <span class="dv">1</span></span>
+<span id="cb19-22"><a href="#cb19-22"></a>    )</span>
+<span id="cb19-23"><a href="#cb19-23"></a>}</span>
+<span id="cb19-24"><a href="#cb19-24"></a></span>
+<span id="cb19-25"><a href="#cb19-25"></a>deltas_0_8_obj <span class="ot">&lt;-</span> <span class="fu">delta_vs_control</span>(fit_growth, <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"8"</span>))</span>
+<span id="cb19-26"><a href="#cb19-26"></a>deltas_0_4_obj <span class="ot">&lt;-</span> <span class="fu">delta_vs_control</span>(fit_growth, <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"4"</span>))</span>
+<span id="cb19-27"><a href="#cb19-27"></a></span>
+<span id="cb19-28"><a href="#cb19-28"></a>deltas <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb19-29"><a href="#cb19-29"></a>  <span class="fu">tidy_deltas</span>(deltas_0_8_obj, <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"8"</span>)),</span>
+<span id="cb19-30"><a href="#cb19-30"></a>  <span class="fu">tidy_deltas</span>(deltas_0_4_obj, <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"4"</span>))</span>
+<span id="cb19-31"><a href="#cb19-31"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Posterior probability of direction and a simple decision rule (95% credible interval excludes zero) for the day0-&gt;day8 contrast, which is the primary endpoint. <code>prob_increase</code>/<code>prob_decrease</code> are computed directly from the posterior draws behind <code>deltas_0_8_obj</code> via <code>posterior_draws()</code>, so they are exact posterior quantities rather than a normal approximation.</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>prob_direction <span class="ot">&lt;-</span> deltas_0_8_obj <span class="sc">|&gt;</span></span>
+<span id="cb20-2"><a href="#cb20-2"></a>  <span class="fu">posterior_draws</span>() <span class="sc">|&gt;</span></span>
+<span id="cb20-3"><a href="#cb20-3"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb20-4"><a href="#cb20-4"></a>    <span class="at">prob_increase =</span> <span class="fu">mean</span>(draw <span class="sc">&gt;</span> <span class="dv">0</span>),</span>
+<span id="cb20-5"><a href="#cb20-5"></a>    <span class="at">prob_decrease =</span> <span class="fu">mean</span>(draw <span class="sc">&lt;</span> <span class="dv">0</span>),</span>
+<span id="cb20-6"><a href="#cb20-6"></a>    <span class="at">.by =</span> hypothesis</span>
+<span id="cb20-7"><a href="#cb20-7"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb20-8"><a href="#cb20-8"></a>  <span class="fu">mutate</span>(<span class="at">strain =</span> <span class="fu">parse_strain</span>(hypothesis))</span>
+<span id="cb20-9"><a href="#cb20-9"></a></span>
+<span id="cb20-10"><a href="#cb20-10"></a>strain_effects <span class="ot">&lt;-</span> <span class="fu">tidy_deltas</span>(deltas_0_8_obj, <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"8"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb20-11"><a href="#cb20-11"></a>  <span class="fu">select</span>(strain, estimate, conf.low, conf.high) <span class="sc">|&gt;</span></span>
+<span id="cb20-12"><a href="#cb20-12"></a>  <span class="fu">left_join</span>(<span class="fu">select</span>(prob_direction, <span class="sc">-</span>hypothesis), <span class="at">by =</span> <span class="st">"strain"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb20-13"><a href="#cb20-13"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb20-14"><a href="#cb20-14"></a>    <span class="at">direction =</span> <span class="fu">case_when</span>(</span>
+<span id="cb20-15"><a href="#cb20-15"></a>      conf.low <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"increases growth"</span>,</span>
+<span id="cb20-16"><a href="#cb20-16"></a>      conf.high <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"decreases growth"</span>,</span>
+<span id="cb20-17"><a href="#cb20-17"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"no clear effect"</span></span>
+<span id="cb20-18"><a href="#cb20-18"></a>    )</span>
+<span id="cb20-19"><a href="#cb20-19"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb20-20"><a href="#cb20-20"></a>  <span class="fu">arrange</span>(estimate)</span>
+<span id="cb20-21"><a href="#cb20-21"></a></span>
+<span id="cb20-22"><a href="#cb20-22"></a>strain_effects <span class="sc">|&gt;</span> <span class="fu">count</span>(direction)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["direction"],"name":[1],"type":["chr"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"decreases growth","2":"18"},{"1":"increases growth","2":"6"},{"1":"no clear effect","2":"18"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>strain_effects</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["strain"],"name":[1],"type":["chr"],"align":["left"]},{"label":["estimate"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["conf.low"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["conf.high"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["prob_increase"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["prob_decrease"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["direction"],"name":[7],"type":["chr"],"align":["left"]}],"data":[{"1":"HA44","2":"-13.0890026","3":"-15.595795","4":"-10.8140180","5":"0.0000000000","6":"1.000000000","7":"decreases growth"},{"1":"HA01","2":"-12.9900310","3":"-15.396421","4":"-10.7243959","5":"0.0000000000","6":"1.000000000","7":"decreases growth"},{"1":"HA02","2":"-12.8221138","3":"-15.330705","4":"-10.4812150","5":"0.0000000000","6":"1.000000000","7":"decreases growth"},{"1":"HA03","2":"-12.7061608","3":"-15.239468","4":"-10.3647358","5":"0.0000000000","6":"1.000000000","7":"decreases growth"},{"1":"HA10","2":"-12.0708817","3":"-14.606901","4":"-9.6768142","5":"0.0000000000","6":"1.000000000","7":"decreases growth"},{"1":"HA18","2":"-11.0447817","3":"-13.644391","4":"-8.5115359","5":"0.0000000000","6":"1.000000000","7":"decreases growth"},{"1":"HA17","2":"-9.8890128","3":"-12.525499","4":"-7.2544321","5":"0.0000000000","6":"1.000000000","7":"decreases growth"},{"1":"HA21A","2":"-9.6048887","3":"-12.329005","4":"-6.7836237","5":"0.0000000000","6":"1.000000000","7":"decreases growth"},{"1":"HA08","2":"-9.5191858","3":"-12.213104","4":"-6.8103428","5":"0.0000000000","6":"1.000000000","7":"decreases growth"},{"1":"TL01","2":"-9.4629995","3":"-12.247321","4":"-6.6405330","5":"0.0000000000","6":"1.000000000","7":"decreases growth"},{"1":"TL09","2":"-7.2494290","3":"-10.288122","4":"-3.9553420","5":"0.0001666667","6":"0.999833333","7":"decreases growth"},{"1":"HA32","2":"-7.2031438","3":"-10.315571","4":"-3.8682320","5":"0.0000000000","6":"1.000000000","7":"decreases growth"},{"1":"TL02","2":"-6.2562879","3":"-9.423081","4":"-2.8919222","5":"0.0002500000","6":"0.999750000","7":"decreases growth"},{"1":"TL03","2":"-6.2424546","3":"-9.512914","4":"-2.7283391","5":"0.0004166667","6":"0.999583333","7":"decreases growth"},{"1":"HA64","2":"-5.7460599","3":"-9.105496","4":"-2.1823288","5":"0.0013333333","6":"0.998666667","7":"decreases growth"},{"1":"TL06","2":"-5.1930301","3":"-8.428459","4":"-1.6973755","5":"0.0020833333","6":"0.997916667","7":"decreases growth"},{"1":"HA12","2":"-4.9613477","3":"-8.218593","4":"-1.5116557","5":"0.0023333333","6":"0.997666667","7":"decreases growth"},{"1":"TL29","2":"-4.8651309","3":"-8.390254","4":"-1.1912326","5":"0.0050833333","6":"0.994916667","7":"decreases growth"},{"1":"SJ08","2":"-3.6186501","3":"-7.125005","4":"0.3614958","5":"0.0361666667","6":"0.963833333","7":"no clear effect"},{"1":"HA21B","2":"-3.5621845","3":"-7.142878","4":"0.3639108","5":"0.0375000000","6":"0.962500000","7":"no clear effect"},{"1":"TL23","2":"-3.4123232","3":"-6.919430","4":"0.5068615","5":"0.0424166667","6":"0.957583333","7":"no clear effect"},{"1":"TL34","2":"-2.6211589","3":"-6.322664","4":"1.4789449","5":"0.1039166667","6":"0.896083333","7":"no clear effect"},{"1":"HA40","2":"-2.5023693","3":"-6.168783","4":"1.5177345","5":"0.1052500000","6":"0.894750000","7":"no clear effect"},{"1":"HA14","2":"-2.4422564","3":"-6.046763","4":"1.5500012","5":"0.1020000000","6":"0.898000000","7":"no clear effect"},{"1":"HA82","2":"-1.9542000","3":"-5.711912","4":"2.4273516","5":"0.1799166667","6":"0.820083333","7":"no clear effect"},{"1":"HA61","2":"-1.5148047","3":"-5.454459","4":"3.1019952","5":"0.2490000000","6":"0.751000000","7":"no clear effect"},{"1":"HA06","2":"-0.9855494","3":"-4.959454","4":"3.4198601","5":"0.3215833333","6":"0.678416667","7":"no clear effect"},{"1":"SJ02","2":"-0.9603020","3":"-4.819919","4":"3.5393121","5":"0.3292500000","6":"0.670750000","7":"no clear effect"},{"1":"HA59","2":"-0.7027128","3":"-4.587946","4":"3.8716494","5":"0.3792500000","6":"0.620750000","7":"no clear effect"},{"1":"HA69A","2":"-0.6466168","3":"-4.724886","4":"4.0006461","5":"0.3893333333","6":"0.610666667","7":"no clear effect"},{"1":"HA48","2":"-0.2937141","3":"-4.541793","4":"4.6614491","5":"0.4495833333","6":"0.550416667","7":"no clear effect"},{"1":"TL05","2":"0.2842859","3":"-3.806447","4":"5.0588197","5":"0.5540000000","6":"0.446000000","7":"no clear effect"},{"1":"HA27","2":"1.4612182","3":"-2.658274","4":"6.3365298","5":"0.7490833333","6":"0.250916667","7":"no clear effect"},{"1":"SJ17","2":"1.7890044","3":"-2.556318","4":"6.9970696","5":"0.7819166667","6":"0.218083333","7":"no clear effect"},{"1":"SJ14","2":"2.2531487","3":"-2.135215","4":"7.5263721","5":"0.8342500000","6":"0.165750000","7":"no clear effect"},{"1":"HA36","2":"3.3438483","3":"-1.286990","4":"8.9005010","5":"0.9176666667","6":"0.082333333","7":"no clear effect"},{"1":"HA16","2":"4.8511125","3":"0.234188","4":"10.3819268","5":"0.9802500000","6":"0.019750000","7":"increases growth"},{"1":"HA46","2":"6.5146645","3":"1.461096","4":"12.4795177","5":"0.9944166667","6":"0.005583333","7":"increases growth"},{"1":"SJ09","2":"10.8085268","3":"4.938460","4":"17.9061841","5":"1.0000000000","6":"0.000000000","7":"increases growth"},{"1":"SJ07","2":"12.4547239","3":"6.310548","4":"19.8561911","5":"1.0000000000","6":"0.000000000","7":"increases growth"},{"1":"TL64","2":"22.0505162","3":"14.093688","4":"31.7133501","5":"1.0000000000","6":"0.000000000","7":"increases growth"},{"1":"TL58","2":"28.4635655","3":"19.321705","4":"39.2109355","5":"1.0000000000","6":"0.000000000","7":"increases growth"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>strain_effects <span class="sc">|&gt;</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a>  <span class="fu">mutate</span>(<span class="at">strain =</span> <span class="fu">fct_reorder</span>(strain, estimate)) <span class="sc">|&gt;</span></span>
+<span id="cb22-3"><a href="#cb22-3"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> estimate, <span class="at">y =</span> strain, <span class="at">color =</span> direction)) <span class="sc">+</span></span>
+<span id="cb22-4"><a href="#cb22-4"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey40"</span>) <span class="sc">+</span></span>
+<span id="cb22-5"><a href="#cb22-5"></a>  <span class="fu">geom_pointrange</span>(</span>
+<span id="cb22-6"><a href="#cb22-6"></a>    <span class="fu">aes</span>(<span class="at">xmin =</span> conf.low, <span class="at">xmax =</span> conf.high),</span>
+<span id="cb22-7"><a href="#cb22-7"></a>    <span class="at">linewidth =</span> <span class="fl">0.5</span>,</span>
+<span id="cb22-8"><a href="#cb22-8"></a>    <span class="at">size =</span> <span class="fl">0.3</span></span>
+<span id="cb22-9"><a href="#cb22-9"></a>  ) <span class="sc">+</span></span>
+<span id="cb22-10"><a href="#cb22-10"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb22-11"><a href="#cb22-11"></a>    <span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb22-12"><a href="#cb22-12"></a>      <span class="st">"increases growth"</span> <span class="ot">=</span> <span class="st">"#1b9e77"</span>,</span>
+<span id="cb22-13"><a href="#cb22-13"></a>      <span class="st">"decreases growth"</span> <span class="ot">=</span> <span class="st">"#d95f02"</span>,</span>
+<span id="cb22-14"><a href="#cb22-14"></a>      <span class="st">"no clear effect"</span> <span class="ot">=</span> <span class="st">"grey60"</span></span>
+<span id="cb22-15"><a href="#cb22-15"></a>    )</span>
+<span id="cb22-16"><a href="#cb22-16"></a>  ) <span class="sc">+</span></span>
+<span id="cb22-17"><a href="#cb22-17"></a>  <span class="fu">labs</span>(</span>
+<span id="cb22-18"><a href="#cb22-18"></a>    <span class="at">x =</span> <span class="fu">expression</span>(</span>
+<span id="cb22-19"><a href="#cb22-19"></a>      <span class="st">"Growth difference relative to  CONTROL ("</span> <span class="sc">*</span></span>
+<span id="cb22-20"><a href="#cb22-20"></a>        cm<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span></span>
+<span id="cb22-21"><a href="#cb22-21"></a>        <span class="st">"), over days, 0, 4, and 8"</span></span>
+<span id="cb22-22"><a href="#cb22-22"></a>    ),</span>
+<span id="cb22-23"><a href="#cb22-23"></a>    <span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb22-24"><a href="#cb22-24"></a>    <span class="at">color =</span> <span class="cn">NULL</span>,</span>
+<span id="cb22-25"><a href="#cb22-25"></a>    <span class="at">title =</span> <span class="st">"Per-strain effect on duckweed growth relative to CONTROL"</span></span>
+<span id="cb22-26"><a href="#cb22-26"></a>  ) <span class="sc">+</span></span>
+<span id="cb22-27"><a href="#cb22-27"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>) <span class="sc">+</span></span>
+<span id="cb22-28"><a href="#cb22-28"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-strain-effects" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-strain-effects-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="02_growth_model_files/figure-html/fig-strain-effects-1.svg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-strain-effects-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Per-strain difference-in-differences in frond area growth (day 0 to day 8) relative to CONTROL, with 95% credible intervals. Strains are colored by whether their credible interval excludes zero (increases/decreases growth) or spans zero (no clear effect).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sensitivity-check-unbalanced-control-baseline" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Sensitivity check: unbalanced CONTROL baseline</h1>
+<p><code>CONTROL</code> is measured on more wells at day 0 (72) than at day 4/8 (24), because two <code>CONTROL</code>-only plates were imaged only at day 0 and never followed up. Those 48 extra wells inform <code>CONTROL</code>’s day-0 baseline but contribute nothing at day 8, so in principle they could bias the <code>CONTROL</code> growth estimate that every delta is measured against. In the raw data the shift is small (pooled <code>CONTROL</code> day-0 mean 6.11 cm² vs 5.77 cm² among wells followed at all three days), but we check it explicitly by refitting on only those wells measured at all three timepoints. This second fit gets its own cache file.</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>complete_wells <span class="ot">&lt;-</span> frondarea <span class="sc">|&gt;</span></span>
+<span id="cb23-2"><a href="#cb23-2"></a>  <span class="fu">count</span>(well_uid) <span class="sc">|&gt;</span></span>
+<span id="cb23-3"><a href="#cb23-3"></a>  <span class="fu">filter</span>(n <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">|&gt;</span></span>
+<span id="cb23-4"><a href="#cb23-4"></a>  <span class="fu">pull</span>(well_uid)</span>
+<span id="cb23-5"><a href="#cb23-5"></a></span>
+<span id="cb23-6"><a href="#cb23-6"></a>frondarea_complete <span class="ot">&lt;-</span> frondarea <span class="sc">|&gt;</span> <span class="fu">filter</span>(well_uid <span class="sc">%in%</span> complete_wells)</span>
+<span id="cb23-7"><a href="#cb23-7"></a></span>
+<span id="cb23-8"><a href="#cb23-8"></a>fit_growth_complete <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb23-9"><a href="#cb23-9"></a>  area <span class="sc">~</span> day <span class="sc">*</span> strain <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> well_uid),</span>
+<span id="cb23-10"><a href="#cb23-10"></a>  <span class="at">data =</span> frondarea_complete,</span>
+<span id="cb23-11"><a href="#cb23-11"></a>  <span class="at">family =</span> <span class="fu">lognormal</span>(),</span>
+<span id="cb23-12"><a href="#cb23-12"></a>  <span class="at">prior =</span> priors,</span>
+<span id="cb23-13"><a href="#cb23-13"></a>  <span class="at">chains =</span> <span class="dv">4</span>,</span>
+<span id="cb23-14"><a href="#cb23-14"></a>  <span class="at">cores =</span> <span class="dv">4</span>,</span>
+<span id="cb23-15"><a href="#cb23-15"></a>  <span class="at">iter =</span> <span class="dv">4000</span>,</span>
+<span id="cb23-16"><a href="#cb23-16"></a>  <span class="at">warmup =</span> <span class="dv">1000</span>,</span>
+<span id="cb23-17"><a href="#cb23-17"></a>  <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> <span class="fl">0.95</span>, <span class="at">max_treedepth =</span> <span class="dv">12</span>),</span>
+<span id="cb23-18"><a href="#cb23-18"></a>  <span class="at">seed =</span> <span class="dv">123</span>,</span>
+<span id="cb23-19"><a href="#cb23-19"></a>  <span class="at">backend =</span> <span class="st">"cmdstanr"</span>,</span>
+<span id="cb23-20"><a href="#cb23-20"></a>  <span class="at">file =</span> <span class="fu">path</span>(models_dir, <span class="st">"fit_growth_complete_wells"</span>),</span>
+<span id="cb23-21"><a href="#cb23-21"></a>  <span class="at">file_refit =</span> <span class="st">"on_change"</span></span>
+<span id="cb23-22"><a href="#cb23-22"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb23-23"><a href="#cb23-23"></a>  <span class="fu">set_modeldata</span>(frondarea_complete)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>sensitivity <span class="ot">&lt;-</span> <span class="fu">tidy_deltas</span>(</span>
+<span id="cb24-2"><a href="#cb24-2"></a>  <span class="fu">delta_vs_control</span>(fit_growth_complete, <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"8"</span>)),</span>
+<span id="cb24-3"><a href="#cb24-3"></a>  <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"8"</span>)</span>
+<span id="cb24-4"><a href="#cb24-4"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb24-5"><a href="#cb24-5"></a>  <span class="fu">select</span>(strain, <span class="at">estimate_complete =</span> estimate) <span class="sc">|&gt;</span></span>
+<span id="cb24-6"><a href="#cb24-6"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb24-7"><a href="#cb24-7"></a>    <span class="fu">select</span>(strain_effects, strain, <span class="at">estimate_full =</span> estimate),</span>
+<span id="cb24-8"><a href="#cb24-8"></a>    <span class="at">by =</span> <span class="st">"strain"</span></span>
+<span id="cb24-9"><a href="#cb24-9"></a>  )</span>
+<span id="cb24-10"><a href="#cb24-10"></a></span>
+<span id="cb24-11"><a href="#cb24-11"></a>sensitivity <span class="sc">|&gt;</span></span>
+<span id="cb24-12"><a href="#cb24-12"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> estimate_full, <span class="at">y =</span> estimate_complete)) <span class="sc">+</span></span>
+<span id="cb24-13"><a href="#cb24-13"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey50"</span>) <span class="sc">+</span></span>
+<span id="cb24-14"><a href="#cb24-14"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb24-15"><a href="#cb24-15"></a>  <span class="fu">labs</span>(</span>
+<span id="cb24-16"><a href="#cb24-16"></a>    <span class="at">x =</span> <span class="fu">expression</span>(<span class="st">"Delta from full model ("</span> <span class="sc">*</span> cm<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="st">")"</span>),</span>
+<span id="cb24-17"><a href="#cb24-17"></a>    <span class="at">y =</span> <span class="fu">expression</span>(<span class="st">"Delta from complete-wells-only model ("</span> <span class="sc">*</span> cm<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="st">")"</span>),</span>
+<span id="cb24-18"><a href="#cb24-18"></a>    <span class="at">title =</span> <span class="st">"Sensitivity of growth deltas to the unbalanced CONTROL baseline"</span></span>
+<span id="cb24-19"><a href="#cb24-19"></a>  ) <span class="sc">+</span></span>
+<span id="cb24-20"><a href="#cb24-20"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">11</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-sensitivity-check" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sensitivity-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="02_growth_model_files/figure-html/fig-sensitivity-check-1.svg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sensitivity-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Sensitivity of per-strain growth deltas to the unbalanced CONTROL baseline: deltas from the full model (all wells) vs.&nbsp;from a model refit on only wells measured at all three timepoints. Points near the dashed 1:1 line indicate the unbalanced CONTROL baseline has little effect on estimated deltas.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>sensitivity <span class="sc">|&gt;</span></span>
+<span id="cb25-2"><a href="#cb25-2"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb25-3"><a href="#cb25-3"></a>    <span class="at">max_abs_difference =</span> <span class="fu">max</span>(<span class="fu">abs</span>(estimate_full <span class="sc">-</span> estimate_complete)),</span>
+<span id="cb25-4"><a href="#cb25-4"></a>    <span class="at">correlation =</span> <span class="fu">cor</span>(estimate_full, estimate_complete)</span>
+<span id="cb25-5"><a href="#cb25-5"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["max_abs_difference"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["correlation"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"1.892027","2":"0.9995507"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="write-results" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Write results</h1>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="fu">write_tsv</span>(</span>
+<span id="cb26-2"><a href="#cb26-2"></a>  strain_effects,</span>
+<span id="cb26-3"><a href="#cb26-3"></a>  <span class="fu">path</span>(data_processed, <span class="st">"strain_control_deltas_day0_8.tsv"</span>)</span>
+<span id="cb26-4"><a href="#cb26-4"></a>)</span>
+<span id="cb26-5"><a href="#cb26-5"></a></span>
+<span id="cb26-6"><a href="#cb26-6"></a><span class="fu">write_tsv</span>(deltas, <span class="fu">path</span>(data_processed, <span class="st">"strain_control_deltas_all.tsv"</span>))</span>
+<span id="cb26-7"><a href="#cb26-7"></a></span>
+<span id="cb26-8"><a href="#cb26-8"></a><span class="fu">write_tsv</span>(</span>
+<span id="cb26-9"><a href="#cb26-9"></a>  <span class="fu">as_tibble</span>(pred_trajectories),</span>
+<span id="cb26-10"><a href="#cb26-10"></a>  <span class="fu">path</span>(data_processed, <span class="st">"predicted_trajectories.tsv"</span>)</span>
+<span id="cb26-11"><a href="#cb26-11"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb27-1"><a href="#cb27-1"></a><span class="co">---</span></span>
+<span id="cb27-2"><a href="#cb27-2"></a><span class="an">title:</span><span class="co"> "Bayesian model of duckweed growth with and without bacteria"</span></span>
+<span id="cb27-3"><a href="#cb27-3"></a><span class="an">subtitle:</span><span class="co"> ""</span></span>
+<span id="cb27-4"><a href="#cb27-4"></a><span class="an">author:</span><span class="co"> "Shane Hogle"</span></span>
+<span id="cb27-5"><a href="#cb27-5"></a><span class="an">date:</span><span class="co"> today</span></span>
+<span id="cb27-6"><a href="#cb27-6"></a><span class="an">abstract:</span><span class="co"> "Fits a Bayesian multilevel model of *Lemna* frond area over the course of coculture with 42 individual bacterial strains (or `CONTROL`, no bacteria), then uses `marginaleffects` to estimate, for each strain, the difference-in-differences in growth relative to `CONTROL` - i.e. whether that strain significantly increases or decreases duckweed growth."</span></span>
+<span id="cb27-7"><a href="#cb27-7"></a><span class="co">---</span></span>
+<span id="cb27-8"><a href="#cb27-8"></a></span>
+<span id="cb27-9"><a href="#cb27-9"></a><span class="fu"># Design and modeling strategy</span></span>
+<span id="cb27-10"><a href="#cb27-10"></a></span>
+<span id="cb27-11"><a href="#cb27-11"></a>Frond area was measured longitudinally (day 0, 4, 8) for individual wells, 8 wells (biological replicates) per strain per plate, see <span class="co">[</span><span class="ot">01_read_frondarea.qmd</span><span class="co">](01_read_frondarea.qmd)</span> for how the raw plate-reader exports were combined and cleaned. Two design features shape the model:</span>
+<span id="cb27-12"><a href="#cb27-12"></a></span>
+<span id="cb27-13"><a href="#cb27-13"></a><span class="ss">- </span>**Repeated measures**: the same physical well is imaged at all three timepoints, so observations within a well are correlated. We account for this with a well-level random intercept, <span class="in">`(1 | well_uid)`</span>.</span>
+<span id="cb27-14"><a href="#cb27-14"></a><span class="ss">- </span>**Strain and plate are almost completely confounded**: with one exception (<span class="in">`CONTROL`</span>, which spans several plates), every strain occupies exactly one physical plate. This means any plate-specific batch effect (e.g. a plate that got slightly more light) is inseparable from that strain's estimated effect - there is no cross-plate replication to disentangle them. Therefore, we do not add a separate plate-level random effect (it would be almost entirely collinear with the strain fixed effect); this is worth keeping in mind when interpreting any single strain's effect.</span>
+<span id="cb27-15"><a href="#cb27-15"></a></span>
+<span id="cb27-16"><a href="#cb27-16"></a>Frond area is strictly positive and right-skewed (growth is a roughly multiplicative process), so we model it with a <span class="in">`lognormal()`</span> family rather than treating raw area as Gaussian. <span class="in">`day`</span> is treated as a 3-level factor (0/4/8) rather than a continuous slope, since we only have 3 timepoints and no reason to assume a linear (or any particular parametric) growth curve over that range.</span>
+<span id="cb27-17"><a href="#cb27-17"></a></span>
+<span id="cb27-18"><a href="#cb27-18"></a>The fixed-effect structure is <span class="in">`day * strain`</span>, with <span class="in">`CONTROL`</span> set as the reference level for <span class="in">`strain`</span> and day 0 as the reference level for <span class="in">`day`</span>. Under this parameterization, the <span class="in">`day:strain`</span> interaction coefficients directly represent, for each strain, how its growth trajectory deviates from <span class="in">`CONTROL`</span>'s - i.e. exactly the "delta" quantity of interest. We use <span class="in">`marginaleffects`</span> to compute these contrasts on the natural (response, cm²) scale with correctly propagated posterior uncertainty, rather than reading raw log-scale coefficients.</span>
+<span id="cb27-19"><a href="#cb27-19"></a></span>
+<span id="cb27-20"><a href="#cb27-20"></a><span class="fu">## Libraries</span></span>
+<span id="cb27-21"><a href="#cb27-21"></a></span>
+<span id="cb27-24"><a href="#cb27-24"></a><span class="in">```{r}</span></span>
+<span id="cb27-25"><a href="#cb27-25"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb27-26"><a href="#cb27-26"></a><span class="fu">library</span>(here)</span>
+<span id="cb27-27"><a href="#cb27-27"></a><span class="fu">library</span>(fs)</span>
+<span id="cb27-28"><a href="#cb27-28"></a><span class="fu">library</span>(brms)</span>
+<span id="cb27-29"><a href="#cb27-29"></a><span class="fu">library</span>(cmdstanr)</span>
+<span id="cb27-30"><a href="#cb27-30"></a><span class="fu">library</span>(marginaleffects)</span>
+<span id="cb27-31"><a href="#cb27-31"></a><span class="fu">library</span>(tidybayes)</span>
+<span id="cb27-32"><a href="#cb27-32"></a><span class="fu">library</span>(bayesplot)</span>
+<span id="cb27-33"><a href="#cb27-33"></a></span>
+<span id="cb27-34"><a href="#cb27-34"></a><span class="fu">options</span>(<span class="at">mc.cores =</span> <span class="dv">4</span>, <span class="at">brms.backend =</span> <span class="st">"cmdstanr"</span>)</span>
+<span id="cb27-35"><a href="#cb27-35"></a><span class="in">```</span></span>
+<span id="cb27-36"><a href="#cb27-36"></a></span>
+<span id="cb27-37"><a href="#cb27-37"></a><span class="fu">## Global variables</span></span>
+<span id="cb27-38"><a href="#cb27-38"></a></span>
+<span id="cb27-41"><a href="#cb27-41"></a><span class="in">```{r}</span></span>
+<span id="cb27-42"><a href="#cb27-42"></a>data_processed <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(</span>
+<span id="cb27-43"><a href="#cb27-43"></a>  <span class="st">"data"</span>,</span>
+<span id="cb27-44"><a href="#cb27-44"></a>  <span class="st">"processed"</span>,</span>
+<span id="cb27-45"><a href="#cb27-45"></a>  <span class="st">"04_lemna_bacteria_coculture_frondarea"</span></span>
+<span id="cb27-46"><a href="#cb27-46"></a>)</span>
+<span id="cb27-47"><a href="#cb27-47"></a>models_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(</span>
+<span id="cb27-48"><a href="#cb27-48"></a>  <span class="st">"data"</span>,</span>
+<span id="cb27-49"><a href="#cb27-49"></a>  <span class="st">"interim"</span>,</span>
+<span id="cb27-50"><a href="#cb27-50"></a>  <span class="st">"04_lemna_bacteria_coculture_frondarea"</span></span>
+<span id="cb27-51"><a href="#cb27-51"></a>)</span>
+<span id="cb27-52"><a href="#cb27-52"></a></span>
+<span id="cb27-53"><a href="#cb27-53"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(models_dir)</span>
+<span id="cb27-54"><a href="#cb27-54"></a><span class="in">```</span></span>
+<span id="cb27-55"><a href="#cb27-55"></a></span>
+<span id="cb27-56"><a href="#cb27-56"></a><span class="fu"># Load data</span></span>
+<span id="cb27-57"><a href="#cb27-57"></a></span>
+<span id="cb27-60"><a href="#cb27-60"></a><span class="in">```{r}</span></span>
+<span id="cb27-61"><a href="#cb27-61"></a><span class="co">#| output: true</span></span>
+<span id="cb27-62"><a href="#cb27-62"></a>frondarea <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">path</span>(data_processed, <span class="st">"frondarea.rds"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb27-63"><a href="#cb27-63"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb27-64"><a href="#cb27-64"></a>    <span class="at">day =</span> <span class="fu">factor</span>(day, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">4</span>, <span class="dv">8</span>)),</span>
+<span id="cb27-65"><a href="#cb27-65"></a>    <span class="at">strain =</span> <span class="fu">fct_relevel</span>(strain, <span class="st">"CONTROL"</span>)</span>
+<span id="cb27-66"><a href="#cb27-66"></a>  )</span>
+<span id="cb27-67"><a href="#cb27-67"></a></span>
+<span id="cb27-68"><a href="#cb27-68"></a><span class="fu">glimpse</span>(frondarea)</span>
+<span id="cb27-69"><a href="#cb27-69"></a><span class="in">```</span></span>
+<span id="cb27-70"><a href="#cb27-70"></a></span>
+<span id="cb27-71"><a href="#cb27-71"></a><span class="fu"># Exploratory look</span></span>
+<span id="cb27-72"><a href="#cb27-72"></a></span>
+<span id="cb27-75"><a href="#cb27-75"></a><span class="in">```{r}</span></span>
+<span id="cb27-76"><a href="#cb27-76"></a><span class="co">#| label: fig-frondarea-trajectories</span></span>
+<span id="cb27-77"><a href="#cb27-77"></a><span class="co">#| output: true</span></span>
+<span id="cb27-78"><a href="#cb27-78"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb27-79"><a href="#cb27-79"></a><span class="co">#| fig-height: 6</span></span>
+<span id="cb27-80"><a href="#cb27-80"></a><span class="co">#| fig-cap: "Per-well frond area trajectories by strain across the three imaging timepoints (day 0, 4, 8), prior to model fitting. CONTROL wells (no bacteria) are highlighted in red."</span></span>
+<span id="cb27-81"><a href="#cb27-81"></a>frondarea <span class="sc">|&gt;</span></span>
+<span id="cb27-82"><a href="#cb27-82"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> day, <span class="at">y =</span> area, <span class="at">group =</span> well_uid, <span class="at">color =</span> is_control)) <span class="sc">+</span></span>
+<span id="cb27-83"><a href="#cb27-83"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb27-84"><a href="#cb27-84"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">0.8</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb27-85"><a href="#cb27-85"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>strain) <span class="sc">+</span></span>
+<span id="cb27-86"><a href="#cb27-86"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb27-87"><a href="#cb27-87"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">TRUE</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"firebrick"</span>, <span class="st">`</span><span class="at">FALSE</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"grey40"</span>),</span>
+<span id="cb27-88"><a href="#cb27-88"></a>    <span class="at">guide =</span> <span class="st">"none"</span></span>
+<span id="cb27-89"><a href="#cb27-89"></a>  ) <span class="sc">+</span></span>
+<span id="cb27-90"><a href="#cb27-90"></a>  <span class="fu">labs</span>(</span>
+<span id="cb27-91"><a href="#cb27-91"></a>    <span class="at">x =</span> <span class="st">"Day"</span>,</span>
+<span id="cb27-92"><a href="#cb27-92"></a>    <span class="at">y =</span> <span class="fu">expression</span>(<span class="st">"Frond area ("</span> <span class="sc">*</span> cm<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="st">")"</span>),</span>
+<span id="cb27-93"><a href="#cb27-93"></a>    <span class="at">title =</span> <span class="st">"Per-well frond area trajectories by strain"</span></span>
+<span id="cb27-94"><a href="#cb27-94"></a>  ) <span class="sc">+</span></span>
+<span id="cb27-95"><a href="#cb27-95"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">9</span>)</span>
+<span id="cb27-96"><a href="#cb27-96"></a><span class="in">```</span></span>
+<span id="cb27-97"><a href="#cb27-97"></a></span>
+<span id="cb27-98"><a href="#cb27-98"></a><span class="fu"># Fit model</span></span>
+<span id="cb27-99"><a href="#cb27-99"></a></span>
+<span id="cb27-100"><a href="#cb27-100"></a>Priors are weakly informative on the log scale: <span class="in">`normal(0, 1)`</span> on all fixed-effect coefficients (day, strain, and their interaction) allows roughly up to e-fold differences within one prior SD, which keeps estimates regularized given 42 strains are each informed by only 8 wells; <span class="in">`exponential(1)`</span> on the well-level random-effect SD. Default <span class="in">`brms`</span> priors are used for the intercept and residual SD (<span class="in">`sigma`</span>), which are already sensible weakly-informative choices for this scale.</span>
+<span id="cb27-101"><a href="#cb27-101"></a></span>
+<span id="cb27-102"><a href="#cb27-102"></a>The fitted model is cached to disk via <span class="in">`brm(..., file = ...)`</span>. On subsequent renders, <span class="in">`brms`</span> will simply reload the cached fit instead of resampling, and only refit if the formula, data, priors, or family change (<span class="in">`file_refit = "on_change"`</span>).</span>
+<span id="cb27-103"><a href="#cb27-103"></a></span>
+<span id="cb27-106"><a href="#cb27-106"></a><span class="in">```{r}</span></span>
+<span id="cb27-107"><a href="#cb27-107"></a>priors <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb27-108"><a href="#cb27-108"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">class =</span> <span class="st">"b"</span>),</span>
+<span id="cb27-109"><a href="#cb27-109"></a>  <span class="fu">prior</span>(<span class="fu">exponential</span>(<span class="dv">1</span>), <span class="at">class =</span> <span class="st">"sd"</span>)</span>
+<span id="cb27-110"><a href="#cb27-110"></a>)</span>
+<span id="cb27-111"><a href="#cb27-111"></a></span>
+<span id="cb27-112"><a href="#cb27-112"></a>fit_growth <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb27-113"><a href="#cb27-113"></a>  area <span class="sc">~</span> day <span class="sc">*</span> strain <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> well_uid),</span>
+<span id="cb27-114"><a href="#cb27-114"></a>  <span class="at">data =</span> frondarea,</span>
+<span id="cb27-115"><a href="#cb27-115"></a>  <span class="at">family =</span> <span class="fu">lognormal</span>(),</span>
+<span id="cb27-116"><a href="#cb27-116"></a>  <span class="at">prior =</span> priors,</span>
+<span id="cb27-117"><a href="#cb27-117"></a>  <span class="at">sample_prior =</span> <span class="st">"yes"</span>,</span>
+<span id="cb27-118"><a href="#cb27-118"></a>  <span class="at">chains =</span> <span class="dv">4</span>,</span>
+<span id="cb27-119"><a href="#cb27-119"></a>  <span class="at">cores =</span> <span class="dv">4</span>,</span>
+<span id="cb27-120"><a href="#cb27-120"></a>  <span class="at">iter =</span> <span class="dv">4000</span>,</span>
+<span id="cb27-121"><a href="#cb27-121"></a>  <span class="at">warmup =</span> <span class="dv">1000</span>,</span>
+<span id="cb27-122"><a href="#cb27-122"></a>  <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> <span class="fl">0.95</span>, <span class="at">max_treedepth =</span> <span class="dv">12</span>),</span>
+<span id="cb27-123"><a href="#cb27-123"></a>  <span class="at">seed =</span> <span class="dv">123</span>,</span>
+<span id="cb27-124"><a href="#cb27-124"></a>  <span class="at">backend =</span> <span class="st">"cmdstanr"</span>,</span>
+<span id="cb27-125"><a href="#cb27-125"></a>  <span class="at">file =</span> <span class="fu">path</span>(models_dir, <span class="st">"fit_growth"</span>),</span>
+<span id="cb27-126"><a href="#cb27-126"></a>  <span class="at">file_refit =</span> <span class="st">"on_change"</span></span>
+<span id="cb27-127"><a href="#cb27-127"></a>)</span>
+<span id="cb27-128"><a href="#cb27-128"></a><span class="in">```</span></span>
+<span id="cb27-129"><a href="#cb27-129"></a></span>
+<span id="cb27-130"><a href="#cb27-130"></a>When <span class="in">`brms`</span> reloads a cached fit, the training data can't always be recovered reliably from the environment, which <span class="in">`marginaleffects`</span> warns about. We attach it explicitly so all downstream contrasts use exactly the data the model was fit to.</span>
+<span id="cb27-131"><a href="#cb27-131"></a></span>
+<span id="cb27-134"><a href="#cb27-134"></a><span class="in">```{r}</span></span>
+<span id="cb27-135"><a href="#cb27-135"></a>fit_growth <span class="ot">&lt;-</span> <span class="fu">set_modeldata</span>(fit_growth, frondarea)</span>
+<span id="cb27-136"><a href="#cb27-136"></a><span class="in">```</span></span>
+<span id="cb27-137"><a href="#cb27-137"></a></span>
+<span id="cb27-138"><a href="#cb27-138"></a><span class="fu"># Diagnostics</span></span>
+<span id="cb27-139"><a href="#cb27-139"></a></span>
+<span id="cb27-142"><a href="#cb27-142"></a><span class="in">```{r}</span></span>
+<span id="cb27-143"><a href="#cb27-143"></a><span class="co">#| output: true</span></span>
+<span id="cb27-144"><a href="#cb27-144"></a><span class="fu">summary</span>(fit_growth)</span>
+<span id="cb27-145"><a href="#cb27-145"></a><span class="in">```</span></span>
+<span id="cb27-146"><a href="#cb27-146"></a></span>
+<span id="cb27-149"><a href="#cb27-149"></a><span class="in">```{r}</span></span>
+<span id="cb27-150"><a href="#cb27-150"></a><span class="co">#| output: true</span></span>
+<span id="cb27-151"><a href="#cb27-151"></a>rhat_range <span class="ot">&lt;-</span> <span class="fu">range</span>(brms<span class="sc">::</span><span class="fu">rhat</span>(fit_growth), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb27-152"><a href="#cb27-152"></a>ess_bulk_min <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="fu">summary</span>(fit_growth)<span class="sc">$</span>fixed<span class="sc">$</span>Bulk_ESS, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb27-153"><a href="#cb27-153"></a><span class="fu">cat</span>(<span class="st">"Rhat range:"</span>, rhat_range, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb27-154"><a href="#cb27-154"></a><span class="fu">cat</span>(<span class="st">"Minimum Bulk_ESS among fixed effects:"</span>, ess_bulk_min, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb27-155"><a href="#cb27-155"></a></span>
+<span id="cb27-156"><a href="#cb27-156"></a><span class="fu">stopifnot</span>(<span class="st">"Rhat too high - check convergence"</span> <span class="ot">=</span> rhat_range[<span class="dv">2</span>] <span class="sc">&lt;</span> <span class="fl">1.01</span>)</span>
+<span id="cb27-157"><a href="#cb27-157"></a><span class="in">```</span></span>
+<span id="cb27-158"><a href="#cb27-158"></a></span>
+<span id="cb27-161"><a href="#cb27-161"></a><span class="in">```{r}</span></span>
+<span id="cb27-162"><a href="#cb27-162"></a><span class="co">#| label: fig-ppcheck-overall</span></span>
+<span id="cb27-163"><a href="#cb27-163"></a><span class="co">#| output: true</span></span>
+<span id="cb27-164"><a href="#cb27-164"></a><span class="co">#| fig-width: 8</span></span>
+<span id="cb27-165"><a href="#cb27-165"></a><span class="co">#| fig-height: 5</span></span>
+<span id="cb27-166"><a href="#cb27-166"></a><span class="co">#| fig-cap: "Posterior predictive check: distribution of observed frond area (dark line) against 100 draws from the fitted model's posterior predictive distribution (light lines), pooled across all strains and days."</span></span>
+<span id="cb27-167"><a href="#cb27-167"></a><span class="fu">pp_check</span>(fit_growth, <span class="at">ndraws =</span> <span class="dv">100</span>) <span class="sc">+</span></span>
+<span id="cb27-168"><a href="#cb27-168"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Posterior predictive check: overall"</span>)</span>
+<span id="cb27-169"><a href="#cb27-169"></a><span class="in">```</span></span>
+<span id="cb27-170"><a href="#cb27-170"></a></span>
+<span id="cb27-173"><a href="#cb27-173"></a><span class="in">```{r}</span></span>
+<span id="cb27-174"><a href="#cb27-174"></a><span class="co">#| label: fig-ppcheck-by-day</span></span>
+<span id="cb27-175"><a href="#cb27-175"></a><span class="co">#| output: true</span></span>
+<span id="cb27-176"><a href="#cb27-176"></a><span class="co">#| fig-width: 8</span></span>
+<span id="cb27-177"><a href="#cb27-177"></a><span class="co">#| fig-height: 5</span></span>
+<span id="cb27-178"><a href="#cb27-178"></a><span class="co">#| fig-cap: "Posterior predictive check: median frond area by day, observed (dark) vs. posterior predictive draws (light), grouped by timepoint."</span></span>
+<span id="cb27-179"><a href="#cb27-179"></a><span class="fu">pp_check</span>(fit_growth, <span class="at">type =</span> <span class="st">"stat_grouped"</span>, <span class="at">group =</span> <span class="st">"day"</span>, <span class="at">stat =</span> <span class="st">"median"</span>) <span class="sc">+</span></span>
+<span id="cb27-180"><a href="#cb27-180"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Posterior predictive check: mean area by day"</span>)</span>
+<span id="cb27-181"><a href="#cb27-181"></a><span class="in">```</span></span>
+<span id="cb27-182"><a href="#cb27-182"></a></span>
+<span id="cb27-183"><a href="#cb27-183"></a></span>
+<span id="cb27-184"><a href="#cb27-184"></a><span class="fu"># Estimated growth trajectories</span></span>
+<span id="cb27-185"><a href="#cb27-185"></a></span>
+<span id="cb27-186"><a href="#cb27-186"></a>Population-level (<span class="in">`re_formula = NA`</span>, i.e. marginalizing over well-level random effects) predicted mean frond area by strain and day.</span>
+<span id="cb27-187"><a href="#cb27-187"></a></span>
+<span id="cb27-190"><a href="#cb27-190"></a><span class="in">```{r}</span></span>
+<span id="cb27-191"><a href="#cb27-191"></a><span class="co">#| output: true</span></span>
+<span id="cb27-192"><a href="#cb27-192"></a>pred_trajectories <span class="ot">&lt;-</span> <span class="fu">avg_predictions</span>(</span>
+<span id="cb27-193"><a href="#cb27-193"></a>  fit_growth,</span>
+<span id="cb27-194"><a href="#cb27-194"></a>  <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"strain"</span>, <span class="st">"day"</span>),</span>
+<span id="cb27-195"><a href="#cb27-195"></a>  <span class="at">re_formula =</span> <span class="cn">NA</span>,</span>
+<span id="cb27-196"><a href="#cb27-196"></a>  <span class="at">type =</span> <span class="st">"response"</span></span>
+<span id="cb27-197"><a href="#cb27-197"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb27-198"><a href="#cb27-198"></a>  <span class="fu">as_tibble</span>()</span>
+<span id="cb27-199"><a href="#cb27-199"></a></span>
+<span id="cb27-200"><a href="#cb27-200"></a>pred_trajectories</span>
+<span id="cb27-201"><a href="#cb27-201"></a><span class="in">```</span></span>
+<span id="cb27-202"><a href="#cb27-202"></a></span>
+<span id="cb27-205"><a href="#cb27-205"></a><span class="in">```{r}</span></span>
+<span id="cb27-206"><a href="#cb27-206"></a><span class="co">#| label: fig-growth-trajectories</span></span>
+<span id="cb27-207"><a href="#cb27-207"></a><span class="co">#| output: true</span></span>
+<span id="cb27-208"><a href="#cb27-208"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb27-209"><a href="#cb27-209"></a><span class="co">#| fig-height: 6</span></span>
+<span id="cb27-210"><a href="#cb27-210"></a><span class="co">#| fig-cap: "Model-estimated mean frond area trajectories by strain and day, marginalizing over well-level random effects (`re_formula = NA`). CONTROL is highlighted in red with its 95% credible interval shaded; each grey line is one bacterial strain."</span></span>
+<span id="cb27-211"><a href="#cb27-211"></a>pred_trajectories <span class="sc">|&gt;</span></span>
+<span id="cb27-212"><a href="#cb27-212"></a>  <span class="fu">mutate</span>(<span class="at">is_control =</span> strain <span class="sc">==</span> <span class="st">"CONTROL"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb27-213"><a href="#cb27-213"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> day, <span class="at">y =</span> estimate, <span class="at">group =</span> strain)) <span class="sc">+</span></span>
+<span id="cb27-214"><a href="#cb27-214"></a>  <span class="fu">geom_ribbon</span>(</span>
+<span id="cb27-215"><a href="#cb27-215"></a>    <span class="at">data =</span> \(x) <span class="fu">filter</span>(x, is_control),</span>
+<span id="cb27-216"><a href="#cb27-216"></a>    <span class="fu">aes</span>(<span class="at">ymin =</span> conf.low, <span class="at">ymax =</span> conf.high),</span>
+<span id="cb27-217"><a href="#cb27-217"></a>    <span class="at">fill =</span> <span class="st">"firebrick"</span>,</span>
+<span id="cb27-218"><a href="#cb27-218"></a>    <span class="at">alpha =</span> <span class="fl">0.15</span></span>
+<span id="cb27-219"><a href="#cb27-219"></a>  ) <span class="sc">+</span></span>
+<span id="cb27-220"><a href="#cb27-220"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">color =</span> is_control, <span class="at">linewidth =</span> is_control, <span class="at">group =</span> strain)) <span class="sc">+</span></span>
+<span id="cb27-221"><a href="#cb27-221"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb27-222"><a href="#cb27-222"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">TRUE</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"firebrick"</span>, <span class="st">`</span><span class="at">FALSE</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"grey50"</span>),</span>
+<span id="cb27-223"><a href="#cb27-223"></a>    <span class="at">guide =</span> <span class="st">"none"</span></span>
+<span id="cb27-224"><a href="#cb27-224"></a>  ) <span class="sc">+</span></span>
+<span id="cb27-225"><a href="#cb27-225"></a>  <span class="fu">scale_linewidth_manual</span>(</span>
+<span id="cb27-226"><a href="#cb27-226"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">TRUE</span><span class="st">`</span> <span class="ot">=</span> <span class="fl">1.2</span>, <span class="st">`</span><span class="at">FALSE</span><span class="st">`</span> <span class="ot">=</span> <span class="fl">0.5</span>),</span>
+<span id="cb27-227"><a href="#cb27-227"></a>    <span class="at">guide =</span> <span class="st">"none"</span></span>
+<span id="cb27-228"><a href="#cb27-228"></a>  ) <span class="sc">+</span></span>
+<span id="cb27-229"><a href="#cb27-229"></a>  <span class="fu">labs</span>(</span>
+<span id="cb27-230"><a href="#cb27-230"></a>    <span class="at">x =</span> <span class="st">"Day"</span>,</span>
+<span id="cb27-231"><a href="#cb27-231"></a>    <span class="at">y =</span> <span class="fu">expression</span>(<span class="st">"Predicted frond area ("</span> <span class="sc">*</span> cm<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="st">")"</span>),</span>
+<span id="cb27-232"><a href="#cb27-232"></a>    <span class="at">title =</span> <span class="st">"Model-estimated growth trajectories"</span>,</span>
+<span id="cb27-233"><a href="#cb27-233"></a>    <span class="at">subtitle =</span> <span class="st">"CONTROL in red; each grey line is one bacterial strain"</span></span>
+<span id="cb27-234"><a href="#cb27-234"></a>  ) <span class="sc">+</span></span>
+<span id="cb27-235"><a href="#cb27-235"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">11</span>)</span>
+<span id="cb27-236"><a href="#cb27-236"></a><span class="in">```</span></span>
+<span id="cb27-237"><a href="#cb27-237"></a></span>
+<span id="cb27-238"><a href="#cb27-238"></a><span class="fu"># Marginal effects: growth deltas relative to CONTROL</span></span>
+<span id="cb27-239"><a href="#cb27-239"></a></span>
+<span id="cb27-240"><a href="#cb27-240"></a>For each strain, we compute the day0-&gt;day8 (and day0-&gt;day4) change in frond area, then contrast that change against <span class="in">`CONTROL`</span>'s change over the same interval - i.e. a difference-in-differences. Because <span class="in">`strain`</span> was releveled so that <span class="in">`CONTROL`</span> is the first factor level, <span class="in">`hypothesis = ~ reference`</span> contrasts every strain's growth against <span class="in">`CONTROL`</span>'s growth directly.</span>
+<span id="cb27-241"><a href="#cb27-241"></a></span>
+<span id="cb27-242"><a href="#cb27-242"></a>With <span class="in">`hypothesis = ~reference`</span> the <span class="in">`CONTROL`</span> row is consumed as the reference and the remaining 42 rows are labelled in a <span class="in">`hypothesis`</span> column of the form <span class="in">`(HA01) - (CONTROL)`</span>, so we parse the strain name back out of that label.</span>
+<span id="cb27-243"><a href="#cb27-243"></a></span>
+<span id="cb27-246"><a href="#cb27-246"></a><span class="in">```{r}</span></span>
+<span id="cb27-247"><a href="#cb27-247"></a>parse_strain <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb27-248"><a href="#cb27-248"></a>  <span class="fu">str_remove_all</span>(<span class="fu">str_extract</span>(x, <span class="st">"^</span><span class="sc">\\</span><span class="st">([^)]+</span><span class="sc">\\</span><span class="st">)"</span>), <span class="st">"[()]"</span>)</span>
+<span id="cb27-249"><a href="#cb27-249"></a>}</span>
+<span id="cb27-250"><a href="#cb27-250"></a></span>
+<span id="cb27-251"><a href="#cb27-251"></a>delta_vs_control <span class="ot">&lt;-</span> <span class="cf">function</span>(fit, days) {</span>
+<span id="cb27-252"><a href="#cb27-252"></a>  <span class="fu">avg_comparisons</span>(</span>
+<span id="cb27-253"><a href="#cb27-253"></a>    fit,</span>
+<span id="cb27-254"><a href="#cb27-254"></a>    <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">day =</span> days),</span>
+<span id="cb27-255"><a href="#cb27-255"></a>    <span class="at">by =</span> <span class="st">"strain"</span>,</span>
+<span id="cb27-256"><a href="#cb27-256"></a>    <span class="at">hypothesis =</span> <span class="sc">~</span>reference,</span>
+<span id="cb27-257"><a href="#cb27-257"></a>    <span class="at">re_formula =</span> <span class="cn">NA</span>,</span>
+<span id="cb27-258"><a href="#cb27-258"></a>    <span class="at">type =</span> <span class="st">"response"</span></span>
+<span id="cb27-259"><a href="#cb27-259"></a>  )</span>
+<span id="cb27-260"><a href="#cb27-260"></a>}</span>
+<span id="cb27-261"><a href="#cb27-261"></a></span>
+<span id="cb27-262"><a href="#cb27-262"></a>tidy_deltas <span class="ot">&lt;-</span> <span class="cf">function</span>(obj, days) {</span>
+<span id="cb27-263"><a href="#cb27-263"></a>  <span class="fu">as_tibble</span>(obj) <span class="sc">|&gt;</span></span>
+<span id="cb27-264"><a href="#cb27-264"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb27-265"><a href="#cb27-265"></a>      <span class="at">strain =</span> <span class="fu">parse_strain</span>(hypothesis),</span>
+<span id="cb27-266"><a href="#cb27-266"></a>      <span class="at">comparison_days =</span> <span class="fu">paste</span>(days, <span class="at">collapse =</span> <span class="st">" -&gt; "</span>),</span>
+<span id="cb27-267"><a href="#cb27-267"></a>      <span class="at">.before =</span> <span class="dv">1</span></span>
+<span id="cb27-268"><a href="#cb27-268"></a>    )</span>
+<span id="cb27-269"><a href="#cb27-269"></a>}</span>
+<span id="cb27-270"><a href="#cb27-270"></a></span>
+<span id="cb27-271"><a href="#cb27-271"></a>deltas_0_8_obj <span class="ot">&lt;-</span> <span class="fu">delta_vs_control</span>(fit_growth, <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"8"</span>))</span>
+<span id="cb27-272"><a href="#cb27-272"></a>deltas_0_4_obj <span class="ot">&lt;-</span> <span class="fu">delta_vs_control</span>(fit_growth, <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"4"</span>))</span>
+<span id="cb27-273"><a href="#cb27-273"></a></span>
+<span id="cb27-274"><a href="#cb27-274"></a>deltas <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb27-275"><a href="#cb27-275"></a>  <span class="fu">tidy_deltas</span>(deltas_0_8_obj, <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"8"</span>)),</span>
+<span id="cb27-276"><a href="#cb27-276"></a>  <span class="fu">tidy_deltas</span>(deltas_0_4_obj, <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"4"</span>))</span>
+<span id="cb27-277"><a href="#cb27-277"></a>)</span>
+<span id="cb27-278"><a href="#cb27-278"></a><span class="in">```</span></span>
+<span id="cb27-279"><a href="#cb27-279"></a></span>
+<span id="cb27-280"><a href="#cb27-280"></a>Posterior probability of direction and a simple decision rule (95% credible interval excludes zero) for the day0-&gt;day8 contrast, which is the primary endpoint. <span class="in">`prob_increase`</span>/<span class="in">`prob_decrease`</span> are computed directly from the posterior draws behind <span class="in">`deltas_0_8_obj`</span> via <span class="in">`posterior_draws()`</span>, so they are exact posterior quantities rather than a normal approximation.</span>
+<span id="cb27-281"><a href="#cb27-281"></a></span>
+<span id="cb27-284"><a href="#cb27-284"></a><span class="in">```{r}</span></span>
+<span id="cb27-285"><a href="#cb27-285"></a><span class="co">#| output: true</span></span>
+<span id="cb27-286"><a href="#cb27-286"></a>prob_direction <span class="ot">&lt;-</span> deltas_0_8_obj <span class="sc">|&gt;</span></span>
+<span id="cb27-287"><a href="#cb27-287"></a>  <span class="fu">posterior_draws</span>() <span class="sc">|&gt;</span></span>
+<span id="cb27-288"><a href="#cb27-288"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb27-289"><a href="#cb27-289"></a>    <span class="at">prob_increase =</span> <span class="fu">mean</span>(draw <span class="sc">&gt;</span> <span class="dv">0</span>),</span>
+<span id="cb27-290"><a href="#cb27-290"></a>    <span class="at">prob_decrease =</span> <span class="fu">mean</span>(draw <span class="sc">&lt;</span> <span class="dv">0</span>),</span>
+<span id="cb27-291"><a href="#cb27-291"></a>    <span class="at">.by =</span> hypothesis</span>
+<span id="cb27-292"><a href="#cb27-292"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb27-293"><a href="#cb27-293"></a>  <span class="fu">mutate</span>(<span class="at">strain =</span> <span class="fu">parse_strain</span>(hypothesis))</span>
+<span id="cb27-294"><a href="#cb27-294"></a></span>
+<span id="cb27-295"><a href="#cb27-295"></a>strain_effects <span class="ot">&lt;-</span> <span class="fu">tidy_deltas</span>(deltas_0_8_obj, <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"8"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb27-296"><a href="#cb27-296"></a>  <span class="fu">select</span>(strain, estimate, conf.low, conf.high) <span class="sc">|&gt;</span></span>
+<span id="cb27-297"><a href="#cb27-297"></a>  <span class="fu">left_join</span>(<span class="fu">select</span>(prob_direction, <span class="sc">-</span>hypothesis), <span class="at">by =</span> <span class="st">"strain"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb27-298"><a href="#cb27-298"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb27-299"><a href="#cb27-299"></a>    <span class="at">direction =</span> <span class="fu">case_when</span>(</span>
+<span id="cb27-300"><a href="#cb27-300"></a>      conf.low <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"increases growth"</span>,</span>
+<span id="cb27-301"><a href="#cb27-301"></a>      conf.high <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"decreases growth"</span>,</span>
+<span id="cb27-302"><a href="#cb27-302"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"no clear effect"</span></span>
+<span id="cb27-303"><a href="#cb27-303"></a>    )</span>
+<span id="cb27-304"><a href="#cb27-304"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb27-305"><a href="#cb27-305"></a>  <span class="fu">arrange</span>(estimate)</span>
+<span id="cb27-306"><a href="#cb27-306"></a></span>
+<span id="cb27-307"><a href="#cb27-307"></a>strain_effects <span class="sc">|&gt;</span> <span class="fu">count</span>(direction)</span>
+<span id="cb27-308"><a href="#cb27-308"></a>strain_effects</span>
+<span id="cb27-309"><a href="#cb27-309"></a><span class="in">```</span></span>
+<span id="cb27-310"><a href="#cb27-310"></a></span>
+<span id="cb27-313"><a href="#cb27-313"></a><span class="in">```{r}</span></span>
+<span id="cb27-314"><a href="#cb27-314"></a><span class="co">#| label: fig-strain-effects</span></span>
+<span id="cb27-315"><a href="#cb27-315"></a><span class="co">#| output: true</span></span>
+<span id="cb27-316"><a href="#cb27-316"></a><span class="co">#| fig-width: 7</span></span>
+<span id="cb27-317"><a href="#cb27-317"></a><span class="co">#| fig-height: 7</span></span>
+<span id="cb27-318"><a href="#cb27-318"></a><span class="co">#| fig-cap: "Per-strain difference-in-differences in frond area growth (day 0 to day 8) relative to CONTROL, with 95% credible intervals. Strains are colored by whether their credible interval excludes zero (increases/decreases growth) or spans zero (no clear effect)."</span></span>
+<span id="cb27-319"><a href="#cb27-319"></a>strain_effects <span class="sc">|&gt;</span></span>
+<span id="cb27-320"><a href="#cb27-320"></a>  <span class="fu">mutate</span>(<span class="at">strain =</span> <span class="fu">fct_reorder</span>(strain, estimate)) <span class="sc">|&gt;</span></span>
+<span id="cb27-321"><a href="#cb27-321"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> estimate, <span class="at">y =</span> strain, <span class="at">color =</span> direction)) <span class="sc">+</span></span>
+<span id="cb27-322"><a href="#cb27-322"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey40"</span>) <span class="sc">+</span></span>
+<span id="cb27-323"><a href="#cb27-323"></a>  <span class="fu">geom_pointrange</span>(</span>
+<span id="cb27-324"><a href="#cb27-324"></a>    <span class="fu">aes</span>(<span class="at">xmin =</span> conf.low, <span class="at">xmax =</span> conf.high),</span>
+<span id="cb27-325"><a href="#cb27-325"></a>    <span class="at">linewidth =</span> <span class="fl">0.5</span>,</span>
+<span id="cb27-326"><a href="#cb27-326"></a>    <span class="at">size =</span> <span class="fl">0.3</span></span>
+<span id="cb27-327"><a href="#cb27-327"></a>  ) <span class="sc">+</span></span>
+<span id="cb27-328"><a href="#cb27-328"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb27-329"><a href="#cb27-329"></a>    <span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb27-330"><a href="#cb27-330"></a>      <span class="st">"increases growth"</span> <span class="ot">=</span> <span class="st">"#1b9e77"</span>,</span>
+<span id="cb27-331"><a href="#cb27-331"></a>      <span class="st">"decreases growth"</span> <span class="ot">=</span> <span class="st">"#d95f02"</span>,</span>
+<span id="cb27-332"><a href="#cb27-332"></a>      <span class="st">"no clear effect"</span> <span class="ot">=</span> <span class="st">"grey60"</span></span>
+<span id="cb27-333"><a href="#cb27-333"></a>    )</span>
+<span id="cb27-334"><a href="#cb27-334"></a>  ) <span class="sc">+</span></span>
+<span id="cb27-335"><a href="#cb27-335"></a>  <span class="fu">labs</span>(</span>
+<span id="cb27-336"><a href="#cb27-336"></a>    <span class="at">x =</span> <span class="fu">expression</span>(</span>
+<span id="cb27-337"><a href="#cb27-337"></a>      <span class="st">"Growth difference relative to  CONTROL ("</span> <span class="sc">*</span></span>
+<span id="cb27-338"><a href="#cb27-338"></a>        cm<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span></span>
+<span id="cb27-339"><a href="#cb27-339"></a>        <span class="st">"), over days, 0, 4, and 8"</span></span>
+<span id="cb27-340"><a href="#cb27-340"></a>    ),</span>
+<span id="cb27-341"><a href="#cb27-341"></a>    <span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb27-342"><a href="#cb27-342"></a>    <span class="at">color =</span> <span class="cn">NULL</span>,</span>
+<span id="cb27-343"><a href="#cb27-343"></a>    <span class="at">title =</span> <span class="st">"Per-strain effect on duckweed growth relative to CONTROL"</span></span>
+<span id="cb27-344"><a href="#cb27-344"></a>  ) <span class="sc">+</span></span>
+<span id="cb27-345"><a href="#cb27-345"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>) <span class="sc">+</span></span>
+<span id="cb27-346"><a href="#cb27-346"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span>
+<span id="cb27-347"><a href="#cb27-347"></a><span class="in">```</span></span>
+<span id="cb27-348"><a href="#cb27-348"></a></span>
+<span id="cb27-349"><a href="#cb27-349"></a><span class="fu"># Sensitivity check: unbalanced CONTROL baseline</span></span>
+<span id="cb27-350"><a href="#cb27-350"></a></span>
+<span id="cb27-351"><a href="#cb27-351"></a><span class="in">`CONTROL`</span> is measured on more wells at day 0 (72) than at day 4/8 (24), because two <span class="in">`CONTROL`</span>-only plates were imaged only at day 0 and never followed up. Those 48 extra wells inform <span class="in">`CONTROL`</span>'s day-0 baseline but contribute nothing at day 8, so in principle they could bias the <span class="in">`CONTROL`</span> growth estimate that every delta is measured against. In the raw data the shift is small (pooled <span class="in">`CONTROL`</span> day-0 mean 6.11 cm² vs 5.77 cm² among wells followed at all three days), but we check it explicitly by refitting on only those wells measured at all three timepoints. This second fit gets its own cache file.</span>
+<span id="cb27-352"><a href="#cb27-352"></a></span>
+<span id="cb27-355"><a href="#cb27-355"></a><span class="in">```{r}</span></span>
+<span id="cb27-356"><a href="#cb27-356"></a>complete_wells <span class="ot">&lt;-</span> frondarea <span class="sc">|&gt;</span></span>
+<span id="cb27-357"><a href="#cb27-357"></a>  <span class="fu">count</span>(well_uid) <span class="sc">|&gt;</span></span>
+<span id="cb27-358"><a href="#cb27-358"></a>  <span class="fu">filter</span>(n <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">|&gt;</span></span>
+<span id="cb27-359"><a href="#cb27-359"></a>  <span class="fu">pull</span>(well_uid)</span>
+<span id="cb27-360"><a href="#cb27-360"></a></span>
+<span id="cb27-361"><a href="#cb27-361"></a>frondarea_complete <span class="ot">&lt;-</span> frondarea <span class="sc">|&gt;</span> <span class="fu">filter</span>(well_uid <span class="sc">%in%</span> complete_wells)</span>
+<span id="cb27-362"><a href="#cb27-362"></a></span>
+<span id="cb27-363"><a href="#cb27-363"></a>fit_growth_complete <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb27-364"><a href="#cb27-364"></a>  area <span class="sc">~</span> day <span class="sc">*</span> strain <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> well_uid),</span>
+<span id="cb27-365"><a href="#cb27-365"></a>  <span class="at">data =</span> frondarea_complete,</span>
+<span id="cb27-366"><a href="#cb27-366"></a>  <span class="at">family =</span> <span class="fu">lognormal</span>(),</span>
+<span id="cb27-367"><a href="#cb27-367"></a>  <span class="at">prior =</span> priors,</span>
+<span id="cb27-368"><a href="#cb27-368"></a>  <span class="at">chains =</span> <span class="dv">4</span>,</span>
+<span id="cb27-369"><a href="#cb27-369"></a>  <span class="at">cores =</span> <span class="dv">4</span>,</span>
+<span id="cb27-370"><a href="#cb27-370"></a>  <span class="at">iter =</span> <span class="dv">4000</span>,</span>
+<span id="cb27-371"><a href="#cb27-371"></a>  <span class="at">warmup =</span> <span class="dv">1000</span>,</span>
+<span id="cb27-372"><a href="#cb27-372"></a>  <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> <span class="fl">0.95</span>, <span class="at">max_treedepth =</span> <span class="dv">12</span>),</span>
+<span id="cb27-373"><a href="#cb27-373"></a>  <span class="at">seed =</span> <span class="dv">123</span>,</span>
+<span id="cb27-374"><a href="#cb27-374"></a>  <span class="at">backend =</span> <span class="st">"cmdstanr"</span>,</span>
+<span id="cb27-375"><a href="#cb27-375"></a>  <span class="at">file =</span> <span class="fu">path</span>(models_dir, <span class="st">"fit_growth_complete_wells"</span>),</span>
+<span id="cb27-376"><a href="#cb27-376"></a>  <span class="at">file_refit =</span> <span class="st">"on_change"</span></span>
+<span id="cb27-377"><a href="#cb27-377"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb27-378"><a href="#cb27-378"></a>  <span class="fu">set_modeldata</span>(frondarea_complete)</span>
+<span id="cb27-379"><a href="#cb27-379"></a><span class="in">```</span></span>
+<span id="cb27-380"><a href="#cb27-380"></a></span>
+<span id="cb27-383"><a href="#cb27-383"></a><span class="in">```{r}</span></span>
+<span id="cb27-384"><a href="#cb27-384"></a><span class="co">#| label: fig-sensitivity-check</span></span>
+<span id="cb27-385"><a href="#cb27-385"></a><span class="co">#| output: true</span></span>
+<span id="cb27-386"><a href="#cb27-386"></a><span class="co">#| fig-cap: "Sensitivity of per-strain growth deltas to the unbalanced CONTROL baseline: deltas from the full model (all wells) vs. from a model refit on only wells measured at all three timepoints. Points near the dashed 1:1 line indicate the unbalanced CONTROL baseline has little effect on estimated deltas."</span></span>
+<span id="cb27-387"><a href="#cb27-387"></a>sensitivity <span class="ot">&lt;-</span> <span class="fu">tidy_deltas</span>(</span>
+<span id="cb27-388"><a href="#cb27-388"></a>  <span class="fu">delta_vs_control</span>(fit_growth_complete, <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"8"</span>)),</span>
+<span id="cb27-389"><a href="#cb27-389"></a>  <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"8"</span>)</span>
+<span id="cb27-390"><a href="#cb27-390"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb27-391"><a href="#cb27-391"></a>  <span class="fu">select</span>(strain, <span class="at">estimate_complete =</span> estimate) <span class="sc">|&gt;</span></span>
+<span id="cb27-392"><a href="#cb27-392"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb27-393"><a href="#cb27-393"></a>    <span class="fu">select</span>(strain_effects, strain, <span class="at">estimate_full =</span> estimate),</span>
+<span id="cb27-394"><a href="#cb27-394"></a>    <span class="at">by =</span> <span class="st">"strain"</span></span>
+<span id="cb27-395"><a href="#cb27-395"></a>  )</span>
+<span id="cb27-396"><a href="#cb27-396"></a></span>
+<span id="cb27-397"><a href="#cb27-397"></a>sensitivity <span class="sc">|&gt;</span></span>
+<span id="cb27-398"><a href="#cb27-398"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> estimate_full, <span class="at">y =</span> estimate_complete)) <span class="sc">+</span></span>
+<span id="cb27-399"><a href="#cb27-399"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey50"</span>) <span class="sc">+</span></span>
+<span id="cb27-400"><a href="#cb27-400"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb27-401"><a href="#cb27-401"></a>  <span class="fu">labs</span>(</span>
+<span id="cb27-402"><a href="#cb27-402"></a>    <span class="at">x =</span> <span class="fu">expression</span>(<span class="st">"Delta from full model ("</span> <span class="sc">*</span> cm<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="st">")"</span>),</span>
+<span id="cb27-403"><a href="#cb27-403"></a>    <span class="at">y =</span> <span class="fu">expression</span>(<span class="st">"Delta from complete-wells-only model ("</span> <span class="sc">*</span> cm<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="st">")"</span>),</span>
+<span id="cb27-404"><a href="#cb27-404"></a>    <span class="at">title =</span> <span class="st">"Sensitivity of growth deltas to the unbalanced CONTROL baseline"</span></span>
+<span id="cb27-405"><a href="#cb27-405"></a>  ) <span class="sc">+</span></span>
+<span id="cb27-406"><a href="#cb27-406"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">11</span>)</span>
+<span id="cb27-407"><a href="#cb27-407"></a><span class="in">```</span></span>
+<span id="cb27-408"><a href="#cb27-408"></a></span>
+<span id="cb27-411"><a href="#cb27-411"></a><span class="in">```{r}</span></span>
+<span id="cb27-412"><a href="#cb27-412"></a><span class="co">#| output: true</span></span>
+<span id="cb27-413"><a href="#cb27-413"></a>sensitivity <span class="sc">|&gt;</span></span>
+<span id="cb27-414"><a href="#cb27-414"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb27-415"><a href="#cb27-415"></a>    <span class="at">max_abs_difference =</span> <span class="fu">max</span>(<span class="fu">abs</span>(estimate_full <span class="sc">-</span> estimate_complete)),</span>
+<span id="cb27-416"><a href="#cb27-416"></a>    <span class="at">correlation =</span> <span class="fu">cor</span>(estimate_full, estimate_complete)</span>
+<span id="cb27-417"><a href="#cb27-417"></a>  )</span>
+<span id="cb27-418"><a href="#cb27-418"></a><span class="in">```</span></span>
+<span id="cb27-419"><a href="#cb27-419"></a></span>
+<span id="cb27-420"><a href="#cb27-420"></a><span class="fu"># Write results</span></span>
+<span id="cb27-421"><a href="#cb27-421"></a></span>
+<span id="cb27-424"><a href="#cb27-424"></a><span class="in">```{r}</span></span>
+<span id="cb27-425"><a href="#cb27-425"></a><span class="fu">write_tsv</span>(</span>
+<span id="cb27-426"><a href="#cb27-426"></a>  strain_effects,</span>
+<span id="cb27-427"><a href="#cb27-427"></a>  <span class="fu">path</span>(data_processed, <span class="st">"strain_control_deltas_day0_8.tsv"</span>)</span>
+<span id="cb27-428"><a href="#cb27-428"></a>)</span>
+<span id="cb27-429"><a href="#cb27-429"></a></span>
+<span id="cb27-430"><a href="#cb27-430"></a><span class="fu">write_tsv</span>(deltas, <span class="fu">path</span>(data_processed, <span class="st">"strain_control_deltas_all.tsv"</span>))</span>
+<span id="cb27-431"><a href="#cb27-431"></a></span>
+<span id="cb27-432"><a href="#cb27-432"></a><span class="fu">write_tsv</span>(</span>
+<span id="cb27-433"><a href="#cb27-433"></a>  <span class="fu">as_tibble</span>(pred_trajectories),</span>
+<span id="cb27-434"><a href="#cb27-434"></a>  <span class="fu">path</span>(data_processed, <span class="st">"predicted_trajectories.tsv"</span>)</span>
+<span id="cb27-435"><a href="#cb27-435"></a>)</span>
+<span id="cb27-436"><a href="#cb27-436"></a><span class="in">```</span></span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

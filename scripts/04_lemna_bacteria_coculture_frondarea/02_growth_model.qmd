@@ -1,0 +1,398 @@
+---
+title: "Bayesian model of duckweed growth with and without bacteria"
+subtitle: ""
+author: "Shane Hogle"
+date: today
+abstract: "Fits a Bayesian multilevel model of *Lemna* frond area over the course of coculture with 42 individual bacterial strains (or `CONTROL`, no bacteria), then uses `marginaleffects` to estimate, for each strain, the difference-in-differences in growth relative to `CONTROL` - i.e. whether that strain significantly increases or decreases duckweed growth."
+---
+
+# Design and modeling strategy
+
+Frond area was measured longitudinally (day 0, 4, 8) for individual wells, 8 wells (biological replicates) per strain per plate, see [01_read_frondarea.qmd](01_read_frondarea.qmd) for how the raw plate-reader exports were combined and cleaned. Two design features shape the model:
+
+- **Repeated measures**: the same physical well is imaged at all three timepoints, so observations within a well are correlated. We account for this with a well-level random intercept, `(1 | well_uid)`.
+- **Strain and plate are almost completely confounded**: with one exception (`CONTROL`, which spans several plates), every strain occupies exactly one physical plate. This means any plate-specific batch effect (e.g. a plate that got slightly more light) is inseparable from that strain's estimated effect - there is no cross-plate replication to disentangle them. Therefore, we do not add a separate plate-level random effect (it would be almost entirely collinear with the strain fixed effect); this is worth keeping in mind when interpreting any single strain's effect.
+
+Frond area is strictly positive and right-skewed (growth is a roughly multiplicative process), so we model it with a `lognormal()` family rather than treating raw area as Gaussian. `day` is treated as a 3-level factor (0/4/8) rather than a continuous slope, since we only have 3 timepoints and no reason to assume a linear (or any particular parametric) growth curve over that range.
+
+The fixed-effect structure is `day * strain`, with `CONTROL` set as the reference level for `strain` and day 0 as the reference level for `day`. Under this parameterization, the `day:strain` interaction coefficients directly represent, for each strain, how its growth trajectory deviates from `CONTROL`'s - i.e. exactly the "delta" quantity of interest. We use `marginaleffects` to compute these contrasts on the natural (response, cm²) scale with correctly propagated posterior uncertainty, rather than reading raw log-scale coefficients.
+
+## Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(fs)
+library(brms)
+library(cmdstanr)
+library(marginaleffects)
+library(tidybayes)
+library(bayesplot)
+
+options(mc.cores = 4, brms.backend = "cmdstanr")
+```
+
+## Global variables
+
+```{r}
+data_processed <- here::here(
+  "data",
+  "processed",
+  "04_lemna_bacteria_coculture_frondarea"
+)
+models_dir <- here::here(
+  "data",
+  "interim",
+  "04_lemna_bacteria_coculture_frondarea"
+)
+
+fs::dir_create(models_dir)
+```
+
+# Load data
+
+```{r}
+#| output: true
+frondarea <- read_rds(path(data_processed, "frondarea.rds")) |>
+  mutate(
+    day = factor(day, levels = c(0, 4, 8)),
+    strain = fct_relevel(strain, "CONTROL")
+  )
+
+glimpse(frondarea)
+```
+
+# Exploratory look
+
+```{r}
+#| label: fig-frondarea-trajectories
+#| output: true
+#| fig-width: 10
+#| fig-height: 6
+#| fig-cap: "Per-well frond area trajectories by strain across the three imaging timepoints (day 0, 4, 8), prior to model fitting. CONTROL wells (no bacteria) are highlighted in red."
+frondarea |>
+  ggplot(aes(x = day, y = area, group = well_uid, color = is_control)) +
+  geom_line(alpha = 0.3) +
+  geom_point(size = 0.8, alpha = 0.5) +
+  facet_wrap(~strain) +
+  scale_color_manual(
+    values = c(`TRUE` = "firebrick", `FALSE` = "grey40"),
+    guide = "none"
+  ) +
+  labs(
+    x = "Day",
+    y = expression("Frond area (" * cm^2 * ")"),
+    title = "Per-well frond area trajectories by strain"
+  ) +
+  theme_bw(base_size = 9)
+```
+
+# Fit model
+
+Priors are weakly informative on the log scale: `normal(0, 1)` on all fixed-effect coefficients (day, strain, and their interaction) allows roughly up to e-fold differences within one prior SD, which keeps estimates regularized given 42 strains are each informed by only 8 wells; `exponential(1)` on the well-level random-effect SD. Default `brms` priors are used for the intercept and residual SD (`sigma`), which are already sensible weakly-informative choices for this scale.
+
+The fitted model is cached to disk via `brm(..., file = ...)`. On subsequent renders, `brms` will simply reload the cached fit instead of resampling, and only refit if the formula, data, priors, or family change (`file_refit = "on_change"`).
+
+```{r}
+priors <- c(
+  prior(normal(0, 1), class = "b"),
+  prior(exponential(1), class = "sd")
+)
+
+fit_growth <- brm(
+  area ~ day * strain + (1 | well_uid),
+  data = frondarea,
+  family = lognormal(),
+  prior = priors,
+  sample_prior = "yes",
+  chains = 4,
+  cores = 4,
+  iter = 4000,
+  warmup = 1000,
+  control = list(adapt_delta = 0.95, max_treedepth = 12),
+  seed = 123,
+  backend = "cmdstanr",
+  file = path(models_dir, "fit_growth"),
+  file_refit = "on_change"
+)
+```
+
+When `brms` reloads a cached fit, the training data can't always be recovered reliably from the environment, which `marginaleffects` warns about. We attach it explicitly so all downstream contrasts use exactly the data the model was fit to.
+
+```{r}
+fit_growth <- set_modeldata(fit_growth, frondarea)
+```
+
+# Diagnostics
+
+```{r}
+#| output: true
+summary(fit_growth)
+```
+
+```{r}
+#| output: true
+rhat_range <- range(brms::rhat(fit_growth), na.rm = TRUE)
+ess_bulk_min <- min(summary(fit_growth)$fixed$Bulk_ESS, na.rm = TRUE)
+cat("Rhat range:", rhat_range, "\n")
+cat("Minimum Bulk_ESS among fixed effects:", ess_bulk_min, "\n")
+
+stopifnot("Rhat too high - check convergence" = rhat_range[2] < 1.01)
+```
+
+```{r}
+#| label: fig-ppcheck-overall
+#| output: true
+#| fig-width: 8
+#| fig-height: 5
+#| fig-cap: "Posterior predictive check: distribution of observed frond area (dark line) against 100 draws from the fitted model's posterior predictive distribution (light lines), pooled across all strains and days."
+pp_check(fit_growth, ndraws = 100) +
+  labs(title = "Posterior predictive check: overall")
+```
+
+```{r}
+#| label: fig-ppcheck-by-day
+#| output: true
+#| fig-width: 8
+#| fig-height: 5
+#| fig-cap: "Posterior predictive check: median frond area by day, observed (dark) vs. posterior predictive draws (light), grouped by timepoint."
+pp_check(fit_growth, type = "stat_grouped", group = "day", stat = "median") +
+  labs(title = "Posterior predictive check: mean area by day")
+```
+
+
+# Estimated growth trajectories
+
+Population-level (`re_formula = NA`, i.e. marginalizing over well-level random effects) predicted mean frond area by strain and day.
+
+```{r}
+#| output: true
+pred_trajectories <- avg_predictions(
+  fit_growth,
+  by = c("strain", "day"),
+  re_formula = NA,
+  type = "response"
+) |>
+  as_tibble()
+
+pred_trajectories
+```
+
+```{r}
+#| label: fig-growth-trajectories
+#| output: true
+#| fig-width: 10
+#| fig-height: 6
+#| fig-cap: "Model-estimated mean frond area trajectories by strain and day, marginalizing over well-level random effects (`re_formula = NA`). CONTROL is highlighted in red with its 95% credible interval shaded; each grey line is one bacterial strain."
+pred_trajectories |>
+  mutate(is_control = strain == "CONTROL") |>
+  ggplot(aes(x = day, y = estimate, group = strain)) +
+  geom_ribbon(
+    data = \(x) filter(x, is_control),
+    aes(ymin = conf.low, ymax = conf.high),
+    fill = "firebrick",
+    alpha = 0.15
+  ) +
+  geom_line(aes(color = is_control, linewidth = is_control, group = strain)) +
+  scale_color_manual(
+    values = c(`TRUE` = "firebrick", `FALSE` = "grey50"),
+    guide = "none"
+  ) +
+  scale_linewidth_manual(
+    values = c(`TRUE` = 1.2, `FALSE` = 0.5),
+    guide = "none"
+  ) +
+  labs(
+    x = "Day",
+    y = expression("Predicted frond area (" * cm^2 * ")"),
+    title = "Model-estimated growth trajectories",
+    subtitle = "CONTROL in red; each grey line is one bacterial strain"
+  ) +
+  theme_bw(base_size = 11)
+```
+
+# Marginal effects: growth deltas relative to CONTROL
+
+For each strain, we compute the day0->day8 (and day0->day4) change in frond area, then contrast that change against `CONTROL`'s change over the same interval - i.e. a difference-in-differences. Because `strain` was releveled so that `CONTROL` is the first factor level, `hypothesis = ~ reference` contrasts every strain's growth against `CONTROL`'s growth directly.
+
+With `hypothesis = ~reference` the `CONTROL` row is consumed as the reference and the remaining 42 rows are labelled in a `hypothesis` column of the form `(HA01) - (CONTROL)`, so we parse the strain name back out of that label.
+
+```{r}
+parse_strain <- function(x) {
+  str_remove_all(str_extract(x, "^\\([^)]+\\)"), "[()]")
+}
+
+delta_vs_control <- function(fit, days) {
+  avg_comparisons(
+    fit,
+    variables = list(day = days),
+    by = "strain",
+    hypothesis = ~reference,
+    re_formula = NA,
+    type = "response"
+  )
+}
+
+tidy_deltas <- function(obj, days) {
+  as_tibble(obj) |>
+    mutate(
+      strain = parse_strain(hypothesis),
+      comparison_days = paste(days, collapse = " -> "),
+      .before = 1
+    )
+}
+
+deltas_0_8_obj <- delta_vs_control(fit_growth, c("0", "8"))
+deltas_0_4_obj <- delta_vs_control(fit_growth, c("0", "4"))
+
+deltas <- bind_rows(
+  tidy_deltas(deltas_0_8_obj, c("0", "8")),
+  tidy_deltas(deltas_0_4_obj, c("0", "4"))
+)
+```
+
+Posterior probability of direction and a simple decision rule (95% credible interval excludes zero) for the day0->day8 contrast, which is the primary endpoint. `prob_increase`/`prob_decrease` are computed directly from the posterior draws behind `deltas_0_8_obj` via `posterior_draws()`, so they are exact posterior quantities rather than a normal approximation.
+
+```{r}
+#| output: true
+prob_direction <- deltas_0_8_obj |>
+  posterior_draws() |>
+  summarize(
+    prob_increase = mean(draw > 0),
+    prob_decrease = mean(draw < 0),
+    .by = hypothesis
+  ) |>
+  mutate(strain = parse_strain(hypothesis))
+
+strain_effects <- tidy_deltas(deltas_0_8_obj, c("0", "8")) |>
+  select(strain, estimate, conf.low, conf.high) |>
+  left_join(select(prob_direction, -hypothesis), by = "strain") |>
+  mutate(
+    direction = case_when(
+      conf.low > 0 ~ "increases growth",
+      conf.high < 0 ~ "decreases growth",
+      TRUE ~ "no clear effect"
+    )
+  ) |>
+  arrange(estimate)
+
+strain_effects |> count(direction)
+strain_effects
+```
+
+```{r}
+#| label: fig-strain-effects
+#| output: true
+#| fig-width: 7
+#| fig-height: 7
+#| fig-cap: "Per-strain difference-in-differences in frond area growth (day 0 to day 8) relative to CONTROL, with 95% credible intervals. Strains are colored by whether their credible interval excludes zero (increases/decreases growth) or spans zero (no clear effect)."
+strain_effects |>
+  mutate(strain = fct_reorder(strain, estimate)) |>
+  ggplot(aes(x = estimate, y = strain, color = direction)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey40") +
+  geom_pointrange(
+    aes(xmin = conf.low, xmax = conf.high),
+    linewidth = 0.5,
+    size = 0.3
+  ) +
+  scale_color_manual(
+    values = c(
+      "increases growth" = "#1b9e77",
+      "decreases growth" = "#d95f02",
+      "no clear effect" = "grey60"
+    )
+  ) +
+  labs(
+    x = expression(
+      "Growth difference relative to  CONTROL (" *
+        cm^2 *
+        "), over days, 0, 4, and 8"
+    ),
+    y = NULL,
+    color = NULL,
+    title = "Per-strain effect on duckweed growth relative to CONTROL"
+  ) +
+  theme_bw(base_size = 10) +
+  theme(legend.position = "top")
+```
+
+# Sensitivity check: unbalanced CONTROL baseline
+
+`CONTROL` is measured on more wells at day 0 (72) than at day 4/8 (24), because two `CONTROL`-only plates were imaged only at day 0 and never followed up. Those 48 extra wells inform `CONTROL`'s day-0 baseline but contribute nothing at day 8, so in principle they could bias the `CONTROL` growth estimate that every delta is measured against. In the raw data the shift is small (pooled `CONTROL` day-0 mean 6.11 cm² vs 5.77 cm² among wells followed at all three days), but we check it explicitly by refitting on only those wells measured at all three timepoints. This second fit gets its own cache file.
+
+```{r}
+complete_wells <- frondarea |>
+  count(well_uid) |>
+  filter(n == 3) |>
+  pull(well_uid)
+
+frondarea_complete <- frondarea |> filter(well_uid %in% complete_wells)
+
+fit_growth_complete <- brm(
+  area ~ day * strain + (1 | well_uid),
+  data = frondarea_complete,
+  family = lognormal(),
+  prior = priors,
+  chains = 4,
+  cores = 4,
+  iter = 4000,
+  warmup = 1000,
+  control = list(adapt_delta = 0.95, max_treedepth = 12),
+  seed = 123,
+  backend = "cmdstanr",
+  file = path(models_dir, "fit_growth_complete_wells"),
+  file_refit = "on_change"
+) |>
+  set_modeldata(frondarea_complete)
+```
+
+```{r}
+#| label: fig-sensitivity-check
+#| output: true
+#| fig-cap: "Sensitivity of per-strain growth deltas to the unbalanced CONTROL baseline: deltas from the full model (all wells) vs. from a model refit on only wells measured at all three timepoints. Points near the dashed 1:1 line indicate the unbalanced CONTROL baseline has little effect on estimated deltas."
+sensitivity <- tidy_deltas(
+  delta_vs_control(fit_growth_complete, c("0", "8")),
+  c("0", "8")
+) |>
+  select(strain, estimate_complete = estimate) |>
+  left_join(
+    select(strain_effects, strain, estimate_full = estimate),
+    by = "strain"
+  )
+
+sensitivity |>
+  ggplot(aes(x = estimate_full, y = estimate_complete)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey50") +
+  geom_point(alpha = 0.7) +
+  labs(
+    x = expression("Delta from full model (" * cm^2 * ")"),
+    y = expression("Delta from complete-wells-only model (" * cm^2 * ")"),
+    title = "Sensitivity of growth deltas to the unbalanced CONTROL baseline"
+  ) +
+  theme_bw(base_size = 11)
+```
+
+```{r}
+#| output: true
+sensitivity |>
+  summarize(
+    max_abs_difference = max(abs(estimate_full - estimate_complete)),
+    correlation = cor(estimate_full, estimate_complete)
+  )
+```
+
+# Write results
+
+```{r}
+write_tsv(
+  strain_effects,
+  path(data_processed, "strain_control_deltas_day0_8.tsv")
+)
+
+write_tsv(deltas, path(data_processed, "strain_control_deltas_all.tsv"))
+
+write_tsv(
+  as_tibble(pred_trajectories),
+  path(data_processed, "predicted_trajectories.tsv")
+)
+```

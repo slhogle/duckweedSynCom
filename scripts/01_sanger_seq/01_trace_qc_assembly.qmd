@@ -1,0 +1,828 @@
+---
+title: "Quality control and assembly of 16S rRNA Sanger traces"
+subtitle: ""
+author: "Shane Hogle"
+date: today
+abstract: "Parses the raw .ab1 chromatograms from the bacterial isolate 16S rRNA Sanger runs, quality-trims each trace with a sliding window, and scores it pass/fail. Passing forward and reverse reads from the same well are then merged into a single consensus sequence by local alignment, resolving disagreements in favour of the higher-quality base call. Wells with only one usable direction are carried through as singletons. Outputs a per-trace QC table, an assembly metrics table, and a FASTA of consensus sequences for downstream taxonomic assignment."
+---
+
+# Setup
+
+## Libraries
+
+Loads required libraries
+
+```{python}
+import re
+from pathlib import Path
+import numpy as np
+import pandas as pd
+from Bio import SeqIO
+from Bio.Align import PairwiseAligner
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+```
+
+## Global variables
+
+Paths are resolved from the project root rather than the working directory, so
+the notebook behaves the same whether it is rendered by Quarto or run
+interactively. This is the Python counterpart of `here::here()` used in the R
+notebooks: walk up from the working directory until an anchor file that marks
+the top of the repository is found.
+
+```{python}
+def proj_root(anchors=(".here", "_quarto.yml", ".git")):
+    """Return the nearest ancestor directory containing one of `anchors`."""
+    start = Path.cwd().resolve()
+    for d in (start, *start.parents):
+        if any((d / a).exists() for a in anchors):
+            return d
+    raise FileNotFoundError(f"no project anchor {anchors} above {start}")
+
+
+data_raw = proj_root() / "data" / "raw" / "20250701_sanger_seq"
+data_processed = proj_root() / "data" / "processed" / "01_sanger_seq"
+output_figures = proj_root() / "output" / "figures"
+
+data_processed.mkdir(parents=True, exist_ok=True)
+output_figures.mkdir(parents=True, exist_ok=True)
+```
+
+Raw input. `trace_root` holds one subdirectory per sequencing batch. Traces are
+found recursively below each batch directory, so both the delivered layout
+(`<batch>/ab1_files/*.ab1`) and a flattened one (`<batch>/*.ab1`) work. Files
+must be named `16S-<well>_<F|R>.ab1`.
+
+`batch_info` is the tab-separated plate map with columns `sanger_batch`,
+`sanger_plate_well`, `bacteria_plate_well`, `location`, and `google_drive_id`.
+
+```{python}
+trace_root = data_raw
+batch_info_tsv = data_raw / "sanger_batch_info.tsv"
+```
+
+Quality-control parameters for the sliding-window trimming and the pass/fail
+call on each trimmed read.
+
+```{python}
+WINDOW = 20  # sliding-window width (bp) for quality trimming
+QUAL_THRESHOLD = 20  # min mean phred in the window to start/end the keep region
+MIN_LENGTH = 100  # min trimmed length (bp) to retain a read
+MEAN_QUAL_MIN = 20  # min mean phred of the trimmed read
+MAX_N_FRACTION = 0.05  # max fraction of ambiguous bases in the trimmed read
+```
+
+Scoring parameters for the local alignment used to merge the forward read
+against the reverse-complemented reverse read.
+
+```{python}
+ALN_MATCH = 2
+ALN_MISMATCH = -3
+ALN_GAP_OPEN = -5
+ALN_GAP_EXTEND = -2
+MIN_ALN_SCORE = 50  # below this, F and R are treated as non-overlapping
+```
+
+# Parsing traces
+
+Reads every `.ab1` below `trace_root/<batch>/` into a table of raw reads, one
+row per trace. Zero-byte files, unparseable filenames, and truncated
+chromatograms are collected separately rather than raising, so a single bad
+trace does not abort the run.
+
+```{python}
+def parse_traces(trace_root):
+    """Read every .ab1 under trace_root/<batch>/ into a DataFrame of raw reads."""
+    records, errors = [], []
+    for batch_path in sorted(p for p in Path(trace_root).iterdir() if p.is_dir()):
+        batch_dir = batch_path.name
+        for ab1 in sorted(batch_path.rglob("*.ab1")):
+            fname, fpath = ab1.name, str(ab1)
+            if ab1.stat().st_size == 0:
+                errors.append(
+                    {"batch": batch_dir, "filename": fname, "error": "zero-byte"}
+                )
+                continue
+            m = re.match(r"16S-(.+)_(F|R)\.ab1", fname)
+            if not m:
+                errors.append(
+                    {
+                        "batch": batch_dir,
+                        "filename": fname,
+                        "error": "unrecognized filename",
+                    }
+                )
+                continue
+            well, direction = m.group(1), m.group(2)
+            try:
+                rec = SeqIO.read(fpath, "abi")
+                quals = rec.letter_annotations["phred_quality"]
+                seq_str = str(rec.seq)
+                records.append(
+                    {
+                        "batch": batch_dir,
+                        "well": well,
+                        "direction": direction,
+                        "filename": fname,
+                        "filepath": fpath,
+                        "raw_length": len(seq_str),
+                        "raw_seq": seq_str,
+                        "raw_quals": quals,
+                        "raw_mean_qual": round(np.mean(quals), 1),
+                        "raw_median_qual": float(np.median(quals)),
+                        "n_count": seq_str.count("N"),
+                        "n_fraction": (
+                            round(seq_str.count("N") / len(seq_str), 4)
+                            if len(seq_str) > 0
+                            else 0
+                        ),
+                    }
+                )
+            except Exception as e:  # unreadable / truncated trace
+                errors.append(
+                    {"batch": batch_dir, "filename": fname, "error": str(e)}
+                )
+    return pd.DataFrame(records), pd.DataFrame(errors)
+```
+
+```{python}
+#| output: true
+reads, read_errors = parse_traces(trace_root)
+assert len(reads) > 0, f"no traces parsed from {trace_root}"
+
+print(f"traces parsed : {len(reads)}")
+print(f"read errors   : {len(read_errors)}")
+```
+
+Any traces that could not be read at all are listed here.
+
+```{python}
+#| output: true
+read_errors
+```
+
+# Quality trimming
+
+Each read is trimmed to the region flanked by windows whose mean phred score
+clears `QUAL_THRESHOLD`. A read with no acceptable region, or one whose
+surviving region is shorter than `MIN_LENGTH`, gets the empty interval `(0, 0)`
+and is discarded downstream.
+
+```{python}
+def sliding_window_trim(quals, window=20, threshold=20, min_length=100):
+    """Return (start, end) of the region flanked by windows of mean phred >= threshold.
+
+    (0, 0) means the read has no acceptable region and is discarded.
+    """
+    n = len(quals)
+    if n < window:
+        return (0, 0)
+    trim_start = 0
+    for i in range(n - window + 1):
+        if np.mean(quals[i : i + window]) >= threshold:
+            trim_start = i
+            break
+    else:
+        return (0, 0)
+    trim_end = n
+    for i in range(n, window - 1, -1):
+        if np.mean(quals[i - window : i]) >= threshold:
+            trim_end = i
+            break
+    else:
+        return (0, 0)
+    if trim_end - trim_start < min_length:
+        return (0, 0)
+    return (trim_start, trim_end)
+```
+
+A trimmed read passes QC when it is long enough, has a high enough mean phred
+score, and carries few enough ambiguous bases.
+
+```{python}
+def trim_and_score(df):
+    """Add trim coordinates, trimmed stats, and the qc_pass flag to the read table."""
+    trim_results = []
+    for _, row in df.iterrows():
+        quals, seq = row["raw_quals"], row["raw_seq"]
+        start, end = sliding_window_trim(quals, WINDOW, QUAL_THRESHOLD, MIN_LENGTH)
+        trimmed_seq = seq[start:end]
+        trimmed_quals = quals[start:end]
+        trimmed_len = end - start
+        trimmed_mean_qual = round(np.mean(trimmed_quals), 1) if trimmed_len > 0 else 0.0
+        trimmed_n_count = trimmed_seq.count("N") if trimmed_len > 0 else 0
+        trimmed_n_frac = (
+            round(trimmed_n_count / trimmed_len, 4) if trimmed_len > 0 else 0.0
+        )
+
+        passed = (
+            trimmed_len >= MIN_LENGTH
+            and trimmed_mean_qual >= MEAN_QUAL_MIN
+            and trimmed_n_frac <= MAX_N_FRACTION
+        )
+
+        trim_results.append(
+            {
+                "trim_start": start,
+                "trim_end": end,
+                "trimmed_length": trimmed_len,
+                "trimmed_mean_qual": trimmed_mean_qual,
+                "trimmed_n_count": trimmed_n_count,
+                "trimmed_n_fraction": trimmed_n_frac,
+                "trimmed_seq": trimmed_seq,
+                "trimmed_quals": trimmed_quals,
+                "qc_pass": passed,
+            }
+        )
+    return pd.concat(
+        [df.reset_index(drop=True), pd.DataFrame(trim_results)], axis=1
+    )
+```
+
+```{python}
+#| output: true
+reads = trim_and_score(reads)
+
+print(
+    f"qc pass       : {int(reads['qc_pass'].sum())} "
+    f"({reads['qc_pass'].mean() * 100:.1f}%)"
+)
+```
+
+# Assembling consensus sequences
+
+Paired wells are merged by local alignment of the forward read against the
+reverse-complemented reverse read. Inside aligned blocks, disagreements are
+resolved in favour of the higher-quality base; unaligned flanks are taken from
+whichever read covers them; gap regions present in both reads are taken from
+the higher mean-quality stretch. If the best local alignment scores below
+`MIN_ALN_SCORE` the reads are assumed not to overlap and the longer read is
+returned unmerged.
+
+```{python}
+def reverse_complement(seq_str):
+    return str(Seq(seq_str).reverse_complement())
+
+
+def _make_aligner():
+    aligner = PairwiseAligner()
+    aligner.mode = "local"
+    aligner.match_score = ALN_MATCH
+    aligner.mismatch_score = ALN_MISMATCH
+    aligner.open_gap_score = ALN_GAP_OPEN
+    aligner.extend_gap_score = ALN_GAP_EXTEND
+    return aligner
+
+
+def build_consensus(fwd_seq, fwd_quals, rev_seq, rev_quals):
+    """Merge a forward and reverse read into one sequence.
+
+    Returns (consensus_seq, info_dict).
+    """
+    rev_rc = reverse_complement(rev_seq)
+    rev_quals_rc = rev_quals[::-1]
+
+    aln = _make_aligner().align(fwd_seq, rev_rc)[0]
+
+    if aln.score < MIN_ALN_SCORE:
+        longer = fwd_seq if len(fwd_seq) >= len(rev_rc) else rev_rc
+        return longer, {
+            "overlap_length": 0,
+            "overlap_pct_identity": 0.0,
+            "alignment_score": aln.score,
+            "note": "no_overlap",
+        }
+
+    t_blocks, q_blocks = aln.aligned[0], aln.aligned[1]
+
+    total_aligned = total_matches = 0
+    for (ts, te), (qs, qe) in zip(t_blocks, q_blocks):
+        seg_len = te - ts
+        total_aligned += seg_len
+        for i in range(seg_len):
+            if fwd_seq[ts + i] == rev_rc[qs + i]:
+                total_matches += 1
+
+    t_start_global = t_blocks[0][0]
+    q_end_global = q_blocks[-1][1]
+
+    consensus_parts = []
+    if t_start_global > 0:  # forward-only 5' flank
+        consensus_parts.append(fwd_seq[:t_start_global])
+
+    for block_idx, ((ts, te), (qs, qe)) in enumerate(zip(t_blocks, q_blocks)):
+        if block_idx > 0:  # bridge the inter-block gap
+            prev_t_end = t_blocks[block_idx - 1][1]
+            prev_q_end = q_blocks[block_idx - 1][1]
+            t_gap = ts - prev_t_end
+            q_gap = qs - prev_q_end
+            if t_gap > 0 and q_gap == 0:
+                consensus_parts.append(fwd_seq[prev_t_end:ts])
+            elif q_gap > 0 and t_gap == 0:
+                consensus_parts.append(rev_rc[prev_q_end:qs])
+            elif t_gap > 0 and q_gap > 0:
+                t_gap_q = np.mean(fwd_quals[prev_t_end:ts])
+                q_gap_q = np.mean(rev_quals_rc[prev_q_end:qs])
+                consensus_parts.append(
+                    fwd_seq[prev_t_end:ts] if t_gap_q >= q_gap_q
+                    else rev_rc[prev_q_end:qs]
+                )
+
+        for i in range(te - ts):  # quality-weighted base calls
+            if fwd_seq[ts + i] == rev_rc[qs + i]:
+                consensus_parts.append(fwd_seq[ts + i])
+            elif fwd_quals[ts + i] >= rev_quals_rc[qs + i]:
+                consensus_parts.append(fwd_seq[ts + i])
+            else:
+                consensus_parts.append(rev_rc[qs + i])
+
+    if q_end_global < len(rev_rc):  # reverse-only 3' flank
+        consensus_parts.append(rev_rc[q_end_global:])
+
+    pct_id = round(total_matches / total_aligned * 100, 1) if total_aligned > 0 else 0.0
+    return "".join(consensus_parts), {
+        "overlap_length": total_aligned,
+        "overlap_mismatches": total_aligned - total_matches,
+        "overlap_pct_identity": pct_id,
+        "alignment_score": aln.score,
+        "n_aligned_blocks": len(t_blocks),
+    }
+```
+
+Wells with only one passing direction are carried through as singletons.
+Reverse singletons are reverse-complemented so that all output is 5'->3'
+forward.
+
+```{python}
+def assemble(df):
+    """Assemble one record per (batch, well) from the QC-passing reads."""
+    passing = df[df["qc_pass"]].copy()
+    assembly_results = []
+    for (batch, well), group in passing.groupby(["batch", "well"]):
+        directions = dict(zip(group["direction"], group.index))
+
+        if "F" in directions and "R" in directions:
+            fwd_row = df.loc[directions["F"]]
+            rev_row = df.loc[directions["R"]]
+            consensus_seq, info = build_consensus(
+                fwd_row["trimmed_seq"],
+                fwd_row["trimmed_quals"],
+                rev_row["trimmed_seq"],
+                rev_row["trimmed_quals"],
+            )
+            assembly_results.append(
+                {
+                    "batch": batch,
+                    "well": well,
+                    "assembly_type": "consensus",
+                    "consensus_seq": consensus_seq,
+                    "consensus_length": len(consensus_seq),
+                    "fwd_trimmed_length": fwd_row["trimmed_length"],
+                    "rev_trimmed_length": rev_row["trimmed_length"],
+                    **info,
+                }
+            )
+        else:
+            d = "F" if "F" in directions else "R"
+            row = df.loc[directions[d]]
+            seq = row["trimmed_seq"]
+            if d == "R":
+                seq = reverse_complement(seq)
+            assembly_results.append(
+                {
+                    "batch": batch,
+                    "well": well,
+                    "assembly_type": f"singleton_{d}",
+                    "consensus_seq": seq,
+                    "consensus_length": len(seq),
+                    "fwd_trimmed_length": row["trimmed_length"] if d == "F" else 0,
+                    "rev_trimmed_length": row["trimmed_length"] if d == "R" else 0,
+                    "overlap_length": 0,
+                    "overlap_mismatches": 0,
+                    "overlap_pct_identity": 0.0,
+                    "alignment_score": 0,
+                }
+            )
+    return pd.DataFrame(assembly_results)
+```
+
+```{python}
+assemblies = assemble(reads)
+```
+
+# Attaching plate metadata
+
+Joins the plate map and mints a stable `seq_id` per assembly.
+`google_drive_id` is the lab's isolate name; wells with no metadata row
+(`batch20250508` was sequenced before the map was kept) fall back to
+`batch20250508_<well>`. Collisions get a `_b<MMDD>` batch suffix.
+
+```{python}
+def attach_metadata(assembly_df, batch_info_path):
+    """Join the plate map and mint a stable seq_id per assembly."""
+    batch_info = pd.read_csv(batch_info_path, sep="\t")
+    merged = assembly_df.merge(
+        batch_info.rename(
+            columns={"sanger_batch": "batch", "sanger_plate_well": "well"}
+        ),
+        on=["batch", "well"],
+        how="left",
+    )
+
+    seen, seq_ids = {}, []
+    for _, row in merged.iterrows():
+        sid = (
+            row["google_drive_id"]
+            if pd.notna(row["google_drive_id"])
+            else f"batch20250508_{row['well']}"
+        )
+        if sid in seen:
+            seen[sid] += 1
+            sid = f"{sid}_b{row['batch'][-4:]}"
+        else:
+            seen[sid] = 1
+        seq_ids.append(sid)
+    merged["seq_id"] = seq_ids
+    return merged
+```
+
+```{python}
+#| output: true
+merged = attach_metadata(assemblies, batch_info_tsv)
+
+print(f"assemblies written : {len(merged)}")
+print(merged["assembly_type"].value_counts().to_string())
+print(f"median length      : {merged['consensus_length'].median():.0f} bp")
+```
+
+# Output
+
+Three deliverables are written to `data/processed/01_sanger_seq/`. The QC table
+records one row per input trace; the assemblies table one row per isolate; and
+the FASTA carries the consensus sequences used for downstream taxonomic
+assignment.
+
+```{python}
+QC_EXPORT_COLS = [
+    "batch",
+    "well",
+    "direction",
+    "filename",
+    "filepath",
+    "raw_length",
+    "raw_mean_qual",
+    "raw_median_qual",
+    "n_count",
+    "n_fraction",
+    "trim_start",
+    "trim_end",
+    "trimmed_length",
+    "trimmed_mean_qual",
+    "trimmed_n_count",
+    "trimmed_n_fraction",
+    "qc_pass",
+]
+
+reads[QC_EXPORT_COLS].to_csv(
+    data_processed / "sanger_trace_qc_metrics.csv", index=False
+)
+merged.to_csv(data_processed / "assemblies.csv", index=False)
+```
+
+```{python}
+#| output: true
+def write_fasta(merged, out_path):
+    fasta_records = []
+    for _, row in merged.iterrows():
+        desc_parts = [
+            f"batch={row['batch']}",
+            f"well={row['well']}",
+            f"type={row['assembly_type']}",
+            f"len={row['consensus_length']}",
+        ]
+        if pd.notna(row.get("location")):
+            desc_parts.append(f"location={row['location']}")
+        if pd.notna(row.get("bacteria_plate_well")):
+            desc_parts.append(f"isolate_well={row['bacteria_plate_well']}")
+        fasta_records.append(
+            SeqRecord(
+                Seq(row["consensus_seq"]),
+                id=row["seq_id"],
+                description=" ".join(desc_parts),
+            )
+        )
+    SeqIO.write(fasta_records, out_path, "fasta")
+    return len(fasta_records)
+
+
+n_written = write_fasta(merged, data_processed / "consensus_16S.fasta")
+print(f"{n_written} consensus sequences written")
+```
+
+Per-trace QC metrics.
+
+```{python}
+#| output: true
+reads[QC_EXPORT_COLS].head()
+```
+
+Assembly metrics, one row per isolate.
+
+```{python}
+#| output: true
+merged.drop(columns=["consensus_seq"]).head()
+```
+
+# QC plot
+
+Palette and batch labels used by the summary figure.
+
+```{python}
+BLUE = "#1f77b4"  # matplotlib default C0
+BLUE_LIGHT = "#aec7e8"
+FAIL_CUTOFF = "#ff7f0e"  # trimmed, but below the length or quality cutoff
+FAIL_COLOR = "#c1121f"  # no acceptable quality window at all
+META_GREY = "#888888"
+
+BATCH_LABELS = {
+    "batch20250508": "2025-05-08",
+    "batch20250606": "2025-06-06",
+    "batch20250620": "2025-06-20",
+}
+```
+
+House figure style, applied through matplotlib's rcParams so every panel picks
+it up without per-call styling.
+
+```{python}
+def apply_figure_style(*, frame="open", font=None, sizes=(8, 7, 6), grid=False, dpi=200):
+    """Set matplotlib rcParams to the house figure style."""
+    if frame not in ("open", "boxed", "none"):
+        raise ValueError(f"frame must be 'open'|'boxed'|'none', got {frame!r}")
+
+    # register any .ttf fonts bundled with the active environment
+    try:
+        import glob
+        import os
+        import sys
+
+        import matplotlib.font_manager as fm
+
+        fdir = os.path.join(os.environ.get("CONDA_PREFIX") or sys.prefix, "fonts")
+        if os.path.isdir(fdir):
+            known = {f.fname for f in fm.fontManager.ttflist}
+            for f in glob.glob(os.path.join(fdir, "*.ttf")):
+                if f not in known:
+                    fm.fontManager.addfont(f)
+    except Exception:
+        pass
+
+    base, secondary, tick = sizes
+    boxed = frame == "boxed"
+    mpl.rcParams.update(
+        {
+            "font.family": "sans-serif",
+            "font.size": base,
+            "axes.labelsize": base,
+            "axes.titlesize": base,
+            "legend.fontsize": secondary,
+            "xtick.labelsize": tick,
+            "ytick.labelsize": tick,
+            "axes.linewidth": 0.6,
+            "xtick.direction": "out",
+            "ytick.direction": "out",
+            "xtick.major.size": 3,
+            "ytick.major.size": 3,
+            "xtick.major.width": 0.6,
+            "ytick.major.width": 0.6,
+            "axes.spines.top": boxed,
+            "axes.spines.right": boxed,
+            "axes.spines.left": frame != "none",
+            "axes.spines.bottom": frame != "none",
+            "axes.grid": bool(grid),
+            "legend.frameon": False,
+            "figure.dpi": dpi,
+            "savefig.dpi": 300,
+            "savefig.bbox": "tight",
+            "axes.titleweight": "normal",
+            "axes.titlelocation": "left",
+            "axes.labelweight": "normal",
+            "lines.linewidth": 1.2,
+            "patch.linewidth": 0.6,
+            "pdf.fonttype": 42,
+            "ps.fonttype": 42,
+            **({"font.sans-serif": [font, "DejaVu Sans"]} if font else {}),
+        }
+    )
+
+
+def panel_letter(ax, letter, dx=-0.18, dy=1.02, case="lower", fontsize=None):
+    """Draw a bold panel label in axes-fraction coordinates."""
+    if fontsize is None:
+        fontsize = plt.rcParams.get("font.size", 8) + 1
+    s = letter.lower() if case == "lower" else letter.upper()
+    ax.text(
+        dx,
+        dy,
+        s,
+        transform=ax.transAxes,
+        fontweight="bold",
+        fontsize=fontsize,
+        va="bottom",
+        ha="left",
+    )
+```
+
+Four panels: how far trimming shortens the reads, where passing and failing
+traces sit on the quality axis, the pass/fail split per batch and direction,
+and how quality decays along the read.
+
+```{python}
+# required libs
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# data to plot
+df = reads[QC_EXPORT_COLS]
+
+# Reads with no acceptable quality window get trim coordinates (0, 0). Their
+# zero length and zero mean quality are not measurements, so panels (a) and (b)
+# leave them out. Panel (c) keeps them, as their own failure class.
+trimmed = df[df["trimmed_length"] > 0]
+
+# raw phred arrays of the passing traces, for the position profile
+raw_quals_passing = list(reads.loc[reads["qc_pass"], "raw_quals"])
+
+apply_figure_style(sizes=(9, 8, 7))
+fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+
+# (a) raw vs trimmed length per batch
+ax = axes[0, 0]
+panel_letter(ax, "a")
+plot_data = trimmed[["batch", "raw_length", "trimmed_length"]].melt(
+    id_vars="batch", var_name="stage", value_name="length"
+)
+plot_data["stage"] = plot_data["stage"].map(
+    {"raw_length": "Raw", "trimmed_length": "Trimmed"}
+)
+plot_data["batch_label"] = plot_data["batch"].map(BATCH_LABELS)
+sns.boxplot(
+    data=plot_data,
+    x="batch_label",
+    y="length",
+    hue="stage",
+    ax=ax,
+    palette={"Raw": BLUE_LIGHT, "Trimmed": BLUE},
+    fliersize=2,
+    linewidth=0.8,
+)
+ax.set_xlabel("")
+ax.set_ylabel("Read length (bp)")
+ax.set_title("Trimming shortens reads moderately", fontsize=9)
+ax.legend(title="", frameon=False, fontsize=7)
+ax.tick_params(axis="x", rotation=15)
+
+# (b) trimmed mean-quality distribution, pass vs fail
+ax = axes[0, 1]
+panel_letter(ax, "b")
+ax.hist(
+    trimmed[trimmed["qc_pass"]]["trimmed_mean_qual"],
+    bins=30,
+    alpha=0.8,
+    color=BLUE,
+    label=f"Pass (n={trimmed['qc_pass'].sum()})",
+    edgecolor="white",
+    linewidth=0.5,
+)
+ax.hist(
+    trimmed[~trimmed["qc_pass"]]["trimmed_mean_qual"],
+    bins=20,
+    alpha=0.8,
+    color=FAIL_CUTOFF,
+    label=f"Fail (n={(~trimmed['qc_pass']).sum()})",
+    edgecolor="white",
+    linewidth=0.5,
+)
+ax.axvline(MEAN_QUAL_MIN, color=META_GREY, ls="--", lw=1, zorder=0)
+ax.text(
+    MEAN_QUAL_MIN + 1,
+    ax.get_ylim()[1] * 0.9,
+    f"Q{MEAN_QUAL_MIN}",
+    fontsize=7,
+    color=META_GREY,
+)
+ax.set_xlabel("Trimmed mean phred quality")
+ax.set_ylabel("Number of traces")
+ax.set_title(f"Failed reads cluster below Q{MEAN_QUAL_MIN}", fontsize=9)
+ax.legend(frameon=False, fontsize=7)
+
+# (c) QC outcome per batch and direction
+ax = axes[1, 0]
+panel_letter(ax, "c")
+QC_CLASSES = ["Pass", "Below length/quality cutoff", "No usable window (0 bp)"]
+QC_CLASS_COLORS = {
+    "Pass": BLUE,
+    "Below length/quality cutoff": FAIL_CUTOFF,
+    "No usable window (0 bp)": FAIL_COLOR,
+}
+qc_class = np.where(
+    df["qc_pass"],
+    "Pass",
+    np.where(
+        df["trimmed_length"] == 0,
+        "No usable window (0 bp)",
+        "Below length/quality cutoff",
+    ),
+)
+pf = (
+    df.assign(qc_class=qc_class)
+    .groupby(["batch", "direction", "qc_class"])
+    .size()
+    .reset_index(name="count")
+)
+pf["batch_label"] = pf["batch"].map(BATCH_LABELS)
+pf_pivot = (
+    pf.pivot_table(
+        index=["batch_label", "direction"],
+        columns="qc_class",
+        values="count",
+        fill_value=0,
+    )
+    # a batch/direction missing one class would otherwise drop that column
+    .reindex(columns=QC_CLASSES, fill_value=0)
+    .reset_index()
+)
+pf_pivot.columns.name = None
+pf_pivot["label"] = pf_pivot["batch_label"] + " " + pf_pivot["direction"]
+x_pos = range(len(pf_pivot))
+bottom = np.zeros(len(pf_pivot))
+for cls in QC_CLASSES:
+    ax.bar(
+        x_pos,
+        pf_pivot[cls],
+        bottom=bottom,
+        color=QC_CLASS_COLORS[cls],
+        label=cls,
+        edgecolor="white",
+        linewidth=0.5,
+    )
+    bottom += pf_pivot[cls].to_numpy()
+ax.set_xticks(list(x_pos))
+ax.set_xticklabels(pf_pivot["label"], rotation=30, ha="right", fontsize=7)
+ax.set_ylabel("Number of traces")
+ax.set_title("Failure mode by batch and direction", fontsize=9)
+ax.legend(frameon=False, fontsize=6)
+
+# (d) quality vs position along the read
+ax = axes[1, 1]
+panel_letter(ax, "d")
+max_len = max(len(q) for q in raw_quals_passing)
+qual_matrix = np.full((len(raw_quals_passing), max_len), np.nan)
+for i, q in enumerate(raw_quals_passing):
+    qual_matrix[i, : len(q)] = q
+positions = np.arange(max_len)
+ax.fill_between(
+    positions,
+    np.nanpercentile(qual_matrix, 25, axis=0),
+    np.nanpercentile(qual_matrix, 75, axis=0),
+    alpha=0.25,
+    color=BLUE_LIGHT,
+    label="IQR",
+)
+ax.plot(positions, np.nanmean(qual_matrix, axis=0), color=BLUE, lw=1, label="Mean")
+ax.axhline(MEAN_QUAL_MIN, color=FAIL_COLOR, ls="--", lw=0.8, alpha=0.7)
+ax.text(
+    max_len * 0.85,
+    MEAN_QUAL_MIN + 2,
+    f"Q{MEAN_QUAL_MIN} threshold",
+    fontsize=7,
+    color=FAIL_COLOR,
+)
+ax.set_xlabel("Position in raw read (bp)")
+ax.set_ylabel("Phred quality score")
+ax.set_title("Quality drops at read ends", fontsize=9)
+ax.legend(frameon=False, fontsize=7, loc="lower left")
+ax.set_xlim(0, max_len)
+
+fig.suptitle(
+    f"Sanger 16S trace QC \u2014 {len(df)} reads, "
+    f"{df['batch'].nunique()} batches (mean phred \u2265{MEAN_QUAL_MIN} filter)",
+    fontsize=10,
+    fontweight="bold",
+    y=0.98,
+)
+fig.tight_layout(rect=[0, 0, 1, 0.95])
+fig.savefig(
+    output_figures / "sanger_qc_summary.png",
+    dpi=200,
+    bbox_inches="tight",
+    facecolor="white",
+)
+qc_figure_svg = output_figures / "sanger_qc_summary.svg"
+fig.savefig(qc_figure_svg, bbox_inches="tight", facecolor="white")
+```
+
+
+![Sanger 16S trace quality control across three sequencing batches. (a) Read length before and after sliding-window quality trimming. (b) Distribution of mean phred quality after trimming, split by QC outcome; the dashed line marks the Q20 cutoff. (c) QC outcome per batch and read direction, separating traces that fell below the length or quality cutoff from those with no acceptable quality window at all. (d) Mean phred quality against position along the raw read for passing traces, with the interquartile range shaded. Panels (a) and (b) exclude traces that yielded no acceptable quality window and so have a trimmed length of 0 bp; panel (c) retains them as a separate failure class.](/output/figures/sanger_qc_summary.svg){#fig-qc}

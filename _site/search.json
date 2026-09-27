@@ -1,0 +1,288 @@
+[
+  {
+    "objectID": "scripts/04_lemna_bacteria_coculture_frondarea/02_growth_model.html",
+    "href": "scripts/04_lemna_bacteria_coculture_frondarea/02_growth_model.html",
+    "title": "Bayesian model of duckweed growth with and without bacteria",
+    "section": "",
+    "text": "Frond area was measured longitudinally (day 0, 4, 8) for individual wells, 8 wells (biological replicates) per strain per plate, see 01_read_frondarea.qmd for how the raw plate-reader exports were combined and cleaned. Two design features shape the model:\n\nRepeated measures: the same physical well is imaged at all three timepoints, so observations within a well are correlated. We account for this with a well-level random intercept, (1 | well_uid).\nStrain and plate are almost completely confounded: with one exception (CONTROL, which spans several plates), every strain occupies exactly one physical plate. This means any plate-specific batch effect (e.g. a plate that got slightly more light) is inseparable from that strain’s estimated effect - there is no cross-plate replication to disentangle them. Therefore, we do not add a separate plate-level random effect (it would be almost entirely collinear with the strain fixed effect); this is worth keeping in mind when interpreting any single strain’s effect.\n\nFrond area is strictly positive and right-skewed (growth is a roughly multiplicative process), so we model it with a lognormal() family rather than treating raw area as Gaussian. day is treated as a 3-level factor (0/4/8) rather than a continuous slope, since we only have 3 timepoints and no reason to assume a linear (or any particular parametric) growth curve over that range.\nThe fixed-effect structure is day * strain, with CONTROL set as the reference level for strain and day 0 as the reference level for day. Under this parameterization, the day:strain interaction coefficients directly represent, for each strain, how its growth trajectory deviates from CONTROL’s - i.e. exactly the “delta” quantity of interest. We use marginaleffects to compute these contrasts on the natural (response, cm²) scale with correctly propagated posterior uncertainty, rather than reading raw log-scale coefficients.\n\n\n\n\nShow/hide code\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(brms)\nlibrary(cmdstanr)\nlibrary(marginaleffects)\nlibrary(tidybayes)\nlibrary(bayesplot)\n\noptions(mc.cores = 4, brms.backend = \"cmdstanr\")\n\n\n\n\n\n\n\nShow/hide code\ndata_processed &lt;- here::here(\n  \"data\",\n  \"processed\",\n  \"04_lemna_bacteria_coculture_frondarea\"\n)\nmodels_dir &lt;- here::here(\n  \"data\",\n  \"interim\",\n  \"04_lemna_bacteria_coculture_frondarea\"\n)\n\nfs::dir_create(models_dir)",
+    "crumbs": [
+      "04.B Bayesian growth model"
+    ]
+  },
+  {
+    "objectID": "scripts/04_lemna_bacteria_coculture_frondarea/02_growth_model.html#libraries",
+    "href": "scripts/04_lemna_bacteria_coculture_frondarea/02_growth_model.html#libraries",
+    "title": "Bayesian model of duckweed growth with and without bacteria",
+    "section": "",
+    "text": "Show/hide code\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(brms)\nlibrary(cmdstanr)\nlibrary(marginaleffects)\nlibrary(tidybayes)\nlibrary(bayesplot)\n\noptions(mc.cores = 4, brms.backend = \"cmdstanr\")",
+    "crumbs": [
+      "04.B Bayesian growth model"
+    ]
+  },
+  {
+    "objectID": "scripts/04_lemna_bacteria_coculture_frondarea/02_growth_model.html#global-variables",
+    "href": "scripts/04_lemna_bacteria_coculture_frondarea/02_growth_model.html#global-variables",
+    "title": "Bayesian model of duckweed growth with and without bacteria",
+    "section": "",
+    "text": "Show/hide code\ndata_processed &lt;- here::here(\n  \"data\",\n  \"processed\",\n  \"04_lemna_bacteria_coculture_frondarea\"\n)\nmodels_dir &lt;- here::here(\n  \"data\",\n  \"interim\",\n  \"04_lemna_bacteria_coculture_frondarea\"\n)\n\nfs::dir_create(models_dir)",
+    "crumbs": [
+      "04.B Bayesian growth model"
+    ]
+  },
+  {
+    "objectID": "scripts/03_duckweed_genotyping/01_read_format_sanger.html",
+    "href": "scripts/03_duckweed_genotyping/01_read_format_sanger.html",
+    "title": "Read and format Sanger sequences from Duckweed",
+    "section": "",
+    "text": "We wanted to know whether the duckweeds that we isolated bacteria from are L. minor. To determine species identity we followed the protocol from the publication:\nThis protocol also references:\nBriefly, we PCR amplify and sanger sequence two plastid barcoding regions atpF-atpH and psbK-psbI to assign species identity.",
+    "crumbs": [
+      "03.A Sanger Duckweed genotype"
+    ]
+  },
+  {
+    "objectID": "scripts/03_duckweed_genotyping/01_read_format_sanger.html#primers-and-pcr-optimum-annealing",
+    "href": "scripts/03_duckweed_genotyping/01_read_format_sanger.html#primers-and-pcr-optimum-annealing",
+    "title": "Read and format Sanger sequences from Duckweed",
+    "section": "0.1 Primers and PCR optimum annealing:",
+    "text": "0.1 Primers and PCR optimum annealing:\n\n\n\n\n\n\n\n\n\n\nMarker region\nPrimer sequence Forward\nPrimer sequence Reverse\nAmplicon size (Lemna minor)\nTa Optimum (Lemna minor)\n\n\n\n\npsbK-psbI\n5′-TTAGCATTTGTTTGGCAAG-3′\n5′- AAAGTTTGAGAGTAAGCAT-3′\n544 bp\n51°C\n\n\natpF-atpH\n5′-ACTCGCACACACTCCCTTTCC-3′\n5′- GCTTTTATGGAAGCTTTAACAAT-3′\n675 bp\n53°C",
+    "crumbs": [
+      "03.A Sanger Duckweed genotype"
+    ]
+  },
+  {
+    "objectID": "scripts/03_duckweed_genotyping/01_read_format_sanger.html#protocol",
+    "href": "scripts/03_duckweed_genotyping/01_read_format_sanger.html#protocol",
+    "title": "Read and format Sanger sequences from Duckweed",
+    "section": "0.2 Protocol:",
+    "text": "0.2 Protocol:\nBriefly, 50-100 ng genomic DNA and 5 pmol of each primer are added with the JumpStart™Redtop® ReadyMix™Reaction Mix (P1107, Sigma) Redix in 25 ul of final volume.\nFollowing amplification, the DNA fragments were purified using the ExoSAP-IT kit (Affymetrix, Santa Clara, CA, USA) and for Sanger sequencing.",
+    "crumbs": [
+      "03.A Sanger Duckweed genotype"
+    ]
+  },
+  {
+    "objectID": "scripts/03_duckweed_genotyping/01_read_format_sanger.html#libraries",
+    "href": "scripts/03_duckweed_genotyping/01_read_format_sanger.html#libraries",
+    "title": "Read and format Sanger sequences from Duckweed",
+    "section": "0.3 Libraries",
+    "text": "0.3 Libraries\n\n\nShow/hide code\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(sangeranalyseR)\nlibrary(Biostrings)",
+    "crumbs": [
+      "03.A Sanger Duckweed genotype"
+    ]
+  },
+  {
+    "objectID": "scripts/03_duckweed_genotyping/01_read_format_sanger.html#global-variables",
+    "href": "scripts/03_duckweed_genotyping/01_read_format_sanger.html#global-variables",
+    "title": "Read and format Sanger sequences from Duckweed",
+    "section": "0.4 Global variables",
+    "text": "0.4 Global variables\n\n\nShow/hide code\ndata_raw &lt;- here::here(\"data\", \"raw\", \"20251105_duckweed_genotypeing\")\ndata_processed &lt;- here::here(\"data\", \"processed\", \"03_duckweed_genotyping\")\n\nfs::dir_create(data_processed)",
+    "crumbs": [
+      "03.A Sanger Duckweed genotype"
+    ]
+  },
+  {
+    "objectID": "scripts/01_sanger_seq/01_trace_qc_assembly.html",
+    "href": "scripts/01_sanger_seq/01_trace_qc_assembly.html",
+    "title": "Quality control and assembly of 16S rRNA Sanger traces",
+    "section": "",
+    "text": "Loads required libraries\n\n\nShow/hide code\nimport re\nfrom pathlib import Path\nimport numpy as np\nimport pandas as pd\nfrom Bio import SeqIO\nfrom Bio.Align import PairwiseAligner\nfrom Bio.Seq import Seq\nfrom Bio.SeqRecord import SeqRecord\n\n\n\n\n\nPaths are resolved from the project root rather than the working directory, so the notebook behaves the same whether it is rendered by Quarto or run interactively. This is the Python counterpart of here::here() used in the R notebooks: walk up from the working directory until an anchor file that marks the top of the repository is found.\n\n\nShow/hide code\ndef proj_root(anchors=(\".here\", \"_quarto.yml\", \".git\")):\n    \"\"\"Return the nearest ancestor directory containing one of `anchors`.\"\"\"\n    start = Path.cwd().resolve()\n    for d in (start, *start.parents):\n        if any((d / a).exists() for a in anchors):\n            return d\n    raise FileNotFoundError(f\"no project anchor {anchors} above {start}\")\n\n\ndata_raw = proj_root() / \"data\" / \"raw\" / \"20250701_sanger_seq\"\ndata_processed = proj_root() / \"data\" / \"processed\" / \"01_sanger_seq\"\noutput_figures = proj_root() / \"output\" / \"figures\"\n\ndata_processed.mkdir(parents=True, exist_ok=True)\noutput_figures.mkdir(parents=True, exist_ok=True)\n\n\nRaw input. trace_root holds one subdirectory per sequencing batch. Traces are found recursively below each batch directory, so both the delivered layout (&lt;batch&gt;/ab1_files/*.ab1) and a flattened one (&lt;batch&gt;/*.ab1) work. Files must be named 16S-&lt;well&gt;_&lt;F|R&gt;.ab1.\nbatch_info is the tab-separated plate map with columns sanger_batch, sanger_plate_well, bacteria_plate_well, location, and google_drive_id.\n\n\nShow/hide code\ntrace_root = data_raw\nbatch_info_tsv = data_raw / \"sanger_batch_info.tsv\"\n\n\nQuality-control parameters for the sliding-window trimming and the pass/fail call on each trimmed read.\n\n\nShow/hide code\nWINDOW = 20  # sliding-window width (bp) for quality trimming\nQUAL_THRESHOLD = 20  # min mean phred in the window to start/end the keep region\nMIN_LENGTH = 100  # min trimmed length (bp) to retain a read\nMEAN_QUAL_MIN = 20  # min mean phred of the trimmed read\nMAX_N_FRACTION = 0.05  # max fraction of ambiguous bases in the trimmed read\n\n\nScoring parameters for the local alignment used to merge the forward read against the reverse-complemented reverse read.\n\n\nShow/hide code\nALN_MATCH = 2\nALN_MISMATCH = -3\nALN_GAP_OPEN = -5\nALN_GAP_EXTEND = -2\nMIN_ALN_SCORE = 50  # below this, F and R are treated as non-overlapping",
+    "crumbs": [
+      "01.A Trace QC + assembly"
+    ]
+  },
+  {
+    "objectID": "scripts/01_sanger_seq/01_trace_qc_assembly.html#libraries",
+    "href": "scripts/01_sanger_seq/01_trace_qc_assembly.html#libraries",
+    "title": "Quality control and assembly of 16S rRNA Sanger traces",
+    "section": "",
+    "text": "Loads required libraries\n\n\nShow/hide code\nimport re\nfrom pathlib import Path\nimport numpy as np\nimport pandas as pd\nfrom Bio import SeqIO\nfrom Bio.Align import PairwiseAligner\nfrom Bio.Seq import Seq\nfrom Bio.SeqRecord import SeqRecord",
+    "crumbs": [
+      "01.A Trace QC + assembly"
+    ]
+  },
+  {
+    "objectID": "scripts/01_sanger_seq/01_trace_qc_assembly.html#global-variables",
+    "href": "scripts/01_sanger_seq/01_trace_qc_assembly.html#global-variables",
+    "title": "Quality control and assembly of 16S rRNA Sanger traces",
+    "section": "",
+    "text": "Paths are resolved from the project root rather than the working directory, so the notebook behaves the same whether it is rendered by Quarto or run interactively. This is the Python counterpart of here::here() used in the R notebooks: walk up from the working directory until an anchor file that marks the top of the repository is found.\n\n\nShow/hide code\ndef proj_root(anchors=(\".here\", \"_quarto.yml\", \".git\")):\n    \"\"\"Return the nearest ancestor directory containing one of `anchors`.\"\"\"\n    start = Path.cwd().resolve()\n    for d in (start, *start.parents):\n        if any((d / a).exists() for a in anchors):\n            return d\n    raise FileNotFoundError(f\"no project anchor {anchors} above {start}\")\n\n\ndata_raw = proj_root() / \"data\" / \"raw\" / \"20250701_sanger_seq\"\ndata_processed = proj_root() / \"data\" / \"processed\" / \"01_sanger_seq\"\noutput_figures = proj_root() / \"output\" / \"figures\"\n\ndata_processed.mkdir(parents=True, exist_ok=True)\noutput_figures.mkdir(parents=True, exist_ok=True)\n\n\nRaw input. trace_root holds one subdirectory per sequencing batch. Traces are found recursively below each batch directory, so both the delivered layout (&lt;batch&gt;/ab1_files/*.ab1) and a flattened one (&lt;batch&gt;/*.ab1) work. Files must be named 16S-&lt;well&gt;_&lt;F|R&gt;.ab1.\nbatch_info is the tab-separated plate map with columns sanger_batch, sanger_plate_well, bacteria_plate_well, location, and google_drive_id.\n\n\nShow/hide code\ntrace_root = data_raw\nbatch_info_tsv = data_raw / \"sanger_batch_info.tsv\"\n\n\nQuality-control parameters for the sliding-window trimming and the pass/fail call on each trimmed read.\n\n\nShow/hide code\nWINDOW = 20  # sliding-window width (bp) for quality trimming\nQUAL_THRESHOLD = 20  # min mean phred in the window to start/end the keep region\nMIN_LENGTH = 100  # min trimmed length (bp) to retain a read\nMEAN_QUAL_MIN = 20  # min mean phred of the trimmed read\nMAX_N_FRACTION = 0.05  # max fraction of ambiguous bases in the trimmed read\n\n\nScoring parameters for the local alignment used to merge the forward read against the reverse-complemented reverse read.\n\n\nShow/hide code\nALN_MATCH = 2\nALN_MISMATCH = -3\nALN_GAP_OPEN = -5\nALN_GAP_EXTEND = -2\nMIN_ALN_SCORE = 50  # below this, F and R are treated as non-overlapping",
+    "crumbs": [
+      "01.A Trace QC + assembly"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Data analysis for the project duckweedSynCom",
+    "section": "",
+    "text": "TBD\n\n\n\nTBD"
+  },
+  {
+    "objectID": "index.html#manuscript",
+    "href": "index.html#manuscript",
+    "title": "Data analysis for the project duckweedSynCom",
+    "section": "",
+    "text": "TBD\n\n\n\nTBD"
+  },
+  {
+    "objectID": "index.html#introduction",
+    "href": "index.html#introduction",
+    "title": "Data analysis for the project duckweedSynCom",
+    "section": "2 Introduction",
+    "text": "2 Introduction\nThe goal of this project is construct and characterize a synthetic bacterial community (SynCom) associated with duckweed (Lemna minor). The plants and bacteria have all been isolated form Southwest Finland. The plant and bacteria isolate system will be used to explored fundamental questions in host-microbiome ecology and evolution."
+  },
+  {
+    "objectID": "index.html#sampling-plants-and-bacteria",
+    "href": "index.html#sampling-plants-and-bacteria",
+    "title": "Data analysis for the project duckweedSynCom",
+    "section": "3 Sampling plants and bacteria",
+    "text": "3 Sampling plants and bacteria\nBetween June-August 2024 Milla and Shane collected duckweed plants (Lemna minor) from various aquatic habitats in Southwest Finland. The general collection approach was to collect approximately 50 individual plants using sterile tweezers and place these plants in 50 mL Falcon tubes containing water from the sampling location. Once collected plants and water were placed in a cooler and rapidly taken to a laboratory for processing. We collected plants from three locations in Finland (see map in Figure 1 below). The culturable fraction of the bacterial communities associated with each plant were cultured and isolated on nutrient agar back in the laboratory.\n\n\n\n\nMake this Notebook Trusted to load map: File -&gt; Trust Notebook\n\n\nFigure 1: Map of duckweed (Lemna minor) sampling locations (red points) in Southwest Finland during summer of 2024. Click on the red points to open a pop-up with additional sampling information. Satellite imagery can be overlaid on the map via the layer control in the top-right corner.\n\n\n\n\nThe sampling locations approximate an urban to rural gradient (euptrophic to oligotrophic) starting from the urban location of Turun Linna (Turku Castle, city center - Turku, Finland), moving to the more suburban artificial reservoir Haunisten allas (Raisio, Finland), and finally near to lake Savojärvi in Kurjenrahkan kansallispuisto (Kurjenrahka National Park - Pöytyä, Finland). Savojärvi is a dystrophic lake with high concentrations of humic substances and low pH ranging from 4.5 in spring to 6 in the fall. The duckweed was collected from a bog on the east side of the lake."
+  },
+  {
+    "objectID": "index.html#laboratory-processing-of-plants-and-bacteria",
+    "href": "index.html#laboratory-processing-of-plants-and-bacteria",
+    "title": "Data analysis for the project duckweedSynCom",
+    "section": "4 Laboratory processing of plants and bacteria",
+    "text": "4 Laboratory processing of plants and bacteria\nOnce samples were returned to the laboratory, we subset plants into three subgroups from each location:\n\nAt least 5-10 individual plants were rinsed in sterile water then frozen at -80C for later microbial DNA extraction and sequencing.\nAt least 5-10 individual plants were were rinsed in sterile water then transferred to sterile growth medium for plant maintenance.\nAt least 5-10 individual plants were rinsed in sterile water then homogenized using sterile tissue grinders. The homogenate was then plated on nutrient agar to isolate bacteria.\n\n\n4.1 Plant maintanence and generation of isogenic Lemna minor lines\nImmediately after returning to the university laboratory, approximately six individual plants per well were cultured in 6 well plates containing 4 mL of 1x Hoagland’s media No. 2.. These were grown in an environmental chamber set at a cycle of light (16h) / dark (8h) cycle at 24°C. After approximately one week the plants looked decidedly less healthy. To optimize conditions for improved growth 0.5x and 0.2x concentration Hoagland’s medium was tested as well as light levels ranging from approximately 50 to 100 μmol m-2 s-1. However, growth did not improve over approximately one month of weekly transfers under factorial combinations of these conditions. After some additional time of deteriorating growth, duckweed plants collected from Turun linna (TL) were lost, while plants from Haunisten allas (HA) and Savojärvi (SJ) continued to deteriorate.\nAt this point of deteriorating Lemna minor growth we noticed extensive algal growth as well as cloudy media which may have been fungal growth. We suspected that some pathogenic microbes were parasitizing the plants while algae may have been competing with the plants for growth. We followed a miniaturized version of this protocol for sterilizing duckweed plants in bleach solution. Briefly, approximately 20 plants are combined with sterile water and Phosphate Buffered Saline (PBS) solution and vortexed for 5 minutes to dislodge attached microbes. Next, individual plants were transfered to 1.5 ml tubes containing 1% bleach solution and gently inverted for 1 minute. Plants were serially rinsed and transferred three times through sterile 0.5x Schenk and Hildebrandt (SH) growth medium with the first rinse lasting 1 minute, and subsequent rinses lasting 5-10 minutes. After the final rinse, plants were added to 0.5x SH growth medium with 1% w/vol sucrose for rapid plant growth. After five days, plants were checked for growth. Plants with cloudy wells (indicating contamination) were discarded. Plants growing in clear wells were further checked for sterility by transferring them to SH medium with 1% w/vol sucrose and 0.1% w/vol yeast extract. The added carbon sources were intended to facilitate rapid heterotrophic microbial growth if microbes were present. After 6 further days of growth, single healthy plants were collected from wells lacking turbidity and used to start isogenic maintanence lines.\nPlants that were cured of associated microbes had significantly improved growth in an environmental test chamber set at 23°C with a 16/8 hour light/dark cycle. Light conditions are between 125-128 μmol m-2 s-1 and are generated using 6500 K LED bulbs (1800 lumens). Specifically we use the OSRAM SubstiTUBE T8 EM 1200mm 1800lm 6500K G13, which is designed to be dropped in place for fluorescent tubes (using the specially provided starter plug included). Every 6 months plants are tested for heterotrophic microbial contamination by transferring plants to 1% w/vol sucrose and 0.1% w/vol yeast extract in SH medium to encourage microbial growth. Additionally, plants are homogenized in a tissue grinder and plated on nutrient agar. No contaminating bacteria have been detected since sterilizing the plants in September 2024.\n\n\n4.2 Isolation of plant-associated heterotrophic bacteria\nAfter returning plants to the lab, we washed plants with sterile water, PBS, and 0.1% triton x-100 to remove loosely associated bacteria. Then plants were next homogenized using the KIMBLE Biomasher II Tissue homogenizer and the homogenate was diluted by factors of 10 to 1/1000 dilution. These dilutions from each plant were plated on different agar petri dishes containing 100 mg L-1 cycloheximide to prevent fungal growth and different growth media:\n\n0.01x Reasoner’s 2A (R2A) agar and 1% v/v methanol\n0.01x tryptic soy agar (RSA) and 1% v/v methanol\n0.01x Yeast Mannitol Agar (YSA) and 1% v/v methanol\n\nThe plates were incubated at 30°C until visible colonies formed. After visible colonies were formed, 192 different colonies were picked and transfered to the liquid media they were isolated from in a 96 well plate. Colonies were selected so as to maximize morphological diversity (e.g., color, size, shape) of the isolates. The 96 well plates of putative single species isolates were grown overnight at 30C with shaking. After approximately 24 hours, glycerol was added to the plates (final concne 35% glycerol) and the plates were frozen at -80C for later use."
+  },
+  {
+    "objectID": "index.html#experimental-measurements-and-data-analysis",
+    "href": "index.html#experimental-measurements-and-data-analysis",
+    "title": "Data analysis for the project duckweedSynCom",
+    "section": "5 Experimental measurements and data analysis",
+    "text": "5 Experimental measurements and data analysis\n\n5.1 Taxonomic characterization of plant-associated heterotrophic bacteria\nThe frozen, archived 96 well plates were thawed and grown overnight. Next 2 ul of sample was processed using the Cell2seq - 16S rRNA Microbial Identification Kit with universal primers (1492R + 27F) to amplify the 16S rRNA gene. PCR products were Sanger sequenced at Novogene, Inc resulting in a total of 171 reactions sequenced. To verify bacterial cultures were monoisolate, we inspected the Sanger chromatograms for mixed peaks and other disruptions and we imaged agar platings of each species to look for clearly different colony morphologies. In the vast majority of cases, each isolate was derived from a single strain.\nSanger sequencing chromatograms were processed using the sangeranalyseR package in R v4.5.1 following default parameters resulting in 118 high quality 16S rRNA gene sequences. Genus level identification for these 118 sequences was performed using the IDTAXA algorithm from the DECIPHER v3.4.0 R package. Putative species level assignments were made from best blastn hits to the NCBI 16S rRNA (Bacteria/Archaea) database. Clustering of the sequences at 99% sequence identity was performed using the Clusterize algorithm from DECIPHER. Sequences were then aligned using DECIPHER::AlignSeqs in RNA space and maximum likelihood phylogeny was inferred using DECIPER::Treeline."
+  },
+  {
+    "objectID": "index.html#availability",
+    "href": "index.html#availability",
+    "title": "Data analysis for the project duckweedSynCom",
+    "section": "6 Availability",
+    "text": "6 Availability\nData and code in this GitHub repository (https://github.com/slhogle/duckweedSynCom) are provided under GNU AGPL3. The rendered project site is available at https://slhogle.github.io/duckweedSynCom/, which has been produced using Quarto notebooks. The content on the rendered site is released under the CC BY 4.0. This repository hosts all code and data for this project, including the code necessary to fully recreate the rendered webpage.\nAn archived release of the code is available from Zenodo: https://zenodo.org/records/EVENTUAL_ZENODO_RECORD\nRaw sequencing data used in the project is available from NCBI Bioproject [PRJNA00000000](https://www.ncbi.nlm.nih"
+  },
+  {
+    "objectID": "index.html#project-organization",
+    "href": "index.html#project-organization",
+    "title": "Data analysis for the project duckweedSynCom",
+    "section": "7 Project organization",
+    "text": "7 Project organization\nThis repository follows a research-compendium layout:\n\n\n\n\n\n\n\nPath\nContents\n\n\n\n\nscripts/\nNumbered analysis notebooks and scripts, one directory per analysis\n\n\nR/\nHelper functions sourced by the scripts\n\n\ndata/raw/\nImmutable raw data, one directory per acquisition event. Never modified\n\n\ndata/interim/\nIntermediate objects produced along the way\n\n\ndata/processed/\nAnalysis-ready outputs, named to match the scripts/ directory that produces them\n\n\ndata/_notrack/\nInputs too large for version control. Not distributed with the repository\n\n\noutput/figures/, output/tables/\nFinished figures and tables\n\n\nmanuscript/\nManuscript drafts and associated material\n\n\n\nPaths are resolved with here, anchored on the .here file at the project root, so scripts run correctly regardless of the working directory. Each script declares its data_raw / data_processed paths in a “Global variables” block at the top.\nR code is formatted with air (see air.toml)."
+  },
+  {
+    "objectID": "scripts/02_bac_taxonomy/01_taxonomy_summary.html",
+    "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html",
+    "title": "Bacterial isolate taxonomy from SILVA ACT classification",
+    "section": "",
+    "text": "The consensus 16S sequences produced in 01.A Trace QC + assembly were submitted to the SILVA ACT web aligner with LCA classification against SILVA SSU and GTDB enabled. This notebook reads back the two downloaded ACT outputs — the classification result list and the guide tree — and joins them to the per-isolate assembly metadata to build the taxonomy table and summary figures.",
+    "crumbs": [
+      "02.A Taxonomy + phylogeny"
+    ]
+  },
+  {
+    "objectID": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#libraries",
+    "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#libraries",
+    "title": "Bacterial isolate taxonomy from SILVA ACT classification",
+    "section": "1.1 Libraries",
+    "text": "1.1 Libraries\nLoads required libraries\n\n\nShow/hide code\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(ape)\nlibrary(treeio)\nlibrary(ggtree)\nlibrary(RColorBrewer)\nlibrary(Polychrome)\nlibrary(DT)\n\nsource(here::here(\"R\", \"plotting.R\"))",
+    "crumbs": [
+      "02.A Taxonomy + phylogeny"
+    ]
+  },
+  {
+    "objectID": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#global-variables",
+    "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#global-variables",
+    "title": "Bacterial isolate taxonomy from SILVA ACT classification",
+    "section": "1.2 Global variables",
+    "text": "1.2 Global variables\n\n\nShow/hide code\ndata_raw &lt;- here::here(\"data\", \"raw\", \"20260908_silva_act\")\ndata_processed_sanger &lt;- here::here(\"data\", \"processed\", \"01_sanger_seq\")\ndata_processed &lt;- here::here(\"data\", \"processed\", \"02_bac_taxonomy\")\n\nfs::dir_create(data_processed)\n\nsilva_resultlist &lt;- here::here(\n  data_raw,\n  \"arb-silva.de_align_resultlist_1508237.csv\"\n)\nsilva_tree_file &lt;- here::here(\n  data_raw,\n  \"arb-silva.de_2026-09-08_id1508237.tree\"\n)\n\noutgroup_genus &lt;- \"Lactococcus\"",
+    "crumbs": [
+      "02.A Taxonomy + phylogeny"
+    ]
+  },
+  {
+    "objectID": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#genus-composition-across-all-isolates",
+    "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#genus-composition-across-all-isolates",
+    "title": "Bacterial isolate taxonomy from SILVA ACT classification",
+    "section": "4.1 Genus composition across all isolates",
+    "text": "4.1 Genus composition across all isolates\n\n\nShow/hide code\ngenus_counts &lt;- classified |&gt; count(genus, sort = TRUE)\n\ntop_genus &lt;- genus_counts |&gt; filter(!is.na(genus)) |&gt; slice_head(n = 12)\nother_n &lt;- genus_counts |&gt;\n  filter(!genus %in% top_genus$genus | is.na(genus)) |&gt;\n  summarise(n = sum(n)) |&gt;\n  pull(n)\n\ngenus_plot_df &lt;- bind_rows(top_genus, tibble(genus = \"Other\", n = other_n)) |&gt;\n  mutate(genus = fct_reorder(genus, n))\n\n\n\n\nShow/hide code\nggplot(genus_plot_df, aes(x = n, y = genus)) +\n  geom_col(fill = \"#1f78b4\") +\n  geom_text(aes(label = n), hjust = -0.3, size = 3) +\n  labs(x = \"Number of isolates\", y = NULL) +\n  scale_x_continuous(expand = expansion(mult = c(0, 0.1))) +\n  capit() +\n  theme_project()\n\n\n\n\n\n\n\n\nFigure 1: Genus composition across all 162 classified isolates. The 12 most abundant genera are shown individually; all remaining genera are pooled as “Other”.",
+    "crumbs": [
+      "02.A Taxonomy + phylogeny"
+    ]
+  },
+  {
+    "objectID": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#isolates-per-sampling-site",
+    "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#isolates-per-sampling-site",
+    "title": "Bacterial isolate taxonomy from SILVA ACT classification",
+    "section": "4.2 Isolates per sampling site",
+    "text": "4.2 Isolates per sampling site\n\n\nShow/hide code\nsite_counts &lt;- classified |&gt;\n  mutate(location = replace_na(location, \"No site info\")) |&gt;\n  count(location)\n\n\n\n\nShow/hide code\nggplot(site_counts, aes(x = location, y = n)) +\n  geom_col(fill = \"#1b9e77\") +\n  geom_text(aes(label = n), vjust = -0.4, size = 3.5, fontface = \"bold\") +\n  labs(x = NULL, y = \"Number of isolates\") +\n  scale_y_continuous(expand = expansion(mult = c(0, 0.12))) +\n  capit() +\n  theme_project()\n\n\n\n\n\n\n\n\nFigure 2: Number of classified isolates recovered per sampling site. Isolates lacking plate-map location metadata are grouped as “No site info”.",
+    "crumbs": [
+      "02.A Taxonomy + phylogeny"
+    ]
+  },
+  {
+    "objectID": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#relative-composition-by-site-phylum",
+    "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#relative-composition-by-site-phylum",
+    "title": "Bacterial isolate taxonomy from SILVA ACT classification",
+    "section": "4.3 Relative composition by site — phylum",
+    "text": "4.3 Relative composition by site — phylum\n\n\nShow/hide code\ncomposition_by_site(classified, \"phylum\", top_n = 10, palette = phylum_colors)\n\n\n\n\n\n\n\n\nFigure 3: Relative phylum composition of classified isolates by sampling site.",
+    "crumbs": [
+      "02.A Taxonomy + phylogeny"
+    ]
+  },
+  {
+    "objectID": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#relative-composition-by-site-family",
+    "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#relative-composition-by-site-family",
+    "title": "Bacterial isolate taxonomy from SILVA ACT classification",
+    "section": "4.4 Relative composition by site — family",
+    "text": "4.4 Relative composition by site — family\n\n\nShow/hide code\nfamily_cats &lt;- classified |&gt;\n  filter(!is.na(family)) |&gt;\n  distinct(family) |&gt;\n  pull(family)\ncomposition_by_site(\n  classified,\n  \"family\",\n  top_n = 15,\n  palette = make_palette(family_cats)\n)\n\n\n\n\n\n\n\n\nFigure 4: Relative family composition of classified isolates by sampling site. The 15 most abundant families are shown individually; all remaining families are pooled as “Other”.",
+    "crumbs": [
+      "02.A Taxonomy + phylogeny"
+    ]
+  },
+  {
+    "objectID": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#relative-composition-by-site-genus",
+    "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#relative-composition-by-site-genus",
+    "title": "Bacterial isolate taxonomy from SILVA ACT classification",
+    "section": "4.5 Relative composition by site — genus",
+    "text": "4.5 Relative composition by site — genus\n\n\nShow/hide code\ngenus_cats &lt;- classified |&gt;\n  filter(!is.na(genus)) |&gt;\n  distinct(genus) |&gt;\n  pull(genus)\ncomposition_by_site(\n  classified,\n  \"genus\",\n  top_n = 15,\n  palette = make_palette(genus_cats)\n)\n\n\n\n\n\n\n\n\nFigure 5: Relative genus composition of classified isolates by sampling site. The 15 most abundant genera are shown individually; all remaining genera are pooled as “Other”.",
+    "crumbs": [
+      "02.A Taxonomy + phylogeny"
+    ]
+  },
+  {
+    "objectID": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#phylogeny",
+    "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#phylogeny",
+    "title": "Bacterial isolate taxonomy from SILVA ACT classification",
+    "section": "4.6 Phylogeny",
+    "text": "4.6 Phylogeny\nThe SILVA ACT guide tree places every isolate among several hundred SILVA reference sequences, which is useful for classification but too dense to read as a figure. For the phylogeny below we root the guide tree on an isolate classified as Lactococcus (the most basal genus recovered, Bacillota) and then prune it down to just our isolates, keeping the topology induced by the full guide tree alignment.\n\n\nShow/hide code\ntree &lt;- ape::read.tree(silva_tree_file)\n\noutgroup_tip &lt;- classified |&gt;\n  filter(genus == outgroup_genus, seq_id %in% tree$tip.label) |&gt;\n  pull(seq_id) |&gt;\n  pluck(1)\n\ntree_rooted &lt;- ape::root(tree, outgroup = outgroup_tip, resolve.root = TRUE)\n\nisolate_tips &lt;- intersect(tree_rooted$tip.label, classified$seq_id)\ntree_pruned &lt;- ape::keep.tip(tree_rooted, isolate_tips)\n\n\nEvery genus recovered among the tree’s isolates gets its own tip color below — nothing is pooled into an “Other” category. Class-level groups are additionally marked with a ggtree::geom_cladelab() bracket. geom_cladelab() needs a single tree node spanning exactly the tips being labeled, but because this is a guide tree built for alignment across hundreds of SILVA references rather than a phylogeny inferred from just our isolates, a class doesn’t always come out as a clean monophyletic clade after pruning. The helper below finds, for a given set of tips, the largest node whose full descendant set is “pure” (i.e. contains only members of that class and nothing else) — the clade that gets labeled — and reports how many of the class’s tips that clade actually covers.\n\n\nShow/hide code\nnode_tip_set &lt;- function(tree, node) {\n  ntip &lt;- length(tree$tip.label)\n  if (node &lt;= ntip) {\n    return(tree$tip.label[node])\n  }\n  ape::extract.clade(tree, node)$tip.label\n}\n\nlargest_pure_clade &lt;- function(tree, target_tips) {\n  n_total &lt;- length(target_tips)\n\n  if (n_total == 1) {\n    return(tibble(\n      node = which(tree$tip.label == target_tips),\n      n_covered = 1L,\n      n_total = 1L\n    ))\n  }\n\n  ntip &lt;- length(tree$tip.label)\n  internal_nodes &lt;- seq(ntip + 1, ntip + tree$Nnode)\n  sizes &lt;- map_int(internal_nodes, function(nd) {\n    desc &lt;- node_tip_set(tree, nd)\n    if (all(desc %in% target_tips)) length(desc) else NA_integer_\n  })\n\n  if (all(is.na(sizes))) {\n    return(tibble(node = NA_integer_, n_covered = 0L, n_total = n_total))\n  }\n\n  best_idx &lt;- which.max(sizes)\n  tibble(\n    node = internal_nodes[best_idx],\n    n_covered = sizes[best_idx],\n    n_total = n_total\n  )\n}\n\nclass_groups &lt;- classified |&gt;\n  filter(seq_id %in% isolate_tips, !is.na(class)) |&gt;\n  summarise(members = list(seq_id), .by = class) |&gt;\n  mutate(clade = map(members, ~ largest_pure_clade(tree_pruned, .x))) |&gt;\n  unnest(clade) |&gt;\n  select(-members) |&gt;\n  filter(!is.na(node))\n\n\n\n\nShow/hide code\nn_class_partial &lt;- sum(class_groups$n_covered != class_groups$n_total)\n\n\nAll 5 classes recovered are labeled; 1 of them (Bacilli, whose Lactococcus and Exiguobacterium members don’t share a single common ancestor exclusive of other classes here) is only partially monophyletic, so its bracket covers just the largest pure block.\n\n\nShow/hide code\nall_genus_tree &lt;- classified |&gt;\n  filter(seq_id %in% isolate_tips, !is.na(genus)) |&gt;\n  distinct(genus) |&gt;\n  arrange(genus) |&gt;\n  pull(genus)\n\ngenus_tree_pal &lt;- make_palette(all_genus_tree)\n\ntip_data &lt;- classified |&gt;\n  filter(seq_id %in% isolate_tips) |&gt;\n  transmute(label = seq_id, genus_grp = coalesce(genus, \"Unclassified\"))\n\n\n\n\nShow/hide code\nggtree(tree_pruned, layout = \"rectangular\") %&lt;+%\n  tip_data +\n  geom_tippoint(aes(color = genus_grp), size = 1.5) +\n  geom_tiplab(size = 2, hjust = -0.1) +\n  scale_color_manual(\n    values = c(genus_tree_pal, \"Unclassified\" = \"grey50\"),\n    name = \"Genus\"\n  ) +\n  geom_cladelab(\n    node = class_groups$node,\n    label = class_groups$class,\n    align = TRUE,\n    geom = \"text\",\n    offset = 0.9,\n    offset.text = 0.05,\n    fontsize = 3,\n    fontface = \"bold\",\n    barsize = 0.6\n  ) +\n  guides(color = guide_legend(ncol = 1, override.aes = list(size = 3))) +\n  ggplot2::xlim(NA, 4) +\n  geom_treescale(offset = 1)\n\n\n\n\n\n\n\n\nFigure 6: Phylogeny of the 162 classified isolates, pruned from the SILVA ACT guide tree and rooted on an isolate classified as Lactococcus. Tip points are colored by genus, with every genus recovered (21) shown individually; isolates with a domain-level SILVA classification but no resolved genus are labeled “Unclassified”. Bracketed labels on the right mark class-level membership (ggtree::geom_cladelab()). Scale bar represents substitutions per site.",
+    "crumbs": [
+      "02.A Taxonomy + phylogeny"
+    ]
+  },
+  {
+    "objectID": "scripts/04_lemna_bacteria_coculture_frondarea/01_read_frondarea.html",
+    "href": "scripts/04_lemna_bacteria_coculture_frondarea/01_read_frondarea.html",
+    "title": "Read and format duckweed-bacteria coculture frond area data",
+    "section": "",
+    "text": "Lemna was grown in 24-well plates, either alone (CONTROL) or co-cultured with a single bacterial strain per well group. Each plate hosts up to three strains + plant, with each strain occupying 8 wells (biological replicates) on that plate. The same physical plate was imaged at day 0, day 4, and day 8, so a given well is tracked longitudinally across the three timepoints.",
+    "crumbs": [
+      "04.A Read + format frond area"
+    ]
+  },
+  {
+    "objectID": "scripts/04_lemna_bacteria_coculture_frondarea/01_read_frondarea.html#libraries",
+    "href": "scripts/04_lemna_bacteria_coculture_frondarea/01_read_frondarea.html#libraries",
+    "title": "Read and format duckweed-bacteria coculture frond area data",
+    "section": "0.1 Libraries",
+    "text": "0.1 Libraries\n\n\nShow/hide code\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(readxl)",
+    "crumbs": [
+      "04.A Read + format frond area"
+    ]
+  },
+  {
+    "objectID": "scripts/04_lemna_bacteria_coculture_frondarea/01_read_frondarea.html#global-variables",
+    "href": "scripts/04_lemna_bacteria_coculture_frondarea/01_read_frondarea.html#global-variables",
+    "title": "Read and format duckweed-bacteria coculture frond area data",
+    "section": "0.2 Global variables",
+    "text": "0.2 Global variables\n\n\nShow/hide code\ndata_raw &lt;- here::here(\n  \"data\",\n  \"raw\",\n  \"20260511_lemna_bacteria_coculture_frondarea\"\n)\ndata_processed &lt;- here::here(\n  \"data\",\n  \"processed\",\n  \"04_lemna_bacteria_coculture_frondarea\"\n)\n\nfs::dir_create(data_processed)",
+    "crumbs": [
+      "04.A Read + format frond area"
+    ]
+  }
+]

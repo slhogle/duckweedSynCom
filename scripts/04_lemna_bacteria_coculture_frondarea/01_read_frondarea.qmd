@@ -1,0 +1,212 @@
+---
+title: "Read and format duckweed-bacteria coculture frond area data"
+subtitle: ""
+author: "Shane Hogle"
+date: today
+abstract: "This reads plate-reader exports of *Lemna* frond area measured at day 0, 4, and 8 of coculture with individual bacterial strains (or CONTROL, no bacteria), combines them into a single tibble, checks the plate/well design, and writes a cleaned table for downstream modeling."
+---
+
+*Lemna* was grown in 24-well plates, either alone (`CONTROL`) or co-cultured with a single bacterial strain per well group. Each plate hosts up to three strains + plant, with each strain occupying 8 wells (biological replicates) on that plate. The same physical plate was imaged at day 0, day 4, and day 8, so a given well is tracked longitudinally across the three timepoints.
+
+## Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(fs)
+library(readxl)
+```
+
+## Global variables
+
+```{r}
+data_raw <- here::here(
+  "data",
+  "raw",
+  "20260511_lemna_bacteria_coculture_frondarea"
+)
+data_processed <- here::here(
+  "data",
+  "processed",
+  "04_lemna_bacteria_coculture_frondarea"
+)
+
+fs::dir_create(data_processed)
+```
+
+# Read and combine
+
+Each xlsx file holds one `Export` sheet covering a subset of plates at a single timepoint. The day (0, 4, or 8) is encoded in the filename (e.g. `DW_plates_1-10_4d.xlsx`), not in the sheet itself, so we parse it from the filename as we read.
+
+```{r}
+#| output: true
+frondarea_files <- fs::dir_ls(data_raw, glob = "*.xlsx")
+
+read_frondarea_file <- function(path) {
+  day <- as.integer(str_extract(path_file(path), "(?<=_)\\d+(?=d\\.xlsx$)"))
+
+  read_excel(path, sheet = "Export") |>
+    rename(
+      date = Date,
+      plate_id = `Plate ID`,
+      plate_name = `Plate Name`,
+      well_id = `Well ID`,
+      sample = Sample,
+      replicate = Replicate,
+      area = Area,
+      color_blue = `Average Object Color:Blue`,
+      color_green = `Average Object Color:Green`,
+      color_hue = `Average Object Color:Hue`,
+      color_red = `Average Object Color:Red`,
+      color_saturation = `Average Object Color:Saturation`,
+      color_value = `Average Object Color:Value`,
+      count = Count
+    ) |>
+    mutate(
+      day = day,
+      source_file = path_file(path)
+    )
+}
+
+frondarea_raw <- frondarea_files |>
+  map(read_frondarea_file) |>
+  list_rbind()
+
+glimpse(frondarea_raw)
+```
+
+# Derive plate and well identifiers
+
+`plate_id` (e.g. `"A1"`) is **not** a globally unique plate identifier - it is reused across the different filename batches (plates 1-10, 11-14/15, 15-17), so the same code can refer to different physical plates. `plate_name` (the underscore-joined list of strains on that plate, e.g. `"HA_36_HA40_HA44"`) is unique per physical plate and - I verified this by comparing well-to-sample maps across files - stays constant across a plate's day 0/4/8 files when its `plate_id` changes between timepoints (e.g. the `SJ08_CONTROL` plate is `plate_id` `"A2"` at day 0 but `"E2"` at day 4/8). So `plate_name` alone is the correct cross-day plate key, with one exception: two distinct plates in the day-0-only file `DW_plates_15-17_0d.xlsx` both carry the generic `plate_name` `"CONTROL"` (`plate_id` `B2` and `C2`); for that one label we fall back to `plate_name` + `plate_id` to disambiguate them (they have no day 4/8 counterpart to match against, so this doesn't affect any longitudinal join). Combining `plate_uid` with `well_id` gives a stable identifier for a single physical well tracked across timepoints.
+
+```{r}
+#| output: true
+frondarea <- frondarea_raw |>
+  mutate(
+    plate_uid = if_else(
+      plate_name == "CONTROL",
+      paste(plate_name, plate_id, sep = "_"),
+      plate_name
+    ),
+    well_uid = paste(plate_uid, well_id, sep = "_"),
+    strain = factor(sample) |> fct_relevel("CONTROL"),
+    is_control = sample == "CONTROL"
+  ) |>
+  select(
+    day,
+    plate_uid,
+    well_uid,
+    well_id,
+    plate_id,
+    plate_name,
+    strain,
+    sample,
+    replicate,
+    is_control,
+    area,
+    count,
+    color_blue,
+    color_green,
+    color_hue,
+    color_red,
+    color_saturation,
+    color_value,
+    date,
+    source_file
+  )
+
+glimpse(frondarea)
+```
+
+# Quality checks
+
+Each well should be measured at most once per day.
+
+```{r}
+#| output: true
+# table should be empty
+frondarea |>
+  count(well_uid, day) |>
+  filter(n > 1)
+```
+
+Area should be strictly positive - a few wells have `area == 0` and `count == 0` together. These are dropped
+
+```{r}
+#| output: true
+zero_area <- frondarea |> filter(area <= 0)
+zero_area |> select(day, plate_uid, well_id, sample, area, count, source_file)
+
+frondarea <- frondarea |> filter(area > 0)
+```
+
+Sample-to-day completeness. Every strain should have (roughly) balanced replication across the three timepoints; `CONTROL` is expected to be imbalanced because a couple of `CONTROL`-only plates were only imaged at day 0 (see below).
+
+```{r}
+#| output: true
+frondarea |>
+  count(strain, day) |>
+  pivot_wider(
+    names_from = day,
+    values_from = n,
+    values_fill = 0,
+    names_prefix = "day"
+  ) |>
+  arrange(strain)
+```
+
+`well_id` -> `sample` mapping should be identical across days for the same plate (confirms the longitudinal, same-well-tracked-over-time design rather than fresh plates each day).
+
+```{r}
+#| output: true
+well_sample_by_day <- frondarea |>
+  distinct(plate_uid, well_id, day, sample) |>
+  pivot_wider(names_from = day, values_from = sample, names_prefix = "day")
+
+# table should be empty
+well_sample_by_day |>
+  filter(if_any(starts_with("day"), \(x) {
+    !is.na(x) & x != coalesce(day0, day4, day8)
+  }))
+```
+
+`CONTROL` replication by plate and day, for context: a couple of pure-`CONTROL` plates (plate names `CONTROL` and `SJ08_CONTROL`, the latter only partially) were imaged only at day 0 and so contribute no day 4/8 growth information; the rest of `CONTROL` (plates `TL64_TL58_CONTROL` and `SJ08_CONTROL` at day 4/8) is measured at all three timepoints.
+
+```{r}
+#| output: true
+frondarea |>
+  filter(is_control) |>
+  count(plate_uid, day)
+```
+
+# Exploratory look
+
+```{r}
+#| label: fig-frondarea-trajectories
+#| output: true
+#| fig-width: 10
+#| fig-height: 6
+#| fig-cap: "Per-well frond area trajectories by strain across the three imaging timepoints (day 0, 4, 8). CONTROL wells (no bacteria) are highlighted in red."
+frondarea |>
+  ggplot(aes(x = day, y = area, group = well_uid, color = is_control)) +
+  geom_line(alpha = 0.3) +
+  geom_point(size = 0.8, alpha = 0.5) +
+  facet_wrap(~strain) +
+  scale_color_manual(
+    values = c(`TRUE` = "firebrick", `FALSE` = "grey40"),
+    guide = "none"
+  ) +
+  labs(
+    x = "Day",
+    y = expression("Frond area (" * cm^2 * ")"),
+    title = "Per-well frond area trajectories by strain"
+  ) +
+  theme_bw(base_size = 9)
+```
+
+# Write processed data
+
+```{r}
+write_rds(frondarea, path(data_processed, "frondarea.rds"))
+write_tsv(frondarea, path(data_processed, "frondarea.tsv"))
+```

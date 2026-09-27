@@ -3,12 +3,15 @@ project:
   output-dir: _site
   render:
     - index.qmd
-    - scripts/01_bac_taxonomy_sanger_16S/02_seq_cluster_phylo.qmd
-    - scripts/01_bac_taxonomy_sanger_16S/03_tree_summary_table.qmd
-    - scripts/02_duckweed_genotyping/01_read_format_sanger.qmd
-    # Not rendered - plain R scripts rather than Quarto notebooks:
-    # - scripts/01_bac_taxonomy_sanger_16S/01_read_format_sanger.R
-    # - scripts/03_ampstop/01_18S_ampstop.R
+    # 16S Sanger trace QC + assembly. Feeds 02_bac_taxonomy.
+    - scripts/01_sanger_seq/01_trace_qc_assembly.qmd
+    # Bacterial isolate taxonomy from SILVA ACT classification of 01's output.
+    - scripts/02_bac_taxonomy/01_taxonomy_summary.qmd
+    # Duckweed species barcode genotyping (independent of 01/02).
+    - scripts/03_duckweed_genotyping/01_read_format_sanger.qmd
+    # Coculture frond-area growth. 01 feeds 02.
+    - scripts/04_lemna_bacteria_coculture_frondarea/01_read_frondarea.qmd
+    - scripts/04_lemna_bacteria_coculture_frondarea/02_growth_model.qmd
 
 website:
   title: "duckweedSynCom"
@@ -20,27 +23,42 @@ website:
       - icon: github
         href: https://github.com/slhogle/duckweedSynCom
     left:
+      - sidebar:sanger_seq
       - sidebar:bac_taxonomy
       - sidebar:dw_genotyping
+      - sidebar:frondarea
 
   sidebar:
+  - id: sanger_seq
+    title: "Sanger sequencing"
+    style: "docked"
+    contents:
+    - text: "01.A Trace QC + assembly"
+      href: scripts/01_sanger_seq/01_trace_qc_assembly.qmd
   - id: bac_taxonomy
     title: "Bacterial taxonomy"
     style: "docked"
     contents:
-    - text: "01.B Cluster + phylogeny"
-      href: scripts/01_bac_taxonomy_sanger_16S/02_seq_cluster_phylo.qmd
-    - text: "01.C Taxonomy summary"
-      href: scripts/01_bac_taxonomy_sanger_16S/03_tree_summary_table.qmd
+    - text: "02.A Taxonomy + phylogeny"
+      href: scripts/02_bac_taxonomy/01_taxonomy_summary.qmd
   - id: dw_genotyping
     title: "Duckweed genotyping"
     style: "docked"
     contents:
-    - text: "02.A Sanger barcodes"
-      href: scripts/02_duckweed_genotyping/01_read_format_sanger.qmd
+    - text: "03.A Sanger Duckweed genotype"
+      href: scripts/03_duckweed_genotyping/01_read_format_sanger.qmd
+  - id: frondarea
+    title: "Coculture frond area"
+    style: "docked"
+    contents:
+    - text: "04.A Read + format frond area"
+      href: scripts/04_lemna_bacteria_coculture_frondarea/01_read_frondarea.qmd
+    - text: "04.B Bayesian growth model"
+      href: scripts/04_lemna_bacteria_coculture_frondarea/02_growth_model.qmd
 
 format:
   html:
+    fig-format: svg
     theme:
       light: flatly
       dark: darkly
@@ -66,10 +84,10 @@ execute:
   freeze: auto        # Default: saving intermediate files to make project rendering faster
   echo: true          # Default: Shows the source code in the output
   eval: true          # Default: Runs the code
-  # NOTE: kept true (hambiEvoEnvCoexist uses false). The notebooks here were
-  # written against Quarto's default of showing output and only ever opt out
-  # per-chunk, so suppressing globally would blank almost every result.
-  output: true        # Default: Shows output from running the code
+  # Matches MCTdownUnder: output is suppressed by default, and shown only
+  # where a chunk explicitly opts in with `#| output: true` (every chunk
+  # whose result should appear on the page has been audited to set this).
+  output: false       # Default: Suppresses output from running the code
   warning: false      # Default: Suppresses warnings
   message: false      # Default: Suppresses messages
 

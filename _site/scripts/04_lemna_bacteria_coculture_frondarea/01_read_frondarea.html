@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Shane Hogle">
+<meta name="dcterms.date" content="2026-09-27">
+
+<title>Read and format duckweed-bacteria coculture frond area data – duckweedSynCom</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-0a6b7249c26820e032cb0bd839ff02b1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-f5f3cdedfeab4f70f0f5ec42e45ef763.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-653cdf8410ba41438f4bdd99f4a1f759.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-f5f3cdedfeab4f70f0f5ec42e45ef763.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">duckweedSynCom</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-sanger-sequencing" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Sanger sequencing</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-sanger-sequencing">    
+        <li>
+    <a class="dropdown-item" href="../../scripts/01_sanger_seq/01_trace_qc_assembly.html">
+ <span class="dropdown-text">01.A Trace QC + assembly</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-bacterial-taxonomy" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Bacterial taxonomy</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-bacterial-taxonomy">    
+        <li>
+    <a class="dropdown-item" href="../../scripts/02_bac_taxonomy/01_taxonomy_summary.html">
+ <span class="dropdown-text">02.A Taxonomy + phylogeny</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-duckweed-genotyping" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Duckweed genotyping</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-duckweed-genotyping">    
+        <li>
+    <a class="dropdown-item" href="../../scripts/03_duckweed_genotyping/01_read_format_sanger.html">
+ <span class="dropdown-text">03.A Sanger Duckweed genotype</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-coculture-frond-area" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Coculture frond area</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-coculture-frond-area">    
+        <li>
+    <a class="dropdown-item" href="../../scripts/04_lemna_bacteria_coculture_frondarea/01_read_frondarea.html">
+ <span class="dropdown-text">04.A Read + format frond area</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../scripts/04_lemna_bacteria_coculture_frondarea/02_growth_model.html">
+ <span class="dropdown-text">04.B Bayesian growth model</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools tools-wide">
+    <a href="https://bsky.app/profile/slhogle.bsky.social" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-bluesky"></i></a>
+    <a href="https://github.com/slhogle/duckweedSynCom" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../scripts/04_lemna_bacteria_coculture_frondarea/01_read_frondarea.html">04.A Read + format frond area</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../scripts/04_lemna_bacteria_coculture_frondarea/01_read_frondarea.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">04.A Read + format frond area</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../scripts/04_lemna_bacteria_coculture_frondarea/02_growth_model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">04.B Bayesian growth model</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#libraries" id="toc-libraries" class="nav-link active" data-scroll-target="#libraries"><span class="header-section-number">0.1</span> Libraries</a></li>
+  <li><a href="#global-variables" id="toc-global-variables" class="nav-link" data-scroll-target="#global-variables"><span class="header-section-number">0.2</span> Global variables</a></li>
+  <li><a href="#read-and-combine" id="toc-read-and-combine" class="nav-link" data-scroll-target="#read-and-combine"><span class="header-section-number">1</span> Read and combine</a></li>
+  <li><a href="#derive-plate-and-well-identifiers" id="toc-derive-plate-and-well-identifiers" class="nav-link" data-scroll-target="#derive-plate-and-well-identifiers"><span class="header-section-number">2</span> Derive plate and well identifiers</a></li>
+  <li><a href="#quality-checks" id="toc-quality-checks" class="nav-link" data-scroll-target="#quality-checks"><span class="header-section-number">3</span> Quality checks</a></li>
+  <li><a href="#exploratory-look" id="toc-exploratory-look" class="nav-link" data-scroll-target="#exploratory-look"><span class="header-section-number">4</span> Exploratory look</a></li>
+  <li><a href="#write-processed-data" id="toc-write-processed-data" class="nav-link" data-scroll-target="#write-processed-data"><span class="header-section-number">5</span> Write processed data</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Read and format duckweed-bacteria coculture frond area data</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Shane Hogle </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 27, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+<div>
+  <div class="abstract">
+    <div class="block-title">Abstract</div>
+    This reads plate-reader exports of <em>Lemna</em> frond area measured at day 0, 4, and 8 of coculture with individual bacterial strains (or CONTROL, no bacteria), combines them into a single tibble, checks the plate/well design, and writes a cleaned table for downstream modeling.
+  </div>
+</div>
+
+
+</header>
+
+
+<p><em>Lemna</em> was grown in 24-well plates, either alone (<code>CONTROL</code>) or co-cultured with a single bacterial strain per well group. Each plate hosts up to three strains + plant, with each strain occupying 8 wells (biological replicates) on that plate. The same physical plate was imaged at day 0, day 4, and day 8, so a given well is tracked longitudinally across the three timepoints.</p>
+<section id="libraries" class="level2" data-number="0.1">
+<h2 data-number="0.1" class="anchored" data-anchor-id="libraries"><span class="header-section-number">0.1</span> Libraries</h2>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">library</span>(fs)</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="fu">library</span>(readxl)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="global-variables" class="level2" data-number="0.2">
+<h2 data-number="0.2" class="anchored" data-anchor-id="global-variables"><span class="header-section-number">0.2</span> Global variables</h2>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>data_raw <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="st">"data"</span>,</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="st">"raw"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="st">"20260511_lemna_bacteria_coculture_frondarea"</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>)</span>
+<span id="cb2-6"><a href="#cb2-6"></a>data_processed <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  <span class="st">"data"</span>,</span>
+<span id="cb2-8"><a href="#cb2-8"></a>  <span class="st">"processed"</span>,</span>
+<span id="cb2-9"><a href="#cb2-9"></a>  <span class="st">"04_lemna_bacteria_coculture_frondarea"</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>)</span>
+<span id="cb2-11"><a href="#cb2-11"></a></span>
+<span id="cb2-12"><a href="#cb2-12"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(data_processed)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="read-and-combine" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Read and combine</h1>
+<p>Each xlsx file holds one <code>Export</code> sheet covering a subset of plates at a single timepoint. The day (0, 4, or 8) is encoded in the filename (e.g.&nbsp;<code>DW_plates_1-10_4d.xlsx</code>), not in the sheet itself, so we parse it from the filename as we read.</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>frondarea_files <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">dir_ls</span>(data_raw, <span class="at">glob =</span> <span class="st">"*.xlsx"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a></span>
+<span id="cb3-3"><a href="#cb3-3"></a>read_frondarea_file <span class="ot">&lt;-</span> <span class="cf">function</span>(path) {</span>
+<span id="cb3-4"><a href="#cb3-4"></a>  day <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">str_extract</span>(<span class="fu">path_file</span>(path), <span class="st">"(?&lt;=_)</span><span class="sc">\\</span><span class="st">d+(?=d</span><span class="sc">\\</span><span class="st">.xlsx$)"</span>))</span>
+<span id="cb3-5"><a href="#cb3-5"></a></span>
+<span id="cb3-6"><a href="#cb3-6"></a>  <span class="fu">read_excel</span>(path, <span class="at">sheet =</span> <span class="st">"Export"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a>    <span class="fu">rename</span>(</span>
+<span id="cb3-8"><a href="#cb3-8"></a>      <span class="at">date =</span> Date,</span>
+<span id="cb3-9"><a href="#cb3-9"></a>      <span class="at">plate_id =</span> <span class="st">`</span><span class="at">Plate ID</span><span class="st">`</span>,</span>
+<span id="cb3-10"><a href="#cb3-10"></a>      <span class="at">plate_name =</span> <span class="st">`</span><span class="at">Plate Name</span><span class="st">`</span>,</span>
+<span id="cb3-11"><a href="#cb3-11"></a>      <span class="at">well_id =</span> <span class="st">`</span><span class="at">Well ID</span><span class="st">`</span>,</span>
+<span id="cb3-12"><a href="#cb3-12"></a>      <span class="at">sample =</span> Sample,</span>
+<span id="cb3-13"><a href="#cb3-13"></a>      <span class="at">replicate =</span> Replicate,</span>
+<span id="cb3-14"><a href="#cb3-14"></a>      <span class="at">area =</span> Area,</span>
+<span id="cb3-15"><a href="#cb3-15"></a>      <span class="at">color_blue =</span> <span class="st">`</span><span class="at">Average Object Color:Blue</span><span class="st">`</span>,</span>
+<span id="cb3-16"><a href="#cb3-16"></a>      <span class="at">color_green =</span> <span class="st">`</span><span class="at">Average Object Color:Green</span><span class="st">`</span>,</span>
+<span id="cb3-17"><a href="#cb3-17"></a>      <span class="at">color_hue =</span> <span class="st">`</span><span class="at">Average Object Color:Hue</span><span class="st">`</span>,</span>
+<span id="cb3-18"><a href="#cb3-18"></a>      <span class="at">color_red =</span> <span class="st">`</span><span class="at">Average Object Color:Red</span><span class="st">`</span>,</span>
+<span id="cb3-19"><a href="#cb3-19"></a>      <span class="at">color_saturation =</span> <span class="st">`</span><span class="at">Average Object Color:Saturation</span><span class="st">`</span>,</span>
+<span id="cb3-20"><a href="#cb3-20"></a>      <span class="at">color_value =</span> <span class="st">`</span><span class="at">Average Object Color:Value</span><span class="st">`</span>,</span>
+<span id="cb3-21"><a href="#cb3-21"></a>      <span class="at">count =</span> Count</span>
+<span id="cb3-22"><a href="#cb3-22"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb3-23"><a href="#cb3-23"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb3-24"><a href="#cb3-24"></a>      <span class="at">day =</span> day,</span>
+<span id="cb3-25"><a href="#cb3-25"></a>      <span class="at">source_file =</span> <span class="fu">path_file</span>(path)</span>
+<span id="cb3-26"><a href="#cb3-26"></a>    )</span>
+<span id="cb3-27"><a href="#cb3-27"></a>}</span>
+<span id="cb3-28"><a href="#cb3-28"></a></span>
+<span id="cb3-29"><a href="#cb3-29"></a>frondarea_raw <span class="ot">&lt;-</span> frondarea_files <span class="sc">|&gt;</span></span>
+<span id="cb3-30"><a href="#cb3-30"></a>  <span class="fu">map</span>(read_frondarea_file) <span class="sc">|&gt;</span></span>
+<span id="cb3-31"><a href="#cb3-31"></a>  <span class="fu">list_rbind</span>()</span>
+<span id="cb3-32"><a href="#cb3-32"></a></span>
+<span id="cb3-33"><a href="#cb3-33"></a><span class="fu">glimpse</span>(frondarea_raw)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 1,128
+Columns: 16
+$ date             &lt;chr&gt; "2026-06-03T12:17:28.796Z", "2026-06-03T12:16:38.213Z…
+$ plate_id         &lt;chr&gt; "A1", "A1", "A1", "A1", "A1", "A1", "A1", "A1", "A1",…
+$ plate_name       &lt;chr&gt; "HA_36_HA40_HA44", "HA_36_HA40_HA44", "HA_36_HA40_HA4…
+$ well_id          &lt;chr&gt; "A1", "A2", "A3", "A4", "A5", "A6", "B1", "B2", "B3",…
+$ sample           &lt;chr&gt; "HA36", "HA36", "HA40", "HA40", "HA44", "HA44", "HA36…
+$ replicate        &lt;dbl&gt; 1, 5, 1, 5, 1, 5, 2, 6, 2, 6, 2, 6, 3, 7, 3, 7, 3, 7,…
+$ area             &lt;dbl&gt; 7.63, 6.80, 7.08, 6.24, 7.23, 3.80, 6.38, 7.62, 8.45,…
+$ color_blue       &lt;dbl&gt; 44.0, 39.0, 52.0, 25.0, 50.0, 35.5, 31.5, 35.5, 52.0,…
+$ color_green      &lt;dbl&gt; 135.0, 139.0, 141.0, 133.0, 140.0, 138.0, 136.5, 138.…
+$ color_hue        &lt;dbl&gt; 53.68, 51.99, 51.01, 51.78, 51.65, 50.78, 51.62, 52.1…
+$ color_red        &lt;dbl&gt; 121.5, 126.0, 131.0, 116.0, 129.0, 125.0, 120.0, 122.…
+$ color_saturation &lt;dbl&gt; 170.51, 181.65, 158.65, 204.94, 160.84, 187.10, 195.2…
+$ color_value      &lt;dbl&gt; 134.85, 138.79, 141.16, 132.88, 139.73, 138.45, 136.6…
+$ count            &lt;dbl&gt; 2, 1, 1, 2, 1, 2, 2, 2, 2, 1, 1, 2, 1, 2, 1, 2, 1, 1,…
+$ day              &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ source_file      &lt;chr&gt; "DW_plates_1-10_0d.xlsx", "DW_plates_1-10_0d.xlsx", "…</code></pre>
+</div>
+</div>
+</section>
+<section id="derive-plate-and-well-identifiers" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Derive plate and well identifiers</h1>
+<p><code>plate_id</code> (e.g.&nbsp;<code>"A1"</code>) is <strong>not</strong> a globally unique plate identifier - it is reused across the different filename batches (plates 1-10, 11-14/15, 15-17), so the same code can refer to different physical plates. <code>plate_name</code> (the underscore-joined list of strains on that plate, e.g.&nbsp;<code>"HA_36_HA40_HA44"</code>) is unique per physical plate and - I verified this by comparing well-to-sample maps across files - stays constant across a plate’s day 0/4/8 files when its <code>plate_id</code> changes between timepoints (e.g.&nbsp;the <code>SJ08_CONTROL</code> plate is <code>plate_id</code> <code>"A2"</code> at day 0 but <code>"E2"</code> at day 4/8). So <code>plate_name</code> alone is the correct cross-day plate key, with one exception: two distinct plates in the day-0-only file <code>DW_plates_15-17_0d.xlsx</code> both carry the generic <code>plate_name</code> <code>"CONTROL"</code> (<code>plate_id</code> <code>B2</code> and <code>C2</code>); for that one label we fall back to <code>plate_name</code> + <code>plate_id</code> to disambiguate them (they have no day 4/8 counterpart to match against, so this doesn’t affect any longitudinal join). Combining <code>plate_uid</code> with <code>well_id</code> gives a stable identifier for a single physical well tracked across timepoints.</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>frondarea <span class="ot">&lt;-</span> frondarea_raw <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="at">plate_uid =</span> <span class="fu">if_else</span>(</span>
+<span id="cb5-4"><a href="#cb5-4"></a>      plate_name <span class="sc">==</span> <span class="st">"CONTROL"</span>,</span>
+<span id="cb5-5"><a href="#cb5-5"></a>      <span class="fu">paste</span>(plate_name, plate_id, <span class="at">sep =</span> <span class="st">"_"</span>),</span>
+<span id="cb5-6"><a href="#cb5-6"></a>      plate_name</span>
+<span id="cb5-7"><a href="#cb5-7"></a>    ),</span>
+<span id="cb5-8"><a href="#cb5-8"></a>    <span class="at">well_uid =</span> <span class="fu">paste</span>(plate_uid, well_id, <span class="at">sep =</span> <span class="st">"_"</span>),</span>
+<span id="cb5-9"><a href="#cb5-9"></a>    <span class="at">strain =</span> <span class="fu">factor</span>(sample) <span class="sc">|&gt;</span> <span class="fu">fct_relevel</span>(<span class="st">"CONTROL"</span>),</span>
+<span id="cb5-10"><a href="#cb5-10"></a>    <span class="at">is_control =</span> sample <span class="sc">==</span> <span class="st">"CONTROL"</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a>  <span class="fu">select</span>(</span>
+<span id="cb5-13"><a href="#cb5-13"></a>    day,</span>
+<span id="cb5-14"><a href="#cb5-14"></a>    plate_uid,</span>
+<span id="cb5-15"><a href="#cb5-15"></a>    well_uid,</span>
+<span id="cb5-16"><a href="#cb5-16"></a>    well_id,</span>
+<span id="cb5-17"><a href="#cb5-17"></a>    plate_id,</span>
+<span id="cb5-18"><a href="#cb5-18"></a>    plate_name,</span>
+<span id="cb5-19"><a href="#cb5-19"></a>    strain,</span>
+<span id="cb5-20"><a href="#cb5-20"></a>    sample,</span>
+<span id="cb5-21"><a href="#cb5-21"></a>    replicate,</span>
+<span id="cb5-22"><a href="#cb5-22"></a>    is_control,</span>
+<span id="cb5-23"><a href="#cb5-23"></a>    area,</span>
+<span id="cb5-24"><a href="#cb5-24"></a>    count,</span>
+<span id="cb5-25"><a href="#cb5-25"></a>    color_blue,</span>
+<span id="cb5-26"><a href="#cb5-26"></a>    color_green,</span>
+<span id="cb5-27"><a href="#cb5-27"></a>    color_hue,</span>
+<span id="cb5-28"><a href="#cb5-28"></a>    color_red,</span>
+<span id="cb5-29"><a href="#cb5-29"></a>    color_saturation,</span>
+<span id="cb5-30"><a href="#cb5-30"></a>    color_value,</span>
+<span id="cb5-31"><a href="#cb5-31"></a>    date,</span>
+<span id="cb5-32"><a href="#cb5-32"></a>    source_file</span>
+<span id="cb5-33"><a href="#cb5-33"></a>  )</span>
+<span id="cb5-34"><a href="#cb5-34"></a></span>
+<span id="cb5-35"><a href="#cb5-35"></a><span class="fu">glimpse</span>(frondarea)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 1,128
+Columns: 20
+$ day              &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ plate_uid        &lt;chr&gt; "HA_36_HA40_HA44", "HA_36_HA40_HA44", "HA_36_HA40_HA4…
+$ well_uid         &lt;chr&gt; "HA_36_HA40_HA44_A1", "HA_36_HA40_HA44_A2", "HA_36_HA…
+$ well_id          &lt;chr&gt; "A1", "A2", "A3", "A4", "A5", "A6", "B1", "B2", "B3",…
+$ plate_id         &lt;chr&gt; "A1", "A1", "A1", "A1", "A1", "A1", "A1", "A1", "A1",…
+$ plate_name       &lt;chr&gt; "HA_36_HA40_HA44", "HA_36_HA40_HA44", "HA_36_HA40_HA4…
+$ strain           &lt;fct&gt; HA36, HA36, HA40, HA40, HA44, HA44, HA36, HA36, HA40,…
+$ sample           &lt;chr&gt; "HA36", "HA36", "HA40", "HA40", "HA44", "HA44", "HA36…
+$ replicate        &lt;dbl&gt; 1, 5, 1, 5, 1, 5, 2, 6, 2, 6, 2, 6, 3, 7, 3, 7, 3, 7,…
+$ is_control       &lt;lgl&gt; FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALS…
+$ area             &lt;dbl&gt; 7.63, 6.80, 7.08, 6.24, 7.23, 3.80, 6.38, 7.62, 8.45,…
+$ count            &lt;dbl&gt; 2, 1, 1, 2, 1, 2, 2, 2, 2, 1, 1, 2, 1, 2, 1, 2, 1, 1,…
+$ color_blue       &lt;dbl&gt; 44.0, 39.0, 52.0, 25.0, 50.0, 35.5, 31.5, 35.5, 52.0,…
+$ color_green      &lt;dbl&gt; 135.0, 139.0, 141.0, 133.0, 140.0, 138.0, 136.5, 138.…
+$ color_hue        &lt;dbl&gt; 53.68, 51.99, 51.01, 51.78, 51.65, 50.78, 51.62, 52.1…
+$ color_red        &lt;dbl&gt; 121.5, 126.0, 131.0, 116.0, 129.0, 125.0, 120.0, 122.…
+$ color_saturation &lt;dbl&gt; 170.51, 181.65, 158.65, 204.94, 160.84, 187.10, 195.2…
+$ color_value      &lt;dbl&gt; 134.85, 138.79, 141.16, 132.88, 139.73, 138.45, 136.6…
+$ date             &lt;chr&gt; "2026-06-03T12:17:28.796Z", "2026-06-03T12:16:38.213Z…
+$ source_file      &lt;chr&gt; "DW_plates_1-10_0d.xlsx", "DW_plates_1-10_0d.xlsx", "…</code></pre>
+</div>
+</div>
+</section>
+<section id="quality-checks" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Quality checks</h1>
+<p>Each well should be measured at most once per day.</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># table should be empty</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>frondarea <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="fu">count</span>(well_uid, day) <span class="sc">|&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["well_uid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["day"],"name":[2],"type":["int"],"align":["right"]},{"label":["n"],"name":[3],"type":["int"],"align":["right"]}],"data":[],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Area should be strictly positive - a few wells have <code>area == 0</code> and <code>count == 0</code> together. These are dropped</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>zero_area <span class="ot">&lt;-</span> frondarea <span class="sc">|&gt;</span> <span class="fu">filter</span>(area <span class="sc">&lt;=</span> <span class="dv">0</span>)</span>
+<span id="cb8-2"><a href="#cb8-2"></a>zero_area <span class="sc">|&gt;</span> <span class="fu">select</span>(day, plate_uid, well_id, sample, area, count, source_file)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["day"],"name":[1],"type":["int"],"align":["right"]},{"label":["plate_uid"],"name":[2],"type":["chr"],"align":["left"]},{"label":["well_id"],"name":[3],"type":["chr"],"align":["left"]},{"label":["sample"],"name":[4],"type":["chr"],"align":["left"]},{"label":["area"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["count"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["source_file"],"name":[7],"type":["chr"],"align":["left"]}],"data":[{"1":"0","2":"HA6_HA8_HA10","3":"D5","4":"HA10","5":"0","6":"0","7":"DW_plates_1-10_0d.xlsx"},{"1":"0","2":"HA_61_HA64_HA69A","3":"D3","4":"HA64","5":"0","6":"0","7":"DW_plates_1-10_0d.xlsx"},{"1":"4","2":"HA6_HA8_HA10","3":"C5","4":"HA10","5":"0","6":"0","7":"DW_plates_1-10_4d.xlsx"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>frondarea <span class="ot">&lt;-</span> frondarea <span class="sc">|&gt;</span> <span class="fu">filter</span>(area <span class="sc">&gt;</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Sample-to-day completeness. Every strain should have (roughly) balanced replication across the three timepoints; <code>CONTROL</code> is expected to be imbalanced because a couple of <code>CONTROL</code>-only plates were only imaged at day 0 (see below).</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>frondarea <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">count</span>(strain, day) <span class="sc">|&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb10-4"><a href="#cb10-4"></a>    <span class="at">names_from =</span> day,</span>
+<span id="cb10-5"><a href="#cb10-5"></a>    <span class="at">values_from =</span> n,</span>
+<span id="cb10-6"><a href="#cb10-6"></a>    <span class="at">values_fill =</span> <span class="dv">0</span>,</span>
+<span id="cb10-7"><a href="#cb10-7"></a>    <span class="at">names_prefix =</span> <span class="st">"day"</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a>  <span class="fu">arrange</span>(strain)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["strain"],"name":[1],"type":["fct"],"align":["left"]},{"label":["day0"],"name":[2],"type":["int"],"align":["right"]},{"label":["day4"],"name":[3],"type":["int"],"align":["right"]},{"label":["day8"],"name":[4],"type":["int"],"align":["right"]}],"data":[{"1":"CONTROL","2":"72","3":"24","4":"24"},{"1":"HA01","2":"8","3":"8","4":"8"},{"1":"HA02","2":"8","3":"8","4":"8"},{"1":"HA03","2":"8","3":"8","4":"8"},{"1":"HA06","2":"8","3":"8","4":"8"},{"1":"HA08","2":"8","3":"8","4":"8"},{"1":"HA10","2":"7","3":"7","4":"8"},{"1":"HA12","2":"8","3":"8","4":"8"},{"1":"HA14","2":"8","3":"8","4":"8"},{"1":"HA16","2":"8","3":"8","4":"8"},{"1":"HA17","2":"8","3":"8","4":"8"},{"1":"HA18","2":"8","3":"8","4":"8"},{"1":"HA21A","2":"8","3":"8","4":"8"},{"1":"HA21B","2":"8","3":"8","4":"8"},{"1":"HA27","2":"8","3":"8","4":"8"},{"1":"HA32","2":"8","3":"8","4":"8"},{"1":"HA36","2":"8","3":"8","4":"8"},{"1":"HA40","2":"8","3":"8","4":"8"},{"1":"HA44","2":"8","3":"8","4":"8"},{"1":"HA46","2":"8","3":"8","4":"8"},{"1":"HA48","2":"8","3":"8","4":"8"},{"1":"HA59","2":"8","3":"8","4":"8"},{"1":"HA61","2":"8","3":"8","4":"8"},{"1":"HA64","2":"7","3":"8","4":"8"},{"1":"HA69A","2":"8","3":"8","4":"8"},{"1":"HA82","2":"8","3":"8","4":"8"},{"1":"SJ02","2":"8","3":"8","4":"8"},{"1":"SJ07","2":"8","3":"8","4":"8"},{"1":"SJ08","2":"8","3":"8","4":"8"},{"1":"SJ09","2":"8","3":"8","4":"8"},{"1":"SJ14","2":"8","3":"8","4":"8"},{"1":"SJ17","2":"8","3":"8","4":"8"},{"1":"TL01","2":"8","3":"8","4":"8"},{"1":"TL02","2":"8","3":"8","4":"8"},{"1":"TL03","2":"8","3":"8","4":"8"},{"1":"TL05","2":"8","3":"8","4":"8"},{"1":"TL06","2":"8","3":"8","4":"8"},{"1":"TL09","2":"8","3":"8","4":"8"},{"1":"TL23","2":"8","3":"8","4":"8"},{"1":"TL29","2":"8","3":"8","4":"8"},{"1":"TL34","2":"8","3":"8","4":"8"},{"1":"TL58","2":"8","3":"8","4":"8"},{"1":"TL64","2":"8","3":"8","4":"8"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p><code>well_id</code> -&gt; <code>sample</code> mapping should be identical across days for the same plate (confirms the longitudinal, same-well-tracked-over-time design rather than fresh plates each day).</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>well_sample_by_day <span class="ot">&lt;-</span> frondarea <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>  <span class="fu">distinct</span>(plate_uid, well_id, day, sample) <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> day, <span class="at">values_from =</span> sample, <span class="at">names_prefix =</span> <span class="st">"day"</span>)</span>
+<span id="cb11-4"><a href="#cb11-4"></a></span>
+<span id="cb11-5"><a href="#cb11-5"></a><span class="co"># table should be empty</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a>well_sample_by_day <span class="sc">|&gt;</span></span>
+<span id="cb11-7"><a href="#cb11-7"></a>  <span class="fu">filter</span>(<span class="fu">if_any</span>(<span class="fu">starts_with</span>(<span class="st">"day"</span>), \(x) {</span>
+<span id="cb11-8"><a href="#cb11-8"></a>    <span class="sc">!</span><span class="fu">is.na</span>(x) <span class="sc">&amp;</span> x <span class="sc">!=</span> <span class="fu">coalesce</span>(day0, day4, day8)</span>
+<span id="cb11-9"><a href="#cb11-9"></a>  }))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["plate_uid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["well_id"],"name":[2],"type":["chr"],"align":["left"]},{"label":["day0"],"name":[3],"type":["chr"],"align":["left"]},{"label":["day4"],"name":[4],"type":["chr"],"align":["left"]},{"label":["day8"],"name":[5],"type":["chr"],"align":["left"]}],"data":[],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p><code>CONTROL</code> replication by plate and day, for context: a couple of pure-<code>CONTROL</code> plates (plate names <code>CONTROL</code> and <code>SJ08_CONTROL</code>, the latter only partially) were imaged only at day 0 and so contribute no day 4/8 growth information; the rest of <code>CONTROL</code> (plates <code>TL64_TL58_CONTROL</code> and <code>SJ08_CONTROL</code> at day 4/8) is measured at all three timepoints.</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>frondarea <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">filter</span>(is_control) <span class="sc">|&gt;</span></span>
+<span id="cb12-3"><a href="#cb12-3"></a>  <span class="fu">count</span>(plate_uid, day)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["plate_uid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["day"],"name":[2],"type":["int"],"align":["right"]},{"label":["n"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"CONTROL_B2","2":"0","3":"24"},{"1":"CONTROL_C2","2":"0","3":"24"},{"1":"SJ08_CONTROL","2":"0","3":"16"},{"1":"SJ08_CONTROL","2":"4","3":"16"},{"1":"SJ08_CONTROL","2":"8","3":"16"},{"1":"TL64_TL58_CONTROL","2":"0","3":"8"},{"1":"TL64_TL58_CONTROL","2":"4","3":"8"},{"1":"TL64_TL58_CONTROL","2":"8","3":"8"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="exploratory-look" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Exploratory look</h1>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>frondarea <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> day, <span class="at">y =</span> area, <span class="at">group =</span> well_uid, <span class="at">color =</span> is_control)) <span class="sc">+</span></span>
+<span id="cb13-3"><a href="#cb13-3"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb13-4"><a href="#cb13-4"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">0.8</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb13-5"><a href="#cb13-5"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>strain) <span class="sc">+</span></span>
+<span id="cb13-6"><a href="#cb13-6"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb13-7"><a href="#cb13-7"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">TRUE</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"firebrick"</span>, <span class="st">`</span><span class="at">FALSE</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"grey40"</span>),</span>
+<span id="cb13-8"><a href="#cb13-8"></a>    <span class="at">guide =</span> <span class="st">"none"</span></span>
+<span id="cb13-9"><a href="#cb13-9"></a>  ) <span class="sc">+</span></span>
+<span id="cb13-10"><a href="#cb13-10"></a>  <span class="fu">labs</span>(</span>
+<span id="cb13-11"><a href="#cb13-11"></a>    <span class="at">x =</span> <span class="st">"Day"</span>,</span>
+<span id="cb13-12"><a href="#cb13-12"></a>    <span class="at">y =</span> <span class="fu">expression</span>(<span class="st">"Frond area ("</span> <span class="sc">*</span> cm<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="st">")"</span>),</span>
+<span id="cb13-13"><a href="#cb13-13"></a>    <span class="at">title =</span> <span class="st">"Per-well frond area trajectories by strain"</span></span>
+<span id="cb13-14"><a href="#cb13-14"></a>  ) <span class="sc">+</span></span>
+<span id="cb13-15"><a href="#cb13-15"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">9</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-frondarea-trajectories" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-frondarea-trajectories-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="01_read_frondarea_files/figure-html/fig-frondarea-trajectories-1.svg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-frondarea-trajectories-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Per-well frond area trajectories by strain across the three imaging timepoints (day 0, 4, 8). CONTROL wells (no bacteria) are highlighted in red.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="write-processed-data" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Write processed data</h1>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="fu">write_rds</span>(frondarea, <span class="fu">path</span>(data_processed, <span class="st">"frondarea.rds"</span>))</span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="fu">write_tsv</span>(frondarea, <span class="fu">path</span>(data_processed, <span class="st">"frondarea.tsv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb15-1"><a href="#cb15-1"></a><span class="co">---</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a><span class="an">title:</span><span class="co"> "Read and format duckweed-bacteria coculture frond area data"</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a><span class="an">subtitle:</span><span class="co"> ""</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a><span class="an">author:</span><span class="co"> "Shane Hogle"</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a><span class="an">date:</span><span class="co"> today</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a><span class="an">abstract:</span><span class="co"> "This reads plate-reader exports of *Lemna* frond area measured at day 0, 4, and 8 of coculture with individual bacterial strains (or CONTROL, no bacteria), combines them into a single tibble, checks the plate/well design, and writes a cleaned table for downstream modeling."</span></span>
+<span id="cb15-7"><a href="#cb15-7"></a><span class="co">---</span></span>
+<span id="cb15-8"><a href="#cb15-8"></a></span>
+<span id="cb15-9"><a href="#cb15-9"></a>*Lemna* was grown in 24-well plates, either alone (<span class="in">`CONTROL`</span>) or co-cultured with a single bacterial strain per well group. Each plate hosts up to three strains + plant, with each strain occupying 8 wells (biological replicates) on that plate. The same physical plate was imaged at day 0, day 4, and day 8, so a given well is tracked longitudinally across the three timepoints.</span>
+<span id="cb15-10"><a href="#cb15-10"></a></span>
+<span id="cb15-11"><a href="#cb15-11"></a><span class="fu">## Libraries</span></span>
+<span id="cb15-12"><a href="#cb15-12"></a></span>
+<span id="cb15-15"><a href="#cb15-15"></a><span class="in">```{r}</span></span>
+<span id="cb15-16"><a href="#cb15-16"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb15-17"><a href="#cb15-17"></a><span class="fu">library</span>(here)</span>
+<span id="cb15-18"><a href="#cb15-18"></a><span class="fu">library</span>(fs)</span>
+<span id="cb15-19"><a href="#cb15-19"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb15-20"><a href="#cb15-20"></a><span class="in">```</span></span>
+<span id="cb15-21"><a href="#cb15-21"></a></span>
+<span id="cb15-22"><a href="#cb15-22"></a><span class="fu">## Global variables</span></span>
+<span id="cb15-23"><a href="#cb15-23"></a></span>
+<span id="cb15-26"><a href="#cb15-26"></a><span class="in">```{r}</span></span>
+<span id="cb15-27"><a href="#cb15-27"></a>data_raw <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(</span>
+<span id="cb15-28"><a href="#cb15-28"></a>  <span class="st">"data"</span>,</span>
+<span id="cb15-29"><a href="#cb15-29"></a>  <span class="st">"raw"</span>,</span>
+<span id="cb15-30"><a href="#cb15-30"></a>  <span class="st">"20260511_lemna_bacteria_coculture_frondarea"</span></span>
+<span id="cb15-31"><a href="#cb15-31"></a>)</span>
+<span id="cb15-32"><a href="#cb15-32"></a>data_processed <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(</span>
+<span id="cb15-33"><a href="#cb15-33"></a>  <span class="st">"data"</span>,</span>
+<span id="cb15-34"><a href="#cb15-34"></a>  <span class="st">"processed"</span>,</span>
+<span id="cb15-35"><a href="#cb15-35"></a>  <span class="st">"04_lemna_bacteria_coculture_frondarea"</span></span>
+<span id="cb15-36"><a href="#cb15-36"></a>)</span>
+<span id="cb15-37"><a href="#cb15-37"></a></span>
+<span id="cb15-38"><a href="#cb15-38"></a>fs<span class="sc">::</span><span class="fu">dir_create</span>(data_processed)</span>
+<span id="cb15-39"><a href="#cb15-39"></a><span class="in">```</span></span>
+<span id="cb15-40"><a href="#cb15-40"></a></span>
+<span id="cb15-41"><a href="#cb15-41"></a><span class="fu"># Read and combine</span></span>
+<span id="cb15-42"><a href="#cb15-42"></a></span>
+<span id="cb15-43"><a href="#cb15-43"></a>Each xlsx file holds one <span class="in">`Export`</span> sheet covering a subset of plates at a single timepoint. The day (0, 4, or 8) is encoded in the filename (e.g. <span class="in">`DW_plates_1-10_4d.xlsx`</span>), not in the sheet itself, so we parse it from the filename as we read.</span>
+<span id="cb15-44"><a href="#cb15-44"></a></span>
+<span id="cb15-47"><a href="#cb15-47"></a><span class="in">```{r}</span></span>
+<span id="cb15-48"><a href="#cb15-48"></a><span class="co">#| output: true</span></span>
+<span id="cb15-49"><a href="#cb15-49"></a>frondarea_files <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">dir_ls</span>(data_raw, <span class="at">glob =</span> <span class="st">"*.xlsx"</span>)</span>
+<span id="cb15-50"><a href="#cb15-50"></a></span>
+<span id="cb15-51"><a href="#cb15-51"></a>read_frondarea_file <span class="ot">&lt;-</span> <span class="cf">function</span>(path) {</span>
+<span id="cb15-52"><a href="#cb15-52"></a>  day <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">str_extract</span>(<span class="fu">path_file</span>(path), <span class="st">"(?&lt;=_)</span><span class="sc">\\</span><span class="st">d+(?=d</span><span class="sc">\\</span><span class="st">.xlsx$)"</span>))</span>
+<span id="cb15-53"><a href="#cb15-53"></a></span>
+<span id="cb15-54"><a href="#cb15-54"></a>  <span class="fu">read_excel</span>(path, <span class="at">sheet =</span> <span class="st">"Export"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-55"><a href="#cb15-55"></a>    <span class="fu">rename</span>(</span>
+<span id="cb15-56"><a href="#cb15-56"></a>      <span class="at">date =</span> Date,</span>
+<span id="cb15-57"><a href="#cb15-57"></a>      <span class="at">plate_id =</span> <span class="st">`</span><span class="at">Plate ID</span><span class="st">`</span>,</span>
+<span id="cb15-58"><a href="#cb15-58"></a>      <span class="at">plate_name =</span> <span class="st">`</span><span class="at">Plate Name</span><span class="st">`</span>,</span>
+<span id="cb15-59"><a href="#cb15-59"></a>      <span class="at">well_id =</span> <span class="st">`</span><span class="at">Well ID</span><span class="st">`</span>,</span>
+<span id="cb15-60"><a href="#cb15-60"></a>      <span class="at">sample =</span> Sample,</span>
+<span id="cb15-61"><a href="#cb15-61"></a>      <span class="at">replicate =</span> Replicate,</span>
+<span id="cb15-62"><a href="#cb15-62"></a>      <span class="at">area =</span> Area,</span>
+<span id="cb15-63"><a href="#cb15-63"></a>      <span class="at">color_blue =</span> <span class="st">`</span><span class="at">Average Object Color:Blue</span><span class="st">`</span>,</span>
+<span id="cb15-64"><a href="#cb15-64"></a>      <span class="at">color_green =</span> <span class="st">`</span><span class="at">Average Object Color:Green</span><span class="st">`</span>,</span>
+<span id="cb15-65"><a href="#cb15-65"></a>      <span class="at">color_hue =</span> <span class="st">`</span><span class="at">Average Object Color:Hue</span><span class="st">`</span>,</span>
+<span id="cb15-66"><a href="#cb15-66"></a>      <span class="at">color_red =</span> <span class="st">`</span><span class="at">Average Object Color:Red</span><span class="st">`</span>,</span>
+<span id="cb15-67"><a href="#cb15-67"></a>      <span class="at">color_saturation =</span> <span class="st">`</span><span class="at">Average Object Color:Saturation</span><span class="st">`</span>,</span>
+<span id="cb15-68"><a href="#cb15-68"></a>      <span class="at">color_value =</span> <span class="st">`</span><span class="at">Average Object Color:Value</span><span class="st">`</span>,</span>
+<span id="cb15-69"><a href="#cb15-69"></a>      <span class="at">count =</span> Count</span>
+<span id="cb15-70"><a href="#cb15-70"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb15-71"><a href="#cb15-71"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb15-72"><a href="#cb15-72"></a>      <span class="at">day =</span> day,</span>
+<span id="cb15-73"><a href="#cb15-73"></a>      <span class="at">source_file =</span> <span class="fu">path_file</span>(path)</span>
+<span id="cb15-74"><a href="#cb15-74"></a>    )</span>
+<span id="cb15-75"><a href="#cb15-75"></a>}</span>
+<span id="cb15-76"><a href="#cb15-76"></a></span>
+<span id="cb15-77"><a href="#cb15-77"></a>frondarea_raw <span class="ot">&lt;-</span> frondarea_files <span class="sc">|&gt;</span></span>
+<span id="cb15-78"><a href="#cb15-78"></a>  <span class="fu">map</span>(read_frondarea_file) <span class="sc">|&gt;</span></span>
+<span id="cb15-79"><a href="#cb15-79"></a>  <span class="fu">list_rbind</span>()</span>
+<span id="cb15-80"><a href="#cb15-80"></a></span>
+<span id="cb15-81"><a href="#cb15-81"></a><span class="fu">glimpse</span>(frondarea_raw)</span>
+<span id="cb15-82"><a href="#cb15-82"></a><span class="in">```</span></span>
+<span id="cb15-83"><a href="#cb15-83"></a></span>
+<span id="cb15-84"><a href="#cb15-84"></a><span class="fu"># Derive plate and well identifiers</span></span>
+<span id="cb15-85"><a href="#cb15-85"></a></span>
+<span id="cb15-86"><a href="#cb15-86"></a><span class="in">`plate_id`</span> (e.g. <span class="in">`"A1"`</span>) is **not** a globally unique plate identifier - it is reused across the different filename batches (plates 1-10, 11-14/15, 15-17), so the same code can refer to different physical plates. <span class="in">`plate_name`</span> (the underscore-joined list of strains on that plate, e.g. <span class="in">`"HA_36_HA40_HA44"`</span>) is unique per physical plate and - I verified this by comparing well-to-sample maps across files - stays constant across a plate's day 0/4/8 files when its <span class="in">`plate_id`</span> changes between timepoints (e.g. the <span class="in">`SJ08_CONTROL`</span> plate is <span class="in">`plate_id`</span> <span class="in">`"A2"`</span> at day 0 but <span class="in">`"E2"`</span> at day 4/8). So <span class="in">`plate_name`</span> alone is the correct cross-day plate key, with one exception: two distinct plates in the day-0-only file <span class="in">`DW_plates_15-17_0d.xlsx`</span> both carry the generic <span class="in">`plate_name`</span> <span class="in">`"CONTROL"`</span> (<span class="in">`plate_id`</span> <span class="in">`B2`</span> and <span class="in">`C2`</span>); for that one label we fall back to <span class="in">`plate_name`</span> + <span class="in">`plate_id`</span> to disambiguate them (they have no day 4/8 counterpart to match against, so this doesn't affect any longitudinal join). Combining <span class="in">`plate_uid`</span> with <span class="in">`well_id`</span> gives a stable identifier for a single physical well tracked across timepoints.</span>
+<span id="cb15-87"><a href="#cb15-87"></a></span>
+<span id="cb15-90"><a href="#cb15-90"></a><span class="in">```{r}</span></span>
+<span id="cb15-91"><a href="#cb15-91"></a><span class="co">#| output: true</span></span>
+<span id="cb15-92"><a href="#cb15-92"></a>frondarea <span class="ot">&lt;-</span> frondarea_raw <span class="sc">|&gt;</span></span>
+<span id="cb15-93"><a href="#cb15-93"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb15-94"><a href="#cb15-94"></a>    <span class="at">plate_uid =</span> <span class="fu">if_else</span>(</span>
+<span id="cb15-95"><a href="#cb15-95"></a>      plate_name <span class="sc">==</span> <span class="st">"CONTROL"</span>,</span>
+<span id="cb15-96"><a href="#cb15-96"></a>      <span class="fu">paste</span>(plate_name, plate_id, <span class="at">sep =</span> <span class="st">"_"</span>),</span>
+<span id="cb15-97"><a href="#cb15-97"></a>      plate_name</span>
+<span id="cb15-98"><a href="#cb15-98"></a>    ),</span>
+<span id="cb15-99"><a href="#cb15-99"></a>    <span class="at">well_uid =</span> <span class="fu">paste</span>(plate_uid, well_id, <span class="at">sep =</span> <span class="st">"_"</span>),</span>
+<span id="cb15-100"><a href="#cb15-100"></a>    <span class="at">strain =</span> <span class="fu">factor</span>(sample) <span class="sc">|&gt;</span> <span class="fu">fct_relevel</span>(<span class="st">"CONTROL"</span>),</span>
+<span id="cb15-101"><a href="#cb15-101"></a>    <span class="at">is_control =</span> sample <span class="sc">==</span> <span class="st">"CONTROL"</span></span>
+<span id="cb15-102"><a href="#cb15-102"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb15-103"><a href="#cb15-103"></a>  <span class="fu">select</span>(</span>
+<span id="cb15-104"><a href="#cb15-104"></a>    day,</span>
+<span id="cb15-105"><a href="#cb15-105"></a>    plate_uid,</span>
+<span id="cb15-106"><a href="#cb15-106"></a>    well_uid,</span>
+<span id="cb15-107"><a href="#cb15-107"></a>    well_id,</span>
+<span id="cb15-108"><a href="#cb15-108"></a>    plate_id,</span>
+<span id="cb15-109"><a href="#cb15-109"></a>    plate_name,</span>
+<span id="cb15-110"><a href="#cb15-110"></a>    strain,</span>
+<span id="cb15-111"><a href="#cb15-111"></a>    sample,</span>
+<span id="cb15-112"><a href="#cb15-112"></a>    replicate,</span>
+<span id="cb15-113"><a href="#cb15-113"></a>    is_control,</span>
+<span id="cb15-114"><a href="#cb15-114"></a>    area,</span>
+<span id="cb15-115"><a href="#cb15-115"></a>    count,</span>
+<span id="cb15-116"><a href="#cb15-116"></a>    color_blue,</span>
+<span id="cb15-117"><a href="#cb15-117"></a>    color_green,</span>
+<span id="cb15-118"><a href="#cb15-118"></a>    color_hue,</span>
+<span id="cb15-119"><a href="#cb15-119"></a>    color_red,</span>
+<span id="cb15-120"><a href="#cb15-120"></a>    color_saturation,</span>
+<span id="cb15-121"><a href="#cb15-121"></a>    color_value,</span>
+<span id="cb15-122"><a href="#cb15-122"></a>    date,</span>
+<span id="cb15-123"><a href="#cb15-123"></a>    source_file</span>
+<span id="cb15-124"><a href="#cb15-124"></a>  )</span>
+<span id="cb15-125"><a href="#cb15-125"></a></span>
+<span id="cb15-126"><a href="#cb15-126"></a><span class="fu">glimpse</span>(frondarea)</span>
+<span id="cb15-127"><a href="#cb15-127"></a><span class="in">```</span></span>
+<span id="cb15-128"><a href="#cb15-128"></a></span>
+<span id="cb15-129"><a href="#cb15-129"></a><span class="fu"># Quality checks</span></span>
+<span id="cb15-130"><a href="#cb15-130"></a></span>
+<span id="cb15-131"><a href="#cb15-131"></a>Each well should be measured at most once per day.</span>
+<span id="cb15-132"><a href="#cb15-132"></a></span>
+<span id="cb15-135"><a href="#cb15-135"></a><span class="in">```{r}</span></span>
+<span id="cb15-136"><a href="#cb15-136"></a><span class="co">#| output: true</span></span>
+<span id="cb15-137"><a href="#cb15-137"></a><span class="co"># table should be empty</span></span>
+<span id="cb15-138"><a href="#cb15-138"></a>frondarea <span class="sc">|&gt;</span></span>
+<span id="cb15-139"><a href="#cb15-139"></a>  <span class="fu">count</span>(well_uid, day) <span class="sc">|&gt;</span></span>
+<span id="cb15-140"><a href="#cb15-140"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span>
+<span id="cb15-141"><a href="#cb15-141"></a><span class="in">```</span></span>
+<span id="cb15-142"><a href="#cb15-142"></a></span>
+<span id="cb15-143"><a href="#cb15-143"></a>Area should be strictly positive - a few wells have <span class="in">`area == 0`</span> and <span class="in">`count == 0`</span> together. These are dropped</span>
+<span id="cb15-144"><a href="#cb15-144"></a></span>
+<span id="cb15-147"><a href="#cb15-147"></a><span class="in">```{r}</span></span>
+<span id="cb15-148"><a href="#cb15-148"></a><span class="co">#| output: true</span></span>
+<span id="cb15-149"><a href="#cb15-149"></a>zero_area <span class="ot">&lt;-</span> frondarea <span class="sc">|&gt;</span> <span class="fu">filter</span>(area <span class="sc">&lt;=</span> <span class="dv">0</span>)</span>
+<span id="cb15-150"><a href="#cb15-150"></a>zero_area <span class="sc">|&gt;</span> <span class="fu">select</span>(day, plate_uid, well_id, sample, area, count, source_file)</span>
+<span id="cb15-151"><a href="#cb15-151"></a></span>
+<span id="cb15-152"><a href="#cb15-152"></a>frondarea <span class="ot">&lt;-</span> frondarea <span class="sc">|&gt;</span> <span class="fu">filter</span>(area <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb15-153"><a href="#cb15-153"></a><span class="in">```</span></span>
+<span id="cb15-154"><a href="#cb15-154"></a></span>
+<span id="cb15-155"><a href="#cb15-155"></a>Sample-to-day completeness. Every strain should have (roughly) balanced replication across the three timepoints; <span class="in">`CONTROL`</span> is expected to be imbalanced because a couple of <span class="in">`CONTROL`</span>-only plates were only imaged at day 0 (see below).</span>
+<span id="cb15-156"><a href="#cb15-156"></a></span>
+<span id="cb15-159"><a href="#cb15-159"></a><span class="in">```{r}</span></span>
+<span id="cb15-160"><a href="#cb15-160"></a><span class="co">#| output: true</span></span>
+<span id="cb15-161"><a href="#cb15-161"></a>frondarea <span class="sc">|&gt;</span></span>
+<span id="cb15-162"><a href="#cb15-162"></a>  <span class="fu">count</span>(strain, day) <span class="sc">|&gt;</span></span>
+<span id="cb15-163"><a href="#cb15-163"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb15-164"><a href="#cb15-164"></a>    <span class="at">names_from =</span> day,</span>
+<span id="cb15-165"><a href="#cb15-165"></a>    <span class="at">values_from =</span> n,</span>
+<span id="cb15-166"><a href="#cb15-166"></a>    <span class="at">values_fill =</span> <span class="dv">0</span>,</span>
+<span id="cb15-167"><a href="#cb15-167"></a>    <span class="at">names_prefix =</span> <span class="st">"day"</span></span>
+<span id="cb15-168"><a href="#cb15-168"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb15-169"><a href="#cb15-169"></a>  <span class="fu">arrange</span>(strain)</span>
+<span id="cb15-170"><a href="#cb15-170"></a><span class="in">```</span></span>
+<span id="cb15-171"><a href="#cb15-171"></a></span>
+<span id="cb15-172"><a href="#cb15-172"></a><span class="in">`well_id`</span> -&gt; <span class="in">`sample`</span> mapping should be identical across days for the same plate (confirms the longitudinal, same-well-tracked-over-time design rather than fresh plates each day).</span>
+<span id="cb15-173"><a href="#cb15-173"></a></span>
+<span id="cb15-176"><a href="#cb15-176"></a><span class="in">```{r}</span></span>
+<span id="cb15-177"><a href="#cb15-177"></a><span class="co">#| output: true</span></span>
+<span id="cb15-178"><a href="#cb15-178"></a>well_sample_by_day <span class="ot">&lt;-</span> frondarea <span class="sc">|&gt;</span></span>
+<span id="cb15-179"><a href="#cb15-179"></a>  <span class="fu">distinct</span>(plate_uid, well_id, day, sample) <span class="sc">|&gt;</span></span>
+<span id="cb15-180"><a href="#cb15-180"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> day, <span class="at">values_from =</span> sample, <span class="at">names_prefix =</span> <span class="st">"day"</span>)</span>
+<span id="cb15-181"><a href="#cb15-181"></a></span>
+<span id="cb15-182"><a href="#cb15-182"></a><span class="co"># table should be empty</span></span>
+<span id="cb15-183"><a href="#cb15-183"></a>well_sample_by_day <span class="sc">|&gt;</span></span>
+<span id="cb15-184"><a href="#cb15-184"></a>  <span class="fu">filter</span>(<span class="fu">if_any</span>(<span class="fu">starts_with</span>(<span class="st">"day"</span>), \(x) {</span>
+<span id="cb15-185"><a href="#cb15-185"></a>    <span class="sc">!</span><span class="fu">is.na</span>(x) <span class="sc">&amp;</span> x <span class="sc">!=</span> <span class="fu">coalesce</span>(day0, day4, day8)</span>
+<span id="cb15-186"><a href="#cb15-186"></a>  }))</span>
+<span id="cb15-187"><a href="#cb15-187"></a><span class="in">```</span></span>
+<span id="cb15-188"><a href="#cb15-188"></a></span>
+<span id="cb15-189"><a href="#cb15-189"></a><span class="in">`CONTROL`</span> replication by plate and day, for context: a couple of pure-<span class="in">`CONTROL`</span> plates (plate names <span class="in">`CONTROL`</span> and <span class="in">`SJ08_CONTROL`</span>, the latter only partially) were imaged only at day 0 and so contribute no day 4/8 growth information; the rest of <span class="in">`CONTROL`</span> (plates <span class="in">`TL64_TL58_CONTROL`</span> and <span class="in">`SJ08_CONTROL`</span> at day 4/8) is measured at all three timepoints.</span>
+<span id="cb15-190"><a href="#cb15-190"></a></span>
+<span id="cb15-193"><a href="#cb15-193"></a><span class="in">```{r}</span></span>
+<span id="cb15-194"><a href="#cb15-194"></a><span class="co">#| output: true</span></span>
+<span id="cb15-195"><a href="#cb15-195"></a>frondarea <span class="sc">|&gt;</span></span>
+<span id="cb15-196"><a href="#cb15-196"></a>  <span class="fu">filter</span>(is_control) <span class="sc">|&gt;</span></span>
+<span id="cb15-197"><a href="#cb15-197"></a>  <span class="fu">count</span>(plate_uid, day)</span>
+<span id="cb15-198"><a href="#cb15-198"></a><span class="in">```</span></span>
+<span id="cb15-199"><a href="#cb15-199"></a></span>
+<span id="cb15-200"><a href="#cb15-200"></a><span class="fu"># Exploratory look</span></span>
+<span id="cb15-201"><a href="#cb15-201"></a></span>
+<span id="cb15-204"><a href="#cb15-204"></a><span class="in">```{r}</span></span>
+<span id="cb15-205"><a href="#cb15-205"></a><span class="co">#| label: fig-frondarea-trajectories</span></span>
+<span id="cb15-206"><a href="#cb15-206"></a><span class="co">#| output: true</span></span>
+<span id="cb15-207"><a href="#cb15-207"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb15-208"><a href="#cb15-208"></a><span class="co">#| fig-height: 6</span></span>
+<span id="cb15-209"><a href="#cb15-209"></a><span class="co">#| fig-cap: "Per-well frond area trajectories by strain across the three imaging timepoints (day 0, 4, 8). CONTROL wells (no bacteria) are highlighted in red."</span></span>
+<span id="cb15-210"><a href="#cb15-210"></a>frondarea <span class="sc">|&gt;</span></span>
+<span id="cb15-211"><a href="#cb15-211"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> day, <span class="at">y =</span> area, <span class="at">group =</span> well_uid, <span class="at">color =</span> is_control)) <span class="sc">+</span></span>
+<span id="cb15-212"><a href="#cb15-212"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb15-213"><a href="#cb15-213"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">0.8</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb15-214"><a href="#cb15-214"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>strain) <span class="sc">+</span></span>
+<span id="cb15-215"><a href="#cb15-215"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb15-216"><a href="#cb15-216"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">TRUE</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"firebrick"</span>, <span class="st">`</span><span class="at">FALSE</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"grey40"</span>),</span>
+<span id="cb15-217"><a href="#cb15-217"></a>    <span class="at">guide =</span> <span class="st">"none"</span></span>
+<span id="cb15-218"><a href="#cb15-218"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-219"><a href="#cb15-219"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-220"><a href="#cb15-220"></a>    <span class="at">x =</span> <span class="st">"Day"</span>,</span>
+<span id="cb15-221"><a href="#cb15-221"></a>    <span class="at">y =</span> <span class="fu">expression</span>(<span class="st">"Frond area ("</span> <span class="sc">*</span> cm<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="st">")"</span>),</span>
+<span id="cb15-222"><a href="#cb15-222"></a>    <span class="at">title =</span> <span class="st">"Per-well frond area trajectories by strain"</span></span>
+<span id="cb15-223"><a href="#cb15-223"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-224"><a href="#cb15-224"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">9</span>)</span>
+<span id="cb15-225"><a href="#cb15-225"></a><span class="in">```</span></span>
+<span id="cb15-226"><a href="#cb15-226"></a></span>
+<span id="cb15-227"><a href="#cb15-227"></a><span class="fu"># Write processed data</span></span>
+<span id="cb15-228"><a href="#cb15-228"></a></span>
+<span id="cb15-231"><a href="#cb15-231"></a><span class="in">```{r}</span></span>
+<span id="cb15-232"><a href="#cb15-232"></a><span class="fu">write_rds</span>(frondarea, <span class="fu">path</span>(data_processed, <span class="st">"frondarea.rds"</span>))</span>
+<span id="cb15-233"><a href="#cb15-233"></a><span class="fu">write_tsv</span>(frondarea, <span class="fu">path</span>(data_processed, <span class="st">"frondarea.tsv"</span>))</span>
+<span id="cb15-234"><a href="#cb15-234"></a><span class="in">```</span></span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,489 @@
+---
+title: "Bacterial isolate taxonomy from SILVA ACT classification"
+subtitle: ""
+author: "Shane Hogle"
+date: today
+abstract: "Parses SILVA ACT classifications of the consensus 16S sequences assembled in `01_sanger_seq/01_trace_qc_assembly.qmd`, builds a per-isolate taxonomy table, and summarizes genus/family/phylum composition and phylogeny."
+---
+
+The consensus 16S sequences produced in [01.A Trace QC + assembly](../01_sanger_seq/01_trace_qc_assembly.qmd) were submitted to the [SILVA ACT web aligner](https://www.arb-silva.de/aligner) with LCA classification against SILVA SSU and GTDB enabled. This notebook reads back the two downloaded ACT outputs — the classification result list and the guide tree — and joins them to the per-isolate assembly metadata to build the taxonomy table and summary figures.
+
+# Setup
+
+## Libraries
+
+Loads required libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(fs)
+library(ape)
+library(treeio)
+library(ggtree)
+library(RColorBrewer)
+library(Polychrome)
+library(DT)
+
+source(here::here("R", "plotting.R"))
+```
+
+## Global variables
+
+```{r}
+data_raw <- here::here("data", "raw", "20260908_silva_act")
+data_processed_sanger <- here::here("data", "processed", "01_sanger_seq")
+data_processed <- here::here("data", "processed", "02_bac_taxonomy")
+
+fs::dir_create(data_processed)
+
+silva_resultlist <- here::here(
+  data_raw,
+  "arb-silva.de_align_resultlist_1508237.csv"
+)
+silva_tree_file <- here::here(
+  data_raw,
+  "arb-silva.de_2026-09-08_id1508237.tree"
+)
+
+outgroup_genus <- "Lactococcus"
+```
+
+# Read and parse SILVA ACT output
+
+SILVA SSU lineage strings are semicolon-delimited as `Domain;<unnamed>;Phylum;Class;Order;Family;Genus`, with the second field always empty, and ambiguous LCA nodes suffixed with `--other`. GTDB lineage strings instead carry `g__`/`s__` prefixed tokens. The two helpers below pull out the ranks we need from each scheme.
+
+```{r}
+parse_silva_taxonomy <- function(tax_string) {
+  ranks <- c("domain", "phylum", "class", "order", "family", "genus")
+  rank_idx <- c(1, 3, 4, 5, 6, 7)
+  empty <- c("None", "Unclassified;", "")
+
+  if (is.na(tax_string) || tax_string %in% empty) {
+    return(
+      set_names(as.list(rep(NA_character_, length(ranks))), ranks) |>
+        as_tibble()
+    )
+  }
+
+  parts <- tax_string |>
+    str_remove(";$") |>
+    str_split(";") |>
+    pluck(1) |>
+    str_trim()
+  parts <- parts[parts != ""]
+  parts <- str_remove(parts, "--other")
+
+  vals <- map_chr(
+    rank_idx,
+    ~ if (length(parts) >= .x) parts[.x] else NA_character_
+  )
+  set_names(as.list(vals), ranks) |> as_tibble()
+}
+
+parse_gtdb_taxonomy <- function(tax_string) {
+  empty <- c("None", "Unclassified;", "")
+  if (is.na(tax_string) || tax_string %in% empty) {
+    return(tibble(gtdb_genus = NA_character_, gtdb_species = NA_character_))
+  }
+
+  parts <- tax_string |>
+    str_remove(";$") |>
+    str_split(";") |>
+    pluck(1) |>
+    str_trim()
+  parts <- parts[parts != ""]
+
+  tibble(
+    gtdb_genus = parts |>
+      str_subset("^g__") |>
+      str_remove("^g__") |>
+      pluck(1, .default = NA_character_),
+    gtdb_species = parts |>
+      str_subset("^s__") |>
+      str_remove("^s__") |>
+      pluck(1, .default = NA_character_)
+  )
+}
+```
+
+Read the result list and apply the parsers row-wise
+
+```{r}
+silva_raw <- read_delim(
+  silva_resultlist,
+  delim = ";",
+  quote = '"',
+  show_col_types = FALSE
+)
+
+silva_tax <- silva_raw$lca_tax_slv |> map_dfr(parse_silva_taxonomy)
+gtdb_tax <- silva_raw$lca_tax_gtdb |> map_dfr(parse_gtdb_taxonomy)
+
+silva_parsed <- silva_raw |>
+  select(
+    seq_id = sequence_identifier,
+    silva_identity = identity,
+    silva_quality = quality,
+    silva_score = sequence_score
+  ) |>
+  bind_cols(silva_tax, gtdb_tax)
+```
+
+# Build taxonomy table
+
+Join the SILVA classification onto the per-isolate assembly metadata from the trace QC/assembly step
+
+```{r}
+assemblies <- read_csv(
+  here::here(data_processed_sanger, "assemblies.csv"),
+  show_col_types = FALSE
+)
+
+taxonomy_table <- assemblies |>
+  select(
+    seq_id,
+    batch,
+    well,
+    bacteria_plate_well,
+    location,
+    google_drive_id,
+    assembly_type,
+    consensus_length,
+    fwd_trimmed_length,
+    rev_trimmed_length,
+    overlap_length,
+    fwd_rev_overlap_identity = overlap_pct_identity
+  ) |>
+  left_join(silva_parsed, by = "seq_id")
+
+write_csv(
+  taxonomy_table,
+  here::here(data_processed, "isolate_taxonomy_table.csv")
+)
+```
+
+```{r}
+#| output: true
+n_genus <- sum(!is.na(taxonomy_table$genus))
+n_genera <- n_distinct(na.omit(taxonomy_table$genus))
+n_unclassified <- sum(is.na(taxonomy_table$domain))
+n_gtdb_species <- sum(!is.na(taxonomy_table$gtdb_species))
+
+tibble(
+  metric = c(
+    "isolates",
+    "genus-level calls",
+    "distinct genera",
+    "unclassified",
+    "GTDB species calls"
+  ),
+  value = c(
+    nrow(taxonomy_table),
+    n_genus,
+    n_genera,
+    n_unclassified,
+    n_gtdb_species
+  )
+)
+```
+
+Below is the compiled taxonomy table: SILVA genotype/quality metrics from the ACT alignment plus `domain` through `genus` from the SILVA SSU LCA classification, and `gtdb_genus`/`gtdb_species` from the GTDB LCA classification.
+
+```{r}
+#| output: true
+DT::datatable(
+  taxonomy_table,
+  class = "cell-border stripe",
+  rownames = FALSE,
+  extensions = "FixedColumns",
+  options = list(
+    dom = "ft",
+    pageLength = -1,
+    scrollX = TRUE,
+    fixedColumns = TRUE
+  )
+)
+```
+
+# Taxonomy figures
+
+The panels below summarize isolate composition and phylogeny. Each is rendered as its own figure rather than as a combined multi-panel layout; a separate Sanger trace QC figure already lives in the [01.A Trace QC + assembly](../01_sanger_seq/01_trace_qc_assembly.qmd) notebook and isn't repeated here.
+
+Only isolates with a resolved SILVA SSU classification (`domain` not missing) are used below
+
+```{r}
+classified <- taxonomy_table |> filter(!is.na(domain))
+```
+
+A shared palette for phylum, plus a helper that bins a taxonomic rank into its top categories (grouping everything else as `"Other"`) and computes relative composition per sampling site. Plot styling (`theme_project()`, `capit()`) and the `make_palette()` generator live in [`R/plotting.R`](../../R/plotting.R), shared with other notebooks in this project.
+
+```{r}
+phylum_colors <- c(
+  "Pseudomonadota" = "#1f78b4",
+  "Bacteroidota" = "#ff7f00",
+  "Bacillota" = "#33a02c",
+  "Deinococcota" = "#e31a1c"
+)
+
+composition_by_site <- function(
+  df,
+  rank_col,
+  top_n,
+  palette,
+  other_color = "grey60"
+) {
+  top_cats <- df |>
+    filter(!is.na(.data[[rank_col]])) |>
+    count(.data[[rank_col]], sort = TRUE) |>
+    slice_head(n = top_n) |>
+    pull(1)
+
+  plot_df <- df |>
+    filter(!is.na(location)) |>
+    mutate(
+      cat = if_else(.data[[rank_col]] %in% top_cats, .data[[rank_col]], "Other")
+    ) |>
+    count(location, cat) |>
+    group_by(location) |>
+    mutate(pct = 100 * n / sum(n)) |>
+    ungroup() |>
+    mutate(cat = factor(cat, levels = c(top_cats, "Other")))
+
+  cat_colors <- c(palette[top_cats], "Other" = other_color)
+
+  ggplot(plot_df, aes(x = location, y = pct, fill = cat)) +
+    geom_col(color = "white", linewidth = 0.3) +
+    scale_fill_manual(values = cat_colors, name = str_to_title(rank_col)) +
+    labs(x = NULL, y = "% of isolates") +
+    capit() +
+    theme_project() +
+    theme(
+      legend.position = "right",
+      legend.title = element_text(),
+      axis.text.x = element_text(angle = 20, hjust = 1)
+    )
+}
+```
+
+## Genus composition across all isolates
+
+```{r}
+genus_counts <- classified |> count(genus, sort = TRUE)
+
+top_genus <- genus_counts |> filter(!is.na(genus)) |> slice_head(n = 12)
+other_n <- genus_counts |>
+  filter(!genus %in% top_genus$genus | is.na(genus)) |>
+  summarise(n = sum(n)) |>
+  pull(n)
+
+genus_plot_df <- bind_rows(top_genus, tibble(genus = "Other", n = other_n)) |>
+  mutate(genus = fct_reorder(genus, n))
+```
+
+```{r}
+#| label: fig-genus-counts
+#| output: true
+#| fig-width: 7
+#| fig-height: 6
+#| fig-cap: !expr paste0("Genus composition across all ", nrow(classified), ' classified isolates. The 12 most abundant genera are shown individually; all remaining genera are pooled as "Other".')
+ggplot(genus_plot_df, aes(x = n, y = genus)) +
+  geom_col(fill = "#1f78b4") +
+  geom_text(aes(label = n), hjust = -0.3, size = 3) +
+  labs(x = "Number of isolates", y = NULL) +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.1))) +
+  capit() +
+  theme_project()
+```
+
+## Isolates per sampling site
+
+```{r}
+site_counts <- classified |>
+  mutate(location = replace_na(location, "No site info")) |>
+  count(location)
+```
+
+```{r}
+#| label: fig-site-counts
+#| output: true
+#| fig-width: 6
+#| fig-height: 5
+#| fig-cap: "Number of classified isolates recovered per sampling site. Isolates lacking plate-map location metadata are grouped as \"No site info\"."
+ggplot(site_counts, aes(x = location, y = n)) +
+  geom_col(fill = "#1b9e77") +
+  geom_text(aes(label = n), vjust = -0.4, size = 3.5, fontface = "bold") +
+  labs(x = NULL, y = "Number of isolates") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.12))) +
+  capit() +
+  theme_project()
+```
+
+## Relative composition by site — phylum
+
+```{r}
+#| label: fig-phylum-composition
+#| output: true
+#| fig-width: 6
+#| fig-height: 5
+#| fig-cap: "Relative phylum composition of classified isolates by sampling site."
+composition_by_site(classified, "phylum", top_n = 10, palette = phylum_colors)
+```
+
+## Relative composition by site — family
+
+```{r}
+#| label: fig-family-composition
+#| output: true
+#| fig-width: 8
+#| fig-height: 5
+#| fig-cap: "Relative family composition of classified isolates by sampling site. The 15 most abundant families are shown individually; all remaining families are pooled as \"Other\"."
+family_cats <- classified |>
+  filter(!is.na(family)) |>
+  distinct(family) |>
+  pull(family)
+composition_by_site(
+  classified,
+  "family",
+  top_n = 15,
+  palette = make_palette(family_cats)
+)
+```
+
+## Relative composition by site — genus
+
+```{r}
+#| label: fig-genus-composition
+#| output: true
+#| fig-width: 8
+#| fig-height: 5
+#| fig-cap: "Relative genus composition of classified isolates by sampling site. The 15 most abundant genera are shown individually; all remaining genera are pooled as \"Other\"."
+genus_cats <- classified |>
+  filter(!is.na(genus)) |>
+  distinct(genus) |>
+  pull(genus)
+composition_by_site(
+  classified,
+  "genus",
+  top_n = 15,
+  palette = make_palette(genus_cats)
+)
+```
+
+## Phylogeny
+
+The SILVA ACT guide tree places every isolate among several hundred SILVA reference sequences, which is useful for classification but too dense to read as a figure. For the phylogeny below we root the guide tree on an isolate classified as *Lactococcus* (the most basal genus recovered, Bacillota) and then prune it down to just our isolates, keeping the topology induced by the full guide tree alignment.
+
+```{r}
+tree <- ape::read.tree(silva_tree_file)
+
+outgroup_tip <- classified |>
+  filter(genus == outgroup_genus, seq_id %in% tree$tip.label) |>
+  pull(seq_id) |>
+  pluck(1)
+
+tree_rooted <- ape::root(tree, outgroup = outgroup_tip, resolve.root = TRUE)
+
+isolate_tips <- intersect(tree_rooted$tip.label, classified$seq_id)
+tree_pruned <- ape::keep.tip(tree_rooted, isolate_tips)
+```
+
+Every genus recovered among the tree's isolates gets its own tip color below — nothing is pooled into an "Other" category. Class-level groups are additionally marked with a `ggtree::geom_cladelab()` bracket. `geom_cladelab()` needs a single tree node spanning exactly the tips being labeled, but because this is a guide tree built for alignment across hundreds of SILVA references rather than a phylogeny inferred from just our isolates, a class doesn't always come out as a clean monophyletic clade after pruning. The helper below finds, for a given set of tips, the largest node whose full descendant set is "pure" (i.e. contains only members of that class and nothing else) — the clade that gets labeled — and reports how many of the class's tips that clade actually covers.
+
+```{r}
+node_tip_set <- function(tree, node) {
+  ntip <- length(tree$tip.label)
+  if (node <= ntip) {
+    return(tree$tip.label[node])
+  }
+  ape::extract.clade(tree, node)$tip.label
+}
+
+largest_pure_clade <- function(tree, target_tips) {
+  n_total <- length(target_tips)
+
+  if (n_total == 1) {
+    return(tibble(
+      node = which(tree$tip.label == target_tips),
+      n_covered = 1L,
+      n_total = 1L
+    ))
+  }
+
+  ntip <- length(tree$tip.label)
+  internal_nodes <- seq(ntip + 1, ntip + tree$Nnode)
+  sizes <- map_int(internal_nodes, function(nd) {
+    desc <- node_tip_set(tree, nd)
+    if (all(desc %in% target_tips)) length(desc) else NA_integer_
+  })
+
+  if (all(is.na(sizes))) {
+    return(tibble(node = NA_integer_, n_covered = 0L, n_total = n_total))
+  }
+
+  best_idx <- which.max(sizes)
+  tibble(
+    node = internal_nodes[best_idx],
+    n_covered = sizes[best_idx],
+    n_total = n_total
+  )
+}
+
+class_groups <- classified |>
+  filter(seq_id %in% isolate_tips, !is.na(class)) |>
+  summarise(members = list(seq_id), .by = class) |>
+  mutate(clade = map(members, ~ largest_pure_clade(tree_pruned, .x))) |>
+  unnest(clade) |>
+  select(-members) |>
+  filter(!is.na(node))
+```
+
+```{r}
+n_class_partial <- sum(class_groups$n_covered != class_groups$n_total)
+```
+
+All `r nrow(class_groups)` classes recovered are labeled; `r n_class_partial` of them (*Bacilli*, whose *Lactococcus* and *Exiguobacterium* members don't share a single common ancestor exclusive of other classes here) is only partially monophyletic, so its bracket covers just the largest pure block.
+
+```{r}
+all_genus_tree <- classified |>
+  filter(seq_id %in% isolate_tips, !is.na(genus)) |>
+  distinct(genus) |>
+  arrange(genus) |>
+  pull(genus)
+
+genus_tree_pal <- make_palette(all_genus_tree)
+
+tip_data <- classified |>
+  filter(seq_id %in% isolate_tips) |>
+  transmute(label = seq_id, genus_grp = coalesce(genus, "Unclassified"))
+```
+
+```{r}
+#| label: fig-tree
+#| output: true
+#| fig-width: 11
+#| fig-height: 22
+#| fig-cap: !expr paste0("Phylogeny of the ", length(isolate_tips), " classified isolates, pruned from the SILVA ACT guide tree and rooted on an isolate classified as *Lactococcus*. Tip points are colored by genus, with every genus recovered (", length(all_genus_tree), ') shown individually; isolates with a domain-level SILVA classification but no resolved genus are labeled "Unclassified". Bracketed labels on the right mark class-level membership (`ggtree::geom_cladelab()`). Scale bar represents substitutions per site.')
+ggtree(tree_pruned, layout = "rectangular") %<+%
+  tip_data +
+  geom_tippoint(aes(color = genus_grp), size = 1.5) +
+  geom_tiplab(size = 2, hjust = -0.1) +
+  scale_color_manual(
+    values = c(genus_tree_pal, "Unclassified" = "grey50"),
+    name = "Genus"
+  ) +
+  geom_cladelab(
+    node = class_groups$node,
+    label = class_groups$class,
+    align = TRUE,
+    geom = "text",
+    offset = 0.9,
+    offset.text = 0.05,
+    fontsize = 3,
+    fontface = "bold",
+    barsize = 0.6
+  ) +
+  guides(color = guide_legend(ncol = 1, override.aes = list(size = 3))) +
+  ggplot2::xlim(NA, 4) +
+  geom_treescale(offset = 1)
+```
