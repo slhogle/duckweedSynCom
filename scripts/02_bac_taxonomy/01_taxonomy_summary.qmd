@@ -114,7 +114,6 @@ parse_gtdb_taxonomy <- function(tax_string) {
 ```
 
 Read the result list and apply the parsers row-wise
-
 ```{r}
 silva_raw <- read_delim(
   silva_resultlist,
@@ -176,7 +175,7 @@ For isolates with more than one run of sequencing (e.g., `HA01` has `HA01_202506
 2. highest `overlap_pct_identity`
 3. highest `alignment_score`
 
-Ranks are ordered lexicographically on the tuple above: `overlap_mismatches` ascending, then `overlap_pct_identity` descending, then `alignment_score` descending. The best-ranked assembly of each multi-run strain is flagged as the representative; single-run strains are trivially their own representative. Strains whose sequencing runs disagree in SILVA genus or GTDB species assignment are flagged, since a representative pick is not meaningful when the runs themselves disagree taxonomically.
+The best-ranked assembly of each multi-run strain is flagged as the representative. Strains whose sequencing runs disagree in SILVA genus or GTDB family and order assignment are flagged
 
 ```{r}
 taxonomy_table_rep <- taxonomy_table |>
@@ -220,6 +219,7 @@ write_csv(
 ```{r}
 #| output: true
 #| echo: false
+#| fig-cap: Table displaying summary discordant taxonomic assignments of different isolates
 tibble(
   metric = c(
     "strains",
@@ -242,6 +242,7 @@ tibble(
 ```{r}
 #| output: true
 #| echo: false
+#| fig-cap: Table displaying detailed discordant taxonomic assignments of different isolates and all their Sanger sequencing batches
 taxonomy_table_rep_dis |>
   filter(strain_has_disagreement) |>
   dplyr::select(
@@ -274,6 +275,8 @@ taxonomy_table_rep_dis |>
 ```{r}
 #| output: true
 #| echo: false
+#| fig-cap: Some basic taxonomy summaries
+
 n_genus <- sum(!is.na(taxonomy_table_rep_dis$genus))
 n_genera <- n_distinct(na.omit(taxonomy_table_rep_dis$genus))
 n_unclassified <- sum(is.na(taxonomy_table_rep_dis$domain))
@@ -298,10 +301,10 @@ tibble(
 ```
 
 # Final results
+
 Only isolates with a resolved SILVA SSU classification (`domain` not missing) are used below. We also return the representative sequence only.
 
 ```{r}
-#
 classified <- taxonomy_table_rep_dis |>
   filter(!is.na(domain)) |>
   filter(is_representative)
@@ -312,21 +315,33 @@ write_csv(
 )
 ```
 
-
-Below is the final compiled taxonomy table: SILVA genotype/quality metrics from the ACT alignment plus `domain` through `genus` from the SILVA SSU LCA classification, and `gtdb_genus`/`gtdb_species` from the GTDB LCA classification.
+Below is the final compiled taxonomy table: SILVA genotype/quality metrics from the ACT alignment including `domain` through `genus` from the SILVA SSU LCA classification
 
 ```{r}
 #| output: true
+#| echo: false
+#| fig-cap: The final compiled taxonomy table
 classified |>
-  relocate(
+  dplyr::select(
     sample_key,
+    google_drive_id,
     location,
+    n_seq_runs,
+    is_representative,
     alignment_score,
     silva_quality,
+    batch,
+    bacteria_plate_well,
+    assembly_type,
+    consensus_length,
     silva_score,
-    overlap_mismatches,
-    fwd_rev_overlap_identity,
-    seq_id
+    silva_identity,
+    domain,
+    phylum,
+    class,
+    order,
+    family,
+    genus
   ) |>
   DT::datatable(
     class = "cell-border stripe",
@@ -343,13 +358,14 @@ classified |>
 
 # Taxonomy figures
 
-The panels below summarize isolate composition and phylogeny. Each is rendered as its own figure rather than as a combined multi-panel layout; a separate Sanger trace QC figure already lives in the [01.A Trace QC + assembly](../01_sanger_seq/01_trace_qc_assembly.qmd) notebook and isn't repeated here.
+The panels below summarize isolate composition and phylogeny. 
 
 ## Krona plots
 
 ```{r}
 #| label: fig-turun-linna-krona
 #| output: true
+#| echo: false
 #| fig-width: 10
 #| fig-height: 10
 #| fig-cap: Combined Krona plot for all isolates recovered from Turun Linna
@@ -368,31 +384,33 @@ myopts <- ChartDisplayOpts(
 classified |>
   filter(location == "Turun Linna") |>
   dplyr::select(phylum, class, order, family, genus) |>
-  taxplore::plot_krona(display = myopts)
+  taxplore::plot_krona(display = myopts, width = '100%')
 ```
 
 ```{r}
 #| label: fig-haunisten-allas-krona
 #| output: true
+#| echo: false
 #| fig-width: 10
 #| fig-height: 10
 #| fig-cap: Combined Krona plot for all isolates recovered from Haunisten Allas
 classified |>
   filter(location == "Haunisten Allas") |>
   dplyr::select(phylum, class, order, family, genus) |>
-  taxplore::plot_krona(display = myopts)
+  taxplore::plot_krona(display = myopts, width = '100%')
 ```
 
 ```{r}
 #| label: fig-savojarvi-krona
 #| output: true
+#| echo: false
 #| fig-width: 10
 #| fig-height: 10
 #| fig-cap: Combined Krona plot for all isolates recovered from Savojärvi
 classified |>
   filter(location == "Savojärvi") |>
   dplyr::select(phylum, class, order, family, genus) |>
-  taxplore::plot_krona(display = myopts)
+  taxplore::plot_krona(display = myopts, width = '100%')
 ```
 
 ## Genus composition across all isolates
