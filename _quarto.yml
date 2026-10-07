@@ -23,37 +23,32 @@ website:
       - icon: github
         href: https://github.com/slhogle/duckweedSynCom
     left:
-      - sidebar:sanger_seq
-      - sidebar:bac_taxonomy
+      - sidebar:bac_genotype
       - sidebar:dw_genotyping
       - sidebar:frondarea
 
   sidebar:
-  - id: sanger_seq
-    title: "Sanger sequencing"
+  - id: bac_genotype
+    title: "Bacteria genotyping"
     style: "docked"
     contents:
     - text: "01.A Trace QC + assembly"
       href: scripts/01_sanger_seq/01_trace_qc_assembly.qmd
-  - id: bac_taxonomy
-    title: "Bacterial taxonomy"
-    style: "docked"
-    contents:
-    - text: "02.A Taxonomy + phylogeny"
+    - text: "01.B Taxonomy + phylogeny"
       href: scripts/02_bac_taxonomy/01_taxonomy_summary.qmd
   - id: dw_genotyping
     title: "Duckweed genotyping"
     style: "docked"
     contents:
-    - text: "03.A Sanger Duckweed genotype"
+    - text: "02.A Sanger Duckweed genotype"
       href: scripts/03_duckweed_genotyping/01_read_format_sanger.qmd
   - id: frondarea
     title: "Coculture frond area"
     style: "docked"
     contents:
-    - text: "04.A Read + format frond area"
+    - text: "03.A Read + format frond area"
       href: scripts/04_lemna_bacteria_coculture_frondarea/01_read_frondarea.qmd
-    - text: "04.B Bayesian growth model"
+    - text: "03.B Bayesian growth model"
       href: scripts/04_lemna_bacteria_coculture_frondarea/02_growth_model.qmd
 
 format:

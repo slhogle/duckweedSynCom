@@ -3,7 +3,7 @@ title: "Quality control and assembly of 16S rRNA Sanger traces"
 subtitle: ""
 author: "Shane Hogle"
 date: today
-abstract: "Parses the raw .ab1 chromatograms from the bacterial isolate 16S rRNA Sanger runs, quality-trims each trace with a sliding window, and scores it pass/fail. Passing forward and reverse reads from the same well are then merged into a single consensus sequence by local alignment, resolving disagreements in favour of the higher-quality base call. Wells with only one usable direction are carried through as singletons. Outputs a per-trace QC table, an assembly metrics table, and a FASTA of consensus sequences for downstream taxonomic assignment."
+abstract: "Parses the raw .ab1 chromatograms from the bacterial isolate 16S rRNA Sanger runs, quality-trims each trace with a sliding window, and scores it pass/fail. Passing forward and reverse reads from the same strain are then merged into a single consensus sequence by local alignment, resolving disagreements in favour of the higher-quality base call. Strains with only one usable direction are carried through as singletons. Outputs a per-trace QC table, an assembly metrics table, and a FASTA of consensus sequences for downstream taxonomic assignment."
 ---
 
 # Setup
@@ -13,7 +13,6 @@ abstract: "Parses the raw .ab1 chromatograms from the bacterial isolate 16S rRNA
 Loads required libraries
 
 ```{python}
-import re
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -41,7 +40,7 @@ def proj_root(anchors=(".here", "_quarto.yml", ".git")):
     raise FileNotFoundError(f"no project anchor {anchors} above {start}")
 
 
-data_raw = proj_root() / "data" / "raw" / "20250701_sanger_seq"
+data_raw_dir = proj_root() / "data" / "raw" / "sanger_sequencing"
 data_processed = proj_root() / "data" / "processed" / "01_sanger_seq"
 output_figures = proj_root() / "output" / "figures"
 
@@ -49,17 +48,18 @@ data_processed.mkdir(parents=True, exist_ok=True)
 output_figures.mkdir(parents=True, exist_ok=True)
 ```
 
-Raw input. `trace_root` holds one subdirectory per sequencing batch. Traces are
-found recursively below each batch directory, so both the delivered layout
-(`<batch>/ab1_files/*.ab1`) and a flattened one (`<batch>/*.ab1`) work. Files
-must be named `16S-<well>_<F|R>.ab1`.
-
-`batch_info` is the tab-separated plate map with columns `sanger_batch`,
-`sanger_plate_well`, `bacteria_plate_well`, `location`, and `google_drive_id`.
+Raw input. `data_raw_dir` contains one subdirectory per Macrogen sequencing
+order (`<date>_<vendor code>`) plus a single metadata table,
+`mapping_table_tsv`, with one row per physical trace. Its columns are
+`macrogen_id`, `direction` (`F`/`R`), `subdir` (which batch subdirectory the
+trace lives in), `isolation_loc`, `isolation_plate_well`, `strainID`,
+`google_drive_id`, and `status`. Every trace file is named
+`<subdir>/<macrogen_id>_customer.ab1`, so no filename parsing or separate
+plate-map join is needed - the mapping table supplies batch, direction, and
+strain identity directly per trace.
 
 ```{python}
-trace_root = data_raw
-batch_info_tsv = data_raw / "sanger_batch_info.tsv"
+mapping_table_tsv = data_raw_dir / "mapping_table.tsv"
 ```
 
 Quality-control parameters for the sliding-window trimming and the pass/fail
@@ -86,73 +86,88 @@ MIN_ALN_SCORE = 50  # below this, F and R are treated as non-overlapping
 
 # Parsing traces
 
-Reads every `.ab1` below `trace_root/<batch>/` into a table of raw reads, one
-row per trace. Zero-byte files, unparseable filenames, and truncated
-chromatograms are collected separately rather than raising, so a single bad
-trace does not abort the run.
+Loads the mapping table and drops rows with no usable identity: `status in
+{"unused_plate_well", "no_strain_link"}` rows have neither a `strainID` nor a
+`google_drive_id` (unused plate wells and ad-hoc tubes that were never linked
+to a strain), so there is nothing to assemble or name a consensus sequence
+after. Every remaining row has a real trace file on disk.
+
+Each row's `sample_key` - the identifier used to pair forward/reverse reads
+and, eventually, to name the consensus sequence - is `strainID` when present,
+falling back to `google_drive_id` otherwise (negative controls and the four
+`unidentified_strain` reads have no `strainID`).
 
 ```{python}
-def parse_traces(trace_root):
-    """Read every .ab1 under trace_root/<batch>/ into a DataFrame of raw reads."""
+def load_mapping_table(mapping_table_path):
+    """Load the trace-level mapping table, dropping reads with no strain identity."""
+    mt = pd.read_csv(mapping_table_path, sep="\t", na_values="NA")
+    mt = mt[~(mt["strainID"].isna() & mt["google_drive_id"].isna())].copy()
+    mt["sample_key"] = mt["strainID"].fillna(mt["google_drive_id"])
+    return mt
+```
+
+Reads every `.ab1` named by the mapping table into a table of raw reads, one
+row per trace. Zero-byte files and truncated chromatograms are collected
+separately rather than raising, so a single bad trace does not abort the run.
+
+```{python}
+def parse_traces(mapping_table, data_raw_dir):
+    """Read every .ab1 named in mapping_table into a DataFrame of raw reads."""
     records, errors = [], []
-    for batch_path in sorted(p for p in Path(trace_root).iterdir() if p.is_dir()):
-        batch_dir = batch_path.name
-        for ab1 in sorted(batch_path.rglob("*.ab1")):
-            fname, fpath = ab1.name, str(ab1)
-            if ab1.stat().st_size == 0:
-                errors.append(
-                    {"batch": batch_dir, "filename": fname, "error": "zero-byte"}
-                )
-                continue
-            m = re.match(r"16S-(.+)_(F|R)\.ab1", fname)
-            if not m:
-                errors.append(
-                    {
-                        "batch": batch_dir,
-                        "filename": fname,
-                        "error": "unrecognized filename",
-                    }
-                )
-                continue
-            well, direction = m.group(1), m.group(2)
-            try:
-                rec = SeqIO.read(fpath, "abi")
-                quals = rec.letter_annotations["phred_quality"]
-                seq_str = str(rec.seq)
-                records.append(
-                    {
-                        "batch": batch_dir,
-                        "well": well,
-                        "direction": direction,
-                        "filename": fname,
-                        "filepath": fpath,
-                        "raw_length": len(seq_str),
-                        "raw_seq": seq_str,
-                        "raw_quals": quals,
-                        "raw_mean_qual": round(np.mean(quals), 1),
-                        "raw_median_qual": float(np.median(quals)),
-                        "n_count": seq_str.count("N"),
-                        "n_fraction": (
-                            round(seq_str.count("N") / len(seq_str), 4)
-                            if len(seq_str) > 0
-                            else 0
-                        ),
-                    }
-                )
-            except Exception as e:  # unreadable / truncated trace
-                errors.append(
-                    {"batch": batch_dir, "filename": fname, "error": str(e)}
-                )
+    for row in mapping_table.itertuples(index=False):
+        batch_dir = row.subdir
+        fname = f"{row.macrogen_id}_customer.ab1"
+        ab1 = data_raw_dir / batch_dir / fname
+        if not ab1.exists():
+            errors.append({"batch": batch_dir, "filename": fname, "error": "missing"})
+            continue
+        if ab1.stat().st_size == 0:
+            errors.append({"batch": batch_dir, "filename": fname, "error": "zero-byte"})
+            continue
+        try:
+            rec = SeqIO.read(str(ab1), "abi")
+            quals = rec.letter_annotations["phred_quality"]
+            seq_str = str(rec.seq)
+            records.append(
+                {
+                    "batch": batch_dir,
+                    "sample_key": row.sample_key,
+                    "direction": row.direction,
+                    "macrogen_id": row.macrogen_id,
+                    "filename": fname,
+                    "filepath": str(ab1),
+                    "strainID": row.strainID,
+                    "google_drive_id": row.google_drive_id,
+                    "isolation_loc": row.isolation_loc,
+                    "isolation_plate_well": row.isolation_plate_well,
+                    "status": row.status,
+                    "raw_length": len(seq_str),
+                    "raw_seq": seq_str,
+                    "raw_quals": quals,
+                    "raw_mean_qual": round(np.mean(quals), 1),
+                    "raw_median_qual": float(np.median(quals)),
+                    "n_count": seq_str.count("N"),
+                    "n_fraction": (
+                        round(seq_str.count("N") / len(seq_str), 4)
+                        if len(seq_str) > 0
+                        else 0
+                    ),
+                }
+            )
+        except Exception as e:  # unreadable / truncated trace
+            errors.append({"batch": batch_dir, "filename": fname, "error": str(e)})
     return pd.DataFrame(records), pd.DataFrame(errors)
 ```
 
 ```{python}
 #| output: true
-reads, read_errors = parse_traces(trace_root)
-assert len(reads) > 0, f"no traces parsed from {trace_root}"
+mapping_table = load_mapping_table(mapping_table_tsv)
+reads, read_errors = parse_traces(mapping_table, data_raw_dir)
+assert len(reads) > 0, f"no traces parsed from {data_raw_dir}"
 
-print(f"traces parsed : {len(reads)}")
-print(f"read errors   : {len(read_errors)}")
+print(f"mapping table rows (usable) : {len(mapping_table)}")
+print(f"traces parsed                : {len(reads)}")
+print(f"read errors                  : {len(read_errors)}")
 ```
 
 Any traces that could not be read at all are listed here.
@@ -355,12 +370,22 @@ Reverse singletons are reverse-complemented so that all output is 5'->3'
 forward.
 
 ```{python}
+META_COLS = [
+    "strainID",
+    "google_drive_id",
+    "isolation_loc",
+    "isolation_plate_well",
+    "status",
+]
+
+
 def assemble(df):
-    """Assemble one record per (batch, well) from the QC-passing reads."""
+    """Assemble one record per (batch, sample_key) from the QC-passing reads."""
     passing = df[df["qc_pass"]].copy()
     assembly_results = []
-    for (batch, well), group in passing.groupby(["batch", "well"]):
+    for (batch, sample_key), group in passing.groupby(["batch", "sample_key"]):
         directions = dict(zip(group["direction"], group.index))
+        meta = {col: group.iloc[0][col] for col in META_COLS}
 
         if "F" in directions and "R" in directions:
             fwd_row = df.loc[directions["F"]]
@@ -374,12 +399,13 @@ def assemble(df):
             assembly_results.append(
                 {
                     "batch": batch,
-                    "well": well,
+                    "sample_key": sample_key,
                     "assembly_type": "consensus",
                     "consensus_seq": consensus_seq,
                     "consensus_length": len(consensus_seq),
                     "fwd_trimmed_length": fwd_row["trimmed_length"],
                     "rev_trimmed_length": rev_row["trimmed_length"],
+                    **meta,
                     **info,
                 }
             )
@@ -392,12 +418,13 @@ def assemble(df):
             assembly_results.append(
                 {
                     "batch": batch,
-                    "well": well,
+                    "sample_key": sample_key,
                     "assembly_type": f"singleton_{d}",
                     "consensus_seq": seq,
                     "consensus_length": len(seq),
                     "fwd_trimmed_length": row["trimmed_length"] if d == "F" else 0,
                     "rev_trimmed_length": row["trimmed_length"] if d == "R" else 0,
+                    **meta,
                     "overlap_length": 0,
                     "overlap_mismatches": 0,
                     "overlap_pct_identity": 0.0,
@@ -411,45 +438,30 @@ def assemble(df):
 assemblies = assemble(reads)
 ```
 
-# Attaching plate metadata
+# Minting sequence IDs
 
-Joins the plate map and mints a stable `seq_id` per assembly.
-`google_drive_id` is the lab's isolate name; wells with no metadata row
-(`batch20250508` was sequenced before the map was kept) fall back to
-`batch20250508_<well>`. Collisions get a `_b<MMDD>` batch suffix.
+Every assembly already carries its `strainID`/`google_drive_id` straight from
+the mapping table, so no further join is needed - only a stable, unique FASTA
+identifier has to be minted. `sample_key` (`strainID`, falling back to
+`google_drive_id` when no `strainID` was ever assigned) is used as-is when it
+is unique across the whole dataset; strains re-sequenced in more than one
+batch get their `subdir` appended (`{sample_key}_{batch}`) to disambiguate.
 
 ```{python}
-def attach_metadata(assembly_df, batch_info_path):
-    """Join the plate map and mint a stable seq_id per assembly."""
-    batch_info = pd.read_csv(batch_info_path, sep="\t")
-    merged = assembly_df.merge(
-        batch_info.rename(
-            columns={"sanger_batch": "batch", "sanger_plate_well": "well"}
-        ),
-        on=["batch", "well"],
-        how="left",
+def mint_seq_ids(assembly_df):
+    """Mint a unique seq_id per assembly: sample_key, or sample_key_batch if not unique."""
+    df = assembly_df.copy()
+    dup = df["sample_key"].duplicated(keep=False)
+    df["seq_id"] = np.where(
+        dup, df["sample_key"] + "_" + df["batch"], df["sample_key"]
     )
-
-    seen, seq_ids = {}, []
-    for _, row in merged.iterrows():
-        sid = (
-            row["google_drive_id"]
-            if pd.notna(row["google_drive_id"])
-            else f"batch20250508_{row['well']}"
-        )
-        if sid in seen:
-            seen[sid] += 1
-            sid = f"{sid}_b{row['batch'][-4:]}"
-        else:
-            seen[sid] = 1
-        seq_ids.append(sid)
-    merged["seq_id"] = seq_ids
-    return merged
+    assert df["seq_id"].is_unique, "minted seq_id is not unique"
+    return df
 ```
 
 ```{python}
 #| output: true
-merged = attach_metadata(assemblies, batch_info_tsv)
+merged = mint_seq_ids(assemblies)
 
 print(f"assemblies written : {len(merged)}")
 print(merged["assembly_type"].value_counts().to_string())
@@ -458,16 +470,18 @@ print(f"median length      : {merged['consensus_length'].median():.0f} bp")
 
 # Output
 
-Three deliverables are written to `data/processed/01_sanger_seq/`. The QC table
-records one row per input trace; the assemblies table one row per isolate; and
-the FASTA carries the consensus sequences used for downstream taxonomic
-assignment.
+Four deliverables are written to `data/processed/01_sanger_seq/`. The QC table
+records one row per input trace; the failed-traces table is the subset of
+those that did not pass QC (`qc_pass == False`), for troubleshooting; the
+assemblies table has one row per isolate; and the FASTA carries the consensus
+sequences used for downstream taxonomic assignment.
 
 ```{python}
 QC_EXPORT_COLS = [
     "batch",
-    "well",
+    "sample_key",
     "direction",
+    "macrogen_id",
     "filename",
     "filepath",
     "raw_length",
@@ -487,6 +501,9 @@ QC_EXPORT_COLS = [
 reads[QC_EXPORT_COLS].to_csv(
     data_processed / "sanger_trace_qc_metrics.csv", index=False
 )
+reads.loc[~reads["qc_pass"], QC_EXPORT_COLS].to_csv(
+    data_processed / "failed_traces.csv", index=False
+)
 merged.to_csv(data_processed / "assemblies.csv", index=False)
 ```
 
@@ -497,14 +514,14 @@ def write_fasta(merged, out_path):
     for _, row in merged.iterrows():
         desc_parts = [
             f"batch={row['batch']}",
-            f"well={row['well']}",
             f"type={row['assembly_type']}",
             f"len={row['consensus_length']}",
+            f"status={row['status']}",
         ]
-        if pd.notna(row.get("location")):
-            desc_parts.append(f"location={row['location']}")
-        if pd.notna(row.get("bacteria_plate_well")):
-            desc_parts.append(f"isolate_well={row['bacteria_plate_well']}")
+        if pd.notna(row.get("isolation_loc")):
+            desc_parts.append(f"location={row['isolation_loc']}")
+        if pd.notna(row.get("isolation_plate_well")):
+            desc_parts.append(f"isolate_well={row['isolation_plate_well']}")
         fasta_records.append(
             SeqRecord(
                 Seq(row["consensus_seq"]),
@@ -536,7 +553,9 @@ merged.drop(columns=["consensus_seq"]).head()
 
 # QC plot
 
-Palette and batch labels used by the summary figure.
+Palette and batch labels used by the summary figure. Batch (`subdir`) names
+are `<date>_<vendor code>`, so the plot label is just the date portion,
+reformatted.
 
 ```{python}
 BLUE = "#1f77b4"  # matplotlib default C0
@@ -546,9 +565,8 @@ FAIL_COLOR = "#c1121f"  # no acceptable quality window at all
 META_GREY = "#888888"
 
 BATCH_LABELS = {
-    "batch20250508": "2025-05-08",
-    "batch20250606": "2025-06-06",
-    "batch20250620": "2025-06-20",
+    batch: f"{batch[:4]}-{batch[4:6]}-{batch[6:8]}"
+    for batch in sorted(reads["batch"].unique())
 }
 ```
 

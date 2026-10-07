@@ -6,7 +6,7 @@
     "section": "",
     "text": "Frond area was measured longitudinally (day 0, 4, 8) for individual wells, 8 wells (biological replicates) per strain per plate, see 01_read_frondarea.qmd for how the raw plate-reader exports were combined and cleaned. Two design features shape the model:\n\nRepeated measures: the same physical well is imaged at all three timepoints, so observations within a well are correlated. We account for this with a well-level random intercept, (1 | well_uid).\nStrain and plate are almost completely confounded: with one exception (CONTROL, which spans several plates), every strain occupies exactly one physical plate. This means any plate-specific batch effect (e.g. a plate that got slightly more light) is inseparable from that strain’s estimated effect - there is no cross-plate replication to disentangle them. Therefore, we do not add a separate plate-level random effect (it would be almost entirely collinear with the strain fixed effect); this is worth keeping in mind when interpreting any single strain’s effect.\n\nFrond area is strictly positive and right-skewed (growth is a roughly multiplicative process), so we model it with a lognormal() family rather than treating raw area as Gaussian. day is treated as a 3-level factor (0/4/8) rather than a continuous slope, since we only have 3 timepoints and no reason to assume a linear (or any particular parametric) growth curve over that range.\nThe fixed-effect structure is day * strain, with CONTROL set as the reference level for strain and day 0 as the reference level for day. Under this parameterization, the day:strain interaction coefficients directly represent, for each strain, how its growth trajectory deviates from CONTROL’s - i.e. exactly the “delta” quantity of interest. We use marginaleffects to compute these contrasts on the natural (response, cm²) scale with correctly propagated posterior uncertainty, rather than reading raw log-scale coefficients.\n\n\n\n\nShow/hide code\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(brms)\nlibrary(cmdstanr)\nlibrary(marginaleffects)\nlibrary(tidybayes)\nlibrary(bayesplot)\n\noptions(mc.cores = 4, brms.backend = \"cmdstanr\")\n\n\n\n\n\n\n\nShow/hide code\ndata_processed &lt;- here::here(\n  \"data\",\n  \"processed\",\n  \"04_lemna_bacteria_coculture_frondarea\"\n)\nmodels_dir &lt;- here::here(\n  \"data\",\n  \"interim\",\n  \"04_lemna_bacteria_coculture_frondarea\"\n)\n\nfs::dir_create(models_dir)",
     "crumbs": [
-      "04.B Bayesian growth model"
+      "03.B Bayesian growth model"
     ]
   },
   {
@@ -16,7 +16,7 @@
     "section": "",
     "text": "Show/hide code\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(brms)\nlibrary(cmdstanr)\nlibrary(marginaleffects)\nlibrary(tidybayes)\nlibrary(bayesplot)\n\noptions(mc.cores = 4, brms.backend = \"cmdstanr\")",
     "crumbs": [
-      "04.B Bayesian growth model"
+      "03.B Bayesian growth model"
     ]
   },
   {
@@ -26,7 +26,7 @@
     "section": "",
     "text": "Show/hide code\ndata_processed &lt;- here::here(\n  \"data\",\n  \"processed\",\n  \"04_lemna_bacteria_coculture_frondarea\"\n)\nmodels_dir &lt;- here::here(\n  \"data\",\n  \"interim\",\n  \"04_lemna_bacteria_coculture_frondarea\"\n)\n\nfs::dir_create(models_dir)",
     "crumbs": [
-      "04.B Bayesian growth model"
+      "03.B Bayesian growth model"
     ]
   },
   {
@@ -36,7 +36,7 @@
     "section": "",
     "text": "We wanted to know whether the duckweeds that we isolated bacteria from are L. minor. To determine species identity we followed the protocol from the publication:\nThis protocol also references:\nBriefly, we PCR amplify and sanger sequence two plastid barcoding regions atpF-atpH and psbK-psbI to assign species identity.",
     "crumbs": [
-      "03.A Sanger Duckweed genotype"
+      "02.A Sanger Duckweed genotype"
     ]
   },
   {
@@ -46,7 +46,7 @@
     "section": "0.1 Primers and PCR optimum annealing:",
     "text": "0.1 Primers and PCR optimum annealing:\n\n\n\n\n\n\n\n\n\n\nMarker region\nPrimer sequence Forward\nPrimer sequence Reverse\nAmplicon size (Lemna minor)\nTa Optimum (Lemna minor)\n\n\n\n\npsbK-psbI\n5′-TTAGCATTTGTTTGGCAAG-3′\n5′- AAAGTTTGAGAGTAAGCAT-3′\n544 bp\n51°C\n\n\natpF-atpH\n5′-ACTCGCACACACTCCCTTTCC-3′\n5′- GCTTTTATGGAAGCTTTAACAAT-3′\n675 bp\n53°C",
     "crumbs": [
-      "03.A Sanger Duckweed genotype"
+      "02.A Sanger Duckweed genotype"
     ]
   },
   {
@@ -56,7 +56,7 @@
     "section": "0.2 Protocol:",
     "text": "0.2 Protocol:\nBriefly, 50-100 ng genomic DNA and 5 pmol of each primer are added with the JumpStart™Redtop® ReadyMix™Reaction Mix (P1107, Sigma) Redix in 25 ul of final volume.\nFollowing amplification, the DNA fragments were purified using the ExoSAP-IT kit (Affymetrix, Santa Clara, CA, USA) and for Sanger sequencing.",
     "crumbs": [
-      "03.A Sanger Duckweed genotype"
+      "02.A Sanger Duckweed genotype"
     ]
   },
   {
@@ -66,7 +66,7 @@
     "section": "0.3 Libraries",
     "text": "0.3 Libraries\n\n\nShow/hide code\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(sangeranalyseR)\nlibrary(Biostrings)",
     "crumbs": [
-      "03.A Sanger Duckweed genotype"
+      "02.A Sanger Duckweed genotype"
     ]
   },
   {
@@ -76,7 +76,7 @@
     "section": "0.4 Global variables",
     "text": "0.4 Global variables\n\n\nShow/hide code\ndata_raw &lt;- here::here(\"data\", \"raw\", \"20251105_duckweed_genotypeing\")\ndata_processed &lt;- here::here(\"data\", \"processed\", \"03_duckweed_genotyping\")\n\nfs::dir_create(data_processed)",
     "crumbs": [
-      "03.A Sanger Duckweed genotype"
+      "02.A Sanger Duckweed genotype"
     ]
   },
   {
@@ -84,7 +84,7 @@
     "href": "scripts/01_sanger_seq/01_trace_qc_assembly.html",
     "title": "Quality control and assembly of 16S rRNA Sanger traces",
     "section": "",
-    "text": "Loads required libraries\n\n\nShow/hide code\nimport re\nfrom pathlib import Path\nimport numpy as np\nimport pandas as pd\nfrom Bio import SeqIO\nfrom Bio.Align import PairwiseAligner\nfrom Bio.Seq import Seq\nfrom Bio.SeqRecord import SeqRecord\n\n\n\n\n\nPaths are resolved from the project root rather than the working directory, so the notebook behaves the same whether it is rendered by Quarto or run interactively. This is the Python counterpart of here::here() used in the R notebooks: walk up from the working directory until an anchor file that marks the top of the repository is found.\n\n\nShow/hide code\ndef proj_root(anchors=(\".here\", \"_quarto.yml\", \".git\")):\n    \"\"\"Return the nearest ancestor directory containing one of `anchors`.\"\"\"\n    start = Path.cwd().resolve()\n    for d in (start, *start.parents):\n        if any((d / a).exists() for a in anchors):\n            return d\n    raise FileNotFoundError(f\"no project anchor {anchors} above {start}\")\n\n\ndata_raw = proj_root() / \"data\" / \"raw\" / \"20250701_sanger_seq\"\ndata_processed = proj_root() / \"data\" / \"processed\" / \"01_sanger_seq\"\noutput_figures = proj_root() / \"output\" / \"figures\"\n\ndata_processed.mkdir(parents=True, exist_ok=True)\noutput_figures.mkdir(parents=True, exist_ok=True)\n\n\nRaw input. trace_root holds one subdirectory per sequencing batch. Traces are found recursively below each batch directory, so both the delivered layout (&lt;batch&gt;/ab1_files/*.ab1) and a flattened one (&lt;batch&gt;/*.ab1) work. Files must be named 16S-&lt;well&gt;_&lt;F|R&gt;.ab1.\nbatch_info is the tab-separated plate map with columns sanger_batch, sanger_plate_well, bacteria_plate_well, location, and google_drive_id.\n\n\nShow/hide code\ntrace_root = data_raw\nbatch_info_tsv = data_raw / \"sanger_batch_info.tsv\"\n\n\nQuality-control parameters for the sliding-window trimming and the pass/fail call on each trimmed read.\n\n\nShow/hide code\nWINDOW = 20  # sliding-window width (bp) for quality trimming\nQUAL_THRESHOLD = 20  # min mean phred in the window to start/end the keep region\nMIN_LENGTH = 100  # min trimmed length (bp) to retain a read\nMEAN_QUAL_MIN = 20  # min mean phred of the trimmed read\nMAX_N_FRACTION = 0.05  # max fraction of ambiguous bases in the trimmed read\n\n\nScoring parameters for the local alignment used to merge the forward read against the reverse-complemented reverse read.\n\n\nShow/hide code\nALN_MATCH = 2\nALN_MISMATCH = -3\nALN_GAP_OPEN = -5\nALN_GAP_EXTEND = -2\nMIN_ALN_SCORE = 50  # below this, F and R are treated as non-overlapping",
+    "text": "Loads required libraries\n\n\nShow/hide code\nfrom pathlib import Path\nimport numpy as np\nimport pandas as pd\nfrom Bio import SeqIO\nfrom Bio.Align import PairwiseAligner\nfrom Bio.Seq import Seq\nfrom Bio.SeqRecord import SeqRecord\n\n\n\n\n\nPaths are resolved from the project root rather than the working directory, so the notebook behaves the same whether it is rendered by Quarto or run interactively. This is the Python counterpart of here::here() used in the R notebooks: walk up from the working directory until an anchor file that marks the top of the repository is found.\n\n\nShow/hide code\ndef proj_root(anchors=(\".here\", \"_quarto.yml\", \".git\")):\n    \"\"\"Return the nearest ancestor directory containing one of `anchors`.\"\"\"\n    start = Path.cwd().resolve()\n    for d in (start, *start.parents):\n        if any((d / a).exists() for a in anchors):\n            return d\n    raise FileNotFoundError(f\"no project anchor {anchors} above {start}\")\n\n\ndata_raw_dir = proj_root() / \"data\" / \"raw\" / \"sanger_sequencing\"\ndata_processed = proj_root() / \"data\" / \"processed\" / \"01_sanger_seq\"\noutput_figures = proj_root() / \"output\" / \"figures\"\n\ndata_processed.mkdir(parents=True, exist_ok=True)\noutput_figures.mkdir(parents=True, exist_ok=True)\n\n\nRaw input. data_raw_dir contains one subdirectory per Macrogen sequencing order (&lt;date&gt;_&lt;vendor code&gt;) plus a single metadata table, mapping_table_tsv, with one row per physical trace. Its columns are macrogen_id, direction (F/R), subdir (which batch subdirectory the trace lives in), isolation_loc, isolation_plate_well, strainID, google_drive_id, and status. Every trace file is named &lt;subdir&gt;/&lt;macrogen_id&gt;_customer.ab1, so no filename parsing or separate plate-map join is needed - the mapping table supplies batch, direction, and strain identity directly per trace.\n\n\nShow/hide code\nmapping_table_tsv = data_raw_dir / \"mapping_table.tsv\"\n\n\nQuality-control parameters for the sliding-window trimming and the pass/fail call on each trimmed read.\n\n\nShow/hide code\nWINDOW = 20  # sliding-window width (bp) for quality trimming\nQUAL_THRESHOLD = 20  # min mean phred in the window to start/end the keep region\nMIN_LENGTH = 100  # min trimmed length (bp) to retain a read\nMEAN_QUAL_MIN = 20  # min mean phred of the trimmed read\nMAX_N_FRACTION = 0.05  # max fraction of ambiguous bases in the trimmed read\n\n\nScoring parameters for the local alignment used to merge the forward read against the reverse-complemented reverse read.\n\n\nShow/hide code\nALN_MATCH = 2\nALN_MISMATCH = -3\nALN_GAP_OPEN = -5\nALN_GAP_EXTEND = -2\nMIN_ALN_SCORE = 50  # below this, F and R are treated as non-overlapping",
     "crumbs": [
       "01.A Trace QC + assembly"
     ]
@@ -94,7 +94,7 @@
     "href": "scripts/01_sanger_seq/01_trace_qc_assembly.html#libraries",
     "title": "Quality control and assembly of 16S rRNA Sanger traces",
     "section": "",
-    "text": "Loads required libraries\n\n\nShow/hide code\nimport re\nfrom pathlib import Path\nimport numpy as np\nimport pandas as pd\nfrom Bio import SeqIO\nfrom Bio.Align import PairwiseAligner\nfrom Bio.Seq import Seq\nfrom Bio.SeqRecord import SeqRecord",
+    "text": "Loads required libraries\n\n\nShow/hide code\nfrom pathlib import Path\nimport numpy as np\nimport pandas as pd\nfrom Bio import SeqIO\nfrom Bio.Align import PairwiseAligner\nfrom Bio.Seq import Seq\nfrom Bio.SeqRecord import SeqRecord",
     "crumbs": [
       "01.A Trace QC + assembly"
     ]
@@ -104,7 +104,7 @@
     "href": "scripts/01_sanger_seq/01_trace_qc_assembly.html#global-variables",
     "title": "Quality control and assembly of 16S rRNA Sanger traces",
     "section": "",
-    "text": "Paths are resolved from the project root rather than the working directory, so the notebook behaves the same whether it is rendered by Quarto or run interactively. This is the Python counterpart of here::here() used in the R notebooks: walk up from the working directory until an anchor file that marks the top of the repository is found.\n\n\nShow/hide code\ndef proj_root(anchors=(\".here\", \"_quarto.yml\", \".git\")):\n    \"\"\"Return the nearest ancestor directory containing one of `anchors`.\"\"\"\n    start = Path.cwd().resolve()\n    for d in (start, *start.parents):\n        if any((d / a).exists() for a in anchors):\n            return d\n    raise FileNotFoundError(f\"no project anchor {anchors} above {start}\")\n\n\ndata_raw = proj_root() / \"data\" / \"raw\" / \"20250701_sanger_seq\"\ndata_processed = proj_root() / \"data\" / \"processed\" / \"01_sanger_seq\"\noutput_figures = proj_root() / \"output\" / \"figures\"\n\ndata_processed.mkdir(parents=True, exist_ok=True)\noutput_figures.mkdir(parents=True, exist_ok=True)\n\n\nRaw input. trace_root holds one subdirectory per sequencing batch. Traces are found recursively below each batch directory, so both the delivered layout (&lt;batch&gt;/ab1_files/*.ab1) and a flattened one (&lt;batch&gt;/*.ab1) work. Files must be named 16S-&lt;well&gt;_&lt;F|R&gt;.ab1.\nbatch_info is the tab-separated plate map with columns sanger_batch, sanger_plate_well, bacteria_plate_well, location, and google_drive_id.\n\n\nShow/hide code\ntrace_root = data_raw\nbatch_info_tsv = data_raw / \"sanger_batch_info.tsv\"\n\n\nQuality-control parameters for the sliding-window trimming and the pass/fail call on each trimmed read.\n\n\nShow/hide code\nWINDOW = 20  # sliding-window width (bp) for quality trimming\nQUAL_THRESHOLD = 20  # min mean phred in the window to start/end the keep region\nMIN_LENGTH = 100  # min trimmed length (bp) to retain a read\nMEAN_QUAL_MIN = 20  # min mean phred of the trimmed read\nMAX_N_FRACTION = 0.05  # max fraction of ambiguous bases in the trimmed read\n\n\nScoring parameters for the local alignment used to merge the forward read against the reverse-complemented reverse read.\n\n\nShow/hide code\nALN_MATCH = 2\nALN_MISMATCH = -3\nALN_GAP_OPEN = -5\nALN_GAP_EXTEND = -2\nMIN_ALN_SCORE = 50  # below this, F and R are treated as non-overlapping",
+    "text": "Paths are resolved from the project root rather than the working directory, so the notebook behaves the same whether it is rendered by Quarto or run interactively. This is the Python counterpart of here::here() used in the R notebooks: walk up from the working directory until an anchor file that marks the top of the repository is found.\n\n\nShow/hide code\ndef proj_root(anchors=(\".here\", \"_quarto.yml\", \".git\")):\n    \"\"\"Return the nearest ancestor directory containing one of `anchors`.\"\"\"\n    start = Path.cwd().resolve()\n    for d in (start, *start.parents):\n        if any((d / a).exists() for a in anchors):\n            return d\n    raise FileNotFoundError(f\"no project anchor {anchors} above {start}\")\n\n\ndata_raw_dir = proj_root() / \"data\" / \"raw\" / \"sanger_sequencing\"\ndata_processed = proj_root() / \"data\" / \"processed\" / \"01_sanger_seq\"\noutput_figures = proj_root() / \"output\" / \"figures\"\n\ndata_processed.mkdir(parents=True, exist_ok=True)\noutput_figures.mkdir(parents=True, exist_ok=True)\n\n\nRaw input. data_raw_dir contains one subdirectory per Macrogen sequencing order (&lt;date&gt;_&lt;vendor code&gt;) plus a single metadata table, mapping_table_tsv, with one row per physical trace. Its columns are macrogen_id, direction (F/R), subdir (which batch subdirectory the trace lives in), isolation_loc, isolation_plate_well, strainID, google_drive_id, and status. Every trace file is named &lt;subdir&gt;/&lt;macrogen_id&gt;_customer.ab1, so no filename parsing or separate plate-map join is needed - the mapping table supplies batch, direction, and strain identity directly per trace.\n\n\nShow/hide code\nmapping_table_tsv = data_raw_dir / \"mapping_table.tsv\"\n\n\nQuality-control parameters for the sliding-window trimming and the pass/fail call on each trimmed read.\n\n\nShow/hide code\nWINDOW = 20  # sliding-window width (bp) for quality trimming\nQUAL_THRESHOLD = 20  # min mean phred in the window to start/end the keep region\nMIN_LENGTH = 100  # min trimmed length (bp) to retain a read\nMEAN_QUAL_MIN = 20  # min mean phred of the trimmed read\nMAX_N_FRACTION = 0.05  # max fraction of ambiguous bases in the trimmed read\n\n\nScoring parameters for the local alignment used to merge the forward read against the reverse-complemented reverse read.\n\n\nShow/hide code\nALN_MATCH = 2\nALN_MISMATCH = -3\nALN_GAP_OPEN = -5\nALN_GAP_EXTEND = -2\nMIN_ALN_SCORE = 50  # below this, F and R are treated as non-overlapping",
     "crumbs": [
       "01.A Trace QC + assembly"
     ]
@@ -172,7 +172,7 @@
     "section": "",
     "text": "The consensus 16S sequences produced in 01.A Trace QC + assembly were submitted to the SILVA ACT web aligner with LCA classification against SILVA SSU and GTDB enabled. This notebook reads back the two downloaded ACT outputs — the classification result list and the guide tree — and joins them to the per-isolate assembly metadata to build the taxonomy table and summary figures.",
     "crumbs": [
-      "02.A Taxonomy + phylogeny"
+      "01.B Taxonomy + phylogeny"
     ]
   },
   {
@@ -180,9 +180,9 @@
     "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#libraries",
     "title": "Bacterial isolate taxonomy from SILVA ACT classification",
     "section": "1.1 Libraries",
-    "text": "1.1 Libraries\nLoads required libraries\n\n\nShow/hide code\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(ape)\nlibrary(treeio)\nlibrary(ggtree)\nlibrary(RColorBrewer)\nlibrary(Polychrome)\nlibrary(DT)\n\nsource(here::here(\"R\", \"plotting.R\"))",
+    "text": "1.1 Libraries\nLoads required libraries\n\n\nShow/hide code\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(ape)\nlibrary(treeio)\nlibrary(ggtree)\nlibrary(RColorBrewer)\nlibrary(Polychrome)\nlibrary(DT)\nlibrary(taxplore)\n\nsource(here::here(\"R\", \"plotting.R\"))",
     "crumbs": [
-      "02.A Taxonomy + phylogeny"
+      "01.B Taxonomy + phylogeny"
     ]
   },
   {
@@ -190,69 +190,79 @@
     "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#global-variables",
     "title": "Bacterial isolate taxonomy from SILVA ACT classification",
     "section": "1.2 Global variables",
-    "text": "1.2 Global variables\n\n\nShow/hide code\ndata_raw &lt;- here::here(\"data\", \"raw\", \"20260908_silva_act\")\ndata_processed_sanger &lt;- here::here(\"data\", \"processed\", \"01_sanger_seq\")\ndata_processed &lt;- here::here(\"data\", \"processed\", \"02_bac_taxonomy\")\n\nfs::dir_create(data_processed)\n\nsilva_resultlist &lt;- here::here(\n  data_raw,\n  \"arb-silva.de_align_resultlist_1508237.csv\"\n)\nsilva_tree_file &lt;- here::here(\n  data_raw,\n  \"arb-silva.de_2026-09-08_id1508237.tree\"\n)\n\noutgroup_genus &lt;- \"Lactococcus\"",
+    "text": "1.2 Global variables\n\n\nShow/hide code\ndata_raw &lt;- here::here(\n  \"data\",\n  \"raw\",\n  \"sanger_sequencing\",\n  \"20261006_arb_silva_cat\"\n)\ndata_processed_sanger &lt;- here::here(\"data\", \"processed\", \"01_sanger_seq\")\ndata_processed &lt;- here::here(\"data\", \"processed\", \"02_bac_taxonomy\")\n\nfs::dir_create(data_processed)\n\nsilva_resultlist &lt;- here::here(\n  data_raw,\n  \"arb-silva.de_align_resultlist_1512869.csv\"\n)\nsilva_tree_file &lt;- here::here(\n  data_raw,\n  \"arb-silva.de_2026-10-06_id1512869.tree\"\n)\n\noutgroup_genus &lt;- \"Lactococcus\"",
     "crumbs": [
-      "02.A Taxonomy + phylogeny"
+      "01.B Taxonomy + phylogeny"
+    ]
+  },
+  {
+    "objectID": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#krona-plots",
+    "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#krona-plots",
+    "title": "Bacterial isolate taxonomy from SILVA ACT classification",
+    "section": "6.1 Krona plots",
+    "text": "6.1 Krona plots\n\n\nShow/hide code\nmyopts &lt;- ChartDisplayOpts(\n  collapse = getOption(\"taxplore.display.collapse\", FALSE),\n  showMagnitude = getOption(\"taxplore.display.showMagnitude\", TRUE),\n  color = getOption(\"taxplore.display.color\"),\n  depth = getOption(\"taxplore.display.depth\"),\n  font = getOption(\"taxplore.display.font\", 11),\n  key = getOption(\"taxplore.display.key\", TRUE),\n  dataset = getOption(\"taxplore.display.dataset\"),\n  node = getOption(\"taxplore.display.node\")\n)\n\nclassified |&gt;\n  filter(location == \"Turun Linna\") |&gt;\n  dplyr::select(phylum, class, order, family, genus) |&gt;\n  taxplore::plot_krona(display = myopts)\n\n\n\n\n\n\n\n\nFigure 1: Combined Krona plot for all isolates recovered from Turun Linna\n\n\n\n\n\n\nShow/hide code\nclassified |&gt;\n  filter(location == \"Haunisten Allas\") |&gt;\n  dplyr::select(phylum, class, order, family, genus) |&gt;\n  taxplore::plot_krona(display = myopts)\n\n\n\n\n\n\n\n\nFigure 2: Combined Krona plot for all isolates recovered from Haunisten Allas\n\n\n\n\n\n\nShow/hide code\nclassified |&gt;\n  filter(location == \"Savojärvi\") |&gt;\n  dplyr::select(phylum, class, order, family, genus) |&gt;\n  taxplore::plot_krona(display = myopts)\n\n\n\n\n\n\n\n\nFigure 3: Combined Krona plot for all isolates recovered from Savojärvi",
+    "crumbs": [
+      "01.B Taxonomy + phylogeny"
     ]
   },
   {
     "objectID": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#genus-composition-across-all-isolates",
     "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#genus-composition-across-all-isolates",
     "title": "Bacterial isolate taxonomy from SILVA ACT classification",
-    "section": "4.1 Genus composition across all isolates",
-    "text": "4.1 Genus composition across all isolates\n\n\nShow/hide code\ngenus_counts &lt;- classified |&gt; count(genus, sort = TRUE)\n\ntop_genus &lt;- genus_counts |&gt; filter(!is.na(genus)) |&gt; slice_head(n = 12)\nother_n &lt;- genus_counts |&gt;\n  filter(!genus %in% top_genus$genus | is.na(genus)) |&gt;\n  summarise(n = sum(n)) |&gt;\n  pull(n)\n\ngenus_plot_df &lt;- bind_rows(top_genus, tibble(genus = \"Other\", n = other_n)) |&gt;\n  mutate(genus = fct_reorder(genus, n))\n\n\n\n\nShow/hide code\nggplot(genus_plot_df, aes(x = n, y = genus)) +\n  geom_col(fill = \"#1f78b4\") +\n  geom_text(aes(label = n), hjust = -0.3, size = 3) +\n  labs(x = \"Number of isolates\", y = NULL) +\n  scale_x_continuous(expand = expansion(mult = c(0, 0.1))) +\n  capit() +\n  theme_project()\n\n\n\n\n\n\n\n\nFigure 1: Genus composition across all 162 classified isolates. The 12 most abundant genera are shown individually; all remaining genera are pooled as “Other”.",
+    "section": "6.2 Genus composition across all isolates",
+    "text": "6.2 Genus composition across all isolates\nA shared palette for phylum, plus a helper that bins a taxonomic rank into its top categories (grouping everything else as \"Other\") and computes relative composition per sampling site. Plot styling (theme_project(), capit()) and the make_palette() generator live in R/plotting.R, shared with other notebooks in this project.\n\n\nShow/hide code\nphylum_colors &lt;- c(\n  \"Pseudomonadota\" = \"#1f78b4\",\n  \"Bacteroidota\" = \"#ff7f00\",\n  \"Bacillota\" = \"#33a02c\",\n  \"Deinococcota\" = \"#e31a1c\"\n)\n\ncomposition_by_site &lt;- function(\n  df,\n  rank_col,\n  top_n,\n  palette,\n  other_color = \"grey60\"\n) {\n  top_cats &lt;- df |&gt;\n    filter(!is.na(.data[[rank_col]])) |&gt;\n    count(.data[[rank_col]], sort = TRUE) |&gt;\n    slice_head(n = top_n) |&gt;\n    pull(1)\n\n  plot_df &lt;- df |&gt;\n    filter(!is.na(location)) |&gt;\n    mutate(\n      cat = if_else(.data[[rank_col]] %in% top_cats, .data[[rank_col]], \"Other\")\n    ) |&gt;\n    count(location, cat) |&gt;\n    group_by(location) |&gt;\n    mutate(pct = 100 * n / sum(n)) |&gt;\n    ungroup() |&gt;\n    mutate(cat = factor(cat, levels = c(top_cats, \"Other\")))\n\n  cat_colors &lt;- c(palette[top_cats], \"Other\" = other_color)\n\n  ggplot(plot_df, aes(x = location, y = pct, fill = cat)) +\n    geom_col(color = \"white\", linewidth = 0.3) +\n    scale_fill_manual(values = cat_colors, name = str_to_title(rank_col)) +\n    labs(x = NULL, y = \"% of isolates\") +\n    capit() +\n    theme_project() +\n    theme(\n      legend.position = \"right\",\n      legend.title = element_text(),\n      axis.text.x = element_text(angle = 20, hjust = 1)\n    )\n}\n\n\n\n\nShow/hide code\ngenus_counts &lt;- classified |&gt; count(genus, sort = TRUE)\n\ntop_genus &lt;- genus_counts |&gt; filter(!is.na(genus)) |&gt; slice_head(n = 12)\nother_n &lt;- genus_counts |&gt;\n  filter(!genus %in% top_genus$genus | is.na(genus)) |&gt;\n  summarise(n = sum(n)) |&gt;\n  pull(n)\n\ngenus_plot_df &lt;- bind_rows(top_genus, tibble(genus = \"Other\", n = other_n)) |&gt;\n  mutate(genus = fct_reorder(genus, n))\n\n\n\n\nShow/hide code\nggplot(genus_plot_df, aes(x = n, y = genus)) +\n  geom_col(fill = \"#1f78b4\") +\n  geom_text(aes(label = n), hjust = -0.3, size = 3) +\n  labs(x = \"Number of isolates\", y = NULL) +\n  scale_x_continuous(expand = expansion(mult = c(0, 0.1))) +\n  capit() +\n  theme_project()\n\n\n\n\n\n\n\n\nFigure 4: Genus composition across all 170 classified isolates. The 12 most abundant genera are shown individually; all remaining genera are pooled as “Other”.",
     "crumbs": [
-      "02.A Taxonomy + phylogeny"
+      "01.B Taxonomy + phylogeny"
     ]
   },
   {
     "objectID": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#isolates-per-sampling-site",
     "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#isolates-per-sampling-site",
     "title": "Bacterial isolate taxonomy from SILVA ACT classification",
-    "section": "4.2 Isolates per sampling site",
-    "text": "4.2 Isolates per sampling site\n\n\nShow/hide code\nsite_counts &lt;- classified |&gt;\n  mutate(location = replace_na(location, \"No site info\")) |&gt;\n  count(location)\n\n\n\n\nShow/hide code\nggplot(site_counts, aes(x = location, y = n)) +\n  geom_col(fill = \"#1b9e77\") +\n  geom_text(aes(label = n), vjust = -0.4, size = 3.5, fontface = \"bold\") +\n  labs(x = NULL, y = \"Number of isolates\") +\n  scale_y_continuous(expand = expansion(mult = c(0, 0.12))) +\n  capit() +\n  theme_project()\n\n\n\n\n\n\n\n\nFigure 2: Number of classified isolates recovered per sampling site. Isolates lacking plate-map location metadata are grouped as “No site info”.",
+    "section": "6.3 Isolates per sampling site",
+    "text": "6.3 Isolates per sampling site\n\n\nShow/hide code\nsite_counts &lt;- classified |&gt;\n  mutate(location = replace_na(location, \"No site info\")) |&gt;\n  count(location)\n\n\n\n\nShow/hide code\nggplot(site_counts, aes(x = location, y = n)) +\n  geom_col(fill = \"#1b9e77\") +\n  geom_text(aes(label = n), vjust = -0.4, size = 3.5, fontface = \"bold\") +\n  labs(x = NULL, y = \"Number of isolates\") +\n  scale_y_continuous(expand = expansion(mult = c(0, 0.12))) +\n  capit() +\n  theme_project()\n\n\n\n\n\n\n\n\nFigure 5: Number of classified isolates recovered per sampling site. Isolates lacking plate-map location metadata are grouped as “No site info”.",
     "crumbs": [
-      "02.A Taxonomy + phylogeny"
+      "01.B Taxonomy + phylogeny"
     ]
   },
   {
     "objectID": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#relative-composition-by-site-phylum",
     "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#relative-composition-by-site-phylum",
     "title": "Bacterial isolate taxonomy from SILVA ACT classification",
-    "section": "4.3 Relative composition by site — phylum",
-    "text": "4.3 Relative composition by site — phylum\n\n\nShow/hide code\ncomposition_by_site(classified, \"phylum\", top_n = 10, palette = phylum_colors)\n\n\n\n\n\n\n\n\nFigure 3: Relative phylum composition of classified isolates by sampling site.",
+    "section": "6.4 Relative composition by site — phylum",
+    "text": "6.4 Relative composition by site — phylum\n\n\nShow/hide code\ncomposition_by_site(classified, \"phylum\", top_n = 10, palette = phylum_colors)\n\n\n\n\n\n\n\n\nFigure 6: Relative phylum composition of classified isolates by sampling site.",
     "crumbs": [
-      "02.A Taxonomy + phylogeny"
+      "01.B Taxonomy + phylogeny"
     ]
   },
   {
     "objectID": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#relative-composition-by-site-family",
     "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#relative-composition-by-site-family",
     "title": "Bacterial isolate taxonomy from SILVA ACT classification",
-    "section": "4.4 Relative composition by site — family",
-    "text": "4.4 Relative composition by site — family\n\n\nShow/hide code\nfamily_cats &lt;- classified |&gt;\n  filter(!is.na(family)) |&gt;\n  distinct(family) |&gt;\n  pull(family)\ncomposition_by_site(\n  classified,\n  \"family\",\n  top_n = 15,\n  palette = make_palette(family_cats)\n)\n\n\n\n\n\n\n\n\nFigure 4: Relative family composition of classified isolates by sampling site. The 15 most abundant families are shown individually; all remaining families are pooled as “Other”.",
+    "section": "6.5 Relative composition by site — family",
+    "text": "6.5 Relative composition by site — family\n\n\nShow/hide code\nfamily_cats &lt;- classified |&gt;\n  filter(!is.na(family)) |&gt;\n  distinct(family) |&gt;\n  pull(family)\ncomposition_by_site(\n  classified,\n  \"family\",\n  top_n = 15,\n  palette = make_palette(family_cats)\n)\n\n\n\n\n\n\n\n\nFigure 7: Relative family composition of classified isolates by sampling site. The 15 most abundant families are shown individually; all remaining families are pooled as “Other”.",
     "crumbs": [
-      "02.A Taxonomy + phylogeny"
+      "01.B Taxonomy + phylogeny"
     ]
   },
   {
     "objectID": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#relative-composition-by-site-genus",
     "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#relative-composition-by-site-genus",
     "title": "Bacterial isolate taxonomy from SILVA ACT classification",
-    "section": "4.5 Relative composition by site — genus",
-    "text": "4.5 Relative composition by site — genus\n\n\nShow/hide code\ngenus_cats &lt;- classified |&gt;\n  filter(!is.na(genus)) |&gt;\n  distinct(genus) |&gt;\n  pull(genus)\ncomposition_by_site(\n  classified,\n  \"genus\",\n  top_n = 15,\n  palette = make_palette(genus_cats)\n)\n\n\n\n\n\n\n\n\nFigure 5: Relative genus composition of classified isolates by sampling site. The 15 most abundant genera are shown individually; all remaining genera are pooled as “Other”.",
+    "section": "6.6 Relative composition by site — genus",
+    "text": "6.6 Relative composition by site — genus\n\n\nShow/hide code\ngenus_cats &lt;- classified |&gt;\n  filter(!is.na(genus)) |&gt;\n  distinct(genus) |&gt;\n  pull(genus)\ncomposition_by_site(\n  classified,\n  \"genus\",\n  top_n = 15,\n  palette = make_palette(genus_cats)\n)\n\n\n\n\n\n\n\n\nFigure 8: Relative genus composition of classified isolates by sampling site. The 15 most abundant genera are shown individually; all remaining genera are pooled as “Other”.",
     "crumbs": [
-      "02.A Taxonomy + phylogeny"
+      "01.B Taxonomy + phylogeny"
     ]
   },
   {
     "objectID": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#phylogeny",
     "href": "scripts/02_bac_taxonomy/01_taxonomy_summary.html#phylogeny",
     "title": "Bacterial isolate taxonomy from SILVA ACT classification",
-    "section": "4.6 Phylogeny",
-    "text": "4.6 Phylogeny\nThe SILVA ACT guide tree places every isolate among several hundred SILVA reference sequences, which is useful for classification but too dense to read as a figure. For the phylogeny below we root the guide tree on an isolate classified as Lactococcus (the most basal genus recovered, Bacillota) and then prune it down to just our isolates, keeping the topology induced by the full guide tree alignment.\n\n\nShow/hide code\ntree &lt;- ape::read.tree(silva_tree_file)\n\noutgroup_tip &lt;- classified |&gt;\n  filter(genus == outgroup_genus, seq_id %in% tree$tip.label) |&gt;\n  pull(seq_id) |&gt;\n  pluck(1)\n\ntree_rooted &lt;- ape::root(tree, outgroup = outgroup_tip, resolve.root = TRUE)\n\nisolate_tips &lt;- intersect(tree_rooted$tip.label, classified$seq_id)\ntree_pruned &lt;- ape::keep.tip(tree_rooted, isolate_tips)\n\n\nEvery genus recovered among the tree’s isolates gets its own tip color below — nothing is pooled into an “Other” category. Class-level groups are additionally marked with a ggtree::geom_cladelab() bracket. geom_cladelab() needs a single tree node spanning exactly the tips being labeled, but because this is a guide tree built for alignment across hundreds of SILVA references rather than a phylogeny inferred from just our isolates, a class doesn’t always come out as a clean monophyletic clade after pruning. The helper below finds, for a given set of tips, the largest node whose full descendant set is “pure” (i.e. contains only members of that class and nothing else) — the clade that gets labeled — and reports how many of the class’s tips that clade actually covers.\n\n\nShow/hide code\nnode_tip_set &lt;- function(tree, node) {\n  ntip &lt;- length(tree$tip.label)\n  if (node &lt;= ntip) {\n    return(tree$tip.label[node])\n  }\n  ape::extract.clade(tree, node)$tip.label\n}\n\nlargest_pure_clade &lt;- function(tree, target_tips) {\n  n_total &lt;- length(target_tips)\n\n  if (n_total == 1) {\n    return(tibble(\n      node = which(tree$tip.label == target_tips),\n      n_covered = 1L,\n      n_total = 1L\n    ))\n  }\n\n  ntip &lt;- length(tree$tip.label)\n  internal_nodes &lt;- seq(ntip + 1, ntip + tree$Nnode)\n  sizes &lt;- map_int(internal_nodes, function(nd) {\n    desc &lt;- node_tip_set(tree, nd)\n    if (all(desc %in% target_tips)) length(desc) else NA_integer_\n  })\n\n  if (all(is.na(sizes))) {\n    return(tibble(node = NA_integer_, n_covered = 0L, n_total = n_total))\n  }\n\n  best_idx &lt;- which.max(sizes)\n  tibble(\n    node = internal_nodes[best_idx],\n    n_covered = sizes[best_idx],\n    n_total = n_total\n  )\n}\n\nclass_groups &lt;- classified |&gt;\n  filter(seq_id %in% isolate_tips, !is.na(class)) |&gt;\n  summarise(members = list(seq_id), .by = class) |&gt;\n  mutate(clade = map(members, ~ largest_pure_clade(tree_pruned, .x))) |&gt;\n  unnest(clade) |&gt;\n  select(-members) |&gt;\n  filter(!is.na(node))\n\n\n\n\nShow/hide code\nn_class_partial &lt;- sum(class_groups$n_covered != class_groups$n_total)\n\n\nAll 5 classes recovered are labeled; 1 of them (Bacilli, whose Lactococcus and Exiguobacterium members don’t share a single common ancestor exclusive of other classes here) is only partially monophyletic, so its bracket covers just the largest pure block.\n\n\nShow/hide code\nall_genus_tree &lt;- classified |&gt;\n  filter(seq_id %in% isolate_tips, !is.na(genus)) |&gt;\n  distinct(genus) |&gt;\n  arrange(genus) |&gt;\n  pull(genus)\n\ngenus_tree_pal &lt;- make_palette(all_genus_tree)\n\ntip_data &lt;- classified |&gt;\n  filter(seq_id %in% isolate_tips) |&gt;\n  transmute(label = seq_id, genus_grp = coalesce(genus, \"Unclassified\"))\n\n\n\n\nShow/hide code\nggtree(tree_pruned, layout = \"rectangular\") %&lt;+%\n  tip_data +\n  geom_tippoint(aes(color = genus_grp), size = 1.5) +\n  geom_tiplab(size = 2, hjust = -0.1) +\n  scale_color_manual(\n    values = c(genus_tree_pal, \"Unclassified\" = \"grey50\"),\n    name = \"Genus\"\n  ) +\n  geom_cladelab(\n    node = class_groups$node,\n    label = class_groups$class,\n    align = TRUE,\n    geom = \"text\",\n    offset = 0.9,\n    offset.text = 0.05,\n    fontsize = 3,\n    fontface = \"bold\",\n    barsize = 0.6\n  ) +\n  guides(color = guide_legend(ncol = 1, override.aes = list(size = 3))) +\n  ggplot2::xlim(NA, 4) +\n  geom_treescale(offset = 1)\n\n\n\n\n\n\n\n\nFigure 6: Phylogeny of the 162 classified isolates, pruned from the SILVA ACT guide tree and rooted on an isolate classified as Lactococcus. Tip points are colored by genus, with every genus recovered (21) shown individually; isolates with a domain-level SILVA classification but no resolved genus are labeled “Unclassified”. Bracketed labels on the right mark class-level membership (ggtree::geom_cladelab()). Scale bar represents substitutions per site.",
+    "section": "6.7 Phylogeny",
+    "text": "6.7 Phylogeny\nThe SILVA ACT guide tree for this job contains only our isolates (no SILVA reference sequences). For the phylogeny below we root the tree on an isolate classified as Lactococcus (Bacillota, the most basal phylum recovered).\n\n\nShow/hide code\ntree &lt;- ape::read.tree(silva_tree_file)\n\noutgroup_tip &lt;- classified |&gt;\n  filter(genus == outgroup_genus, seq_id %in% tree$tip.label) |&gt;\n  pull(seq_id) |&gt;\n  pluck(1)\n\ntree_rooted &lt;- ape::root(tree, outgroup = outgroup_tip, resolve.root = TRUE)\n\nisolate_tips &lt;- intersect(tree_rooted$tip.label, classified$seq_id)\ntree_pruned &lt;- ape::keep.tip(tree_rooted, isolate_tips)\n\n\nEvery family recovered among the tree’s isolates gets its own tip color below — nothing is pooled into an “Other” category. Isolates with a domain-level SILVA classification but no resolved family are labeled “Unclassified”.\n\n\nShow/hide code\nall_family_tree &lt;- classified |&gt;\n  filter(seq_id %in% isolate_tips, !is.na(family)) |&gt;\n  distinct(family) |&gt;\n  arrange(family) |&gt;\n  pull(family)\n\nfamily_tree_pal &lt;- make_palette(all_family_tree)\n\ntip_data &lt;- assemblies |&gt;\n  filter(seq_id %in% isolate_tips) |&gt;\n  select(seq_id) |&gt;\n  left_join(\n    classified |&gt; select(seq_id, family),\n    by = \"seq_id\"\n  ) |&gt;\n  transmute(\n    label = seq_id,\n    seq_id,\n    family_grp = coalesce(family, \"Unclassified\")\n  )\n\n\n\n\nShow/hide code\nggtree(tree_pruned, layout = \"rectangular\") %&lt;+%\n  tip_data +\n  geom_tippoint(aes(color = family_grp), size = 1.5) +\n  geom_tiplab(aes(label = seq_id), size = 2, hjust = -0.1) +\n  scale_color_manual(\n    values = c(family_tree_pal, \"Unclassified\" = \"grey50\"),\n    name = \"Family\"\n  ) +\n  guides(color = guide_legend(ncol = 1, override.aes = list(size = 3))) +\n  geom_treescale(offset = 1)\n\n\n\n\n\n\n\n\nFigure 9: Phylogeny of the 170 classified isolates, rooted on an isolate classified as Lactococcus. Tip points are colored by family, with every family recovered (15) shown individually; isolates with a domain-level SILVA classification but no resolved family are labeled “Unclassified”. Scale bar represents substitutions per site.",
     "crumbs": [
-      "02.A Taxonomy + phylogeny"
+      "01.B Taxonomy + phylogeny"
     ]
   },
   {
@@ -262,7 +272,7 @@
     "section": "",
     "text": "Lemna was grown in 24-well plates, either alone (CONTROL) or co-cultured with a single bacterial strain per well group. Each plate hosts up to three strains + plant, with each strain occupying 8 wells (biological replicates) on that plate. The same physical plate was imaged at day 0, day 4, and day 8, so a given well is tracked longitudinally across the three timepoints.",
     "crumbs": [
-      "04.A Read + format frond area"
+      "03.A Read + format frond area"
     ]
   },
   {
@@ -272,7 +282,7 @@
     "section": "0.1 Libraries",
     "text": "0.1 Libraries\n\n\nShow/hide code\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(readxl)",
     "crumbs": [
-      "04.A Read + format frond area"
+      "03.A Read + format frond area"
     ]
   },
   {
@@ -282,7 +292,7 @@
     "section": "0.2 Global variables",
     "text": "0.2 Global variables\n\n\nShow/hide code\ndata_raw &lt;- here::here(\n  \"data\",\n  \"raw\",\n  \"20260511_lemna_bacteria_coculture_frondarea\"\n)\ndata_processed &lt;- here::here(\n  \"data\",\n  \"processed\",\n  \"04_lemna_bacteria_coculture_frondarea\"\n)\n\nfs::dir_create(data_processed)",
     "crumbs": [
-      "04.A Read + format frond area"
+      "03.A Read + format frond area"
     ]
   }
 ]
